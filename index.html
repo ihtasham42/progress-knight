@@ -1,0 +1,195 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"> 
+    <title>Progress Knight</title>
+</head>
+<body class="w3-light-gray ">
+    <div class="w3-margin"> 
+        <h1>Progress Knight</h1>
+        <div style="width: 1220px; height: 600px"> 
+            <div class="w3-white w3-padding" style="width: 300px; height: 600px; float: left">
+                <span id="deathText">
+                    <div style="font-size: large; color: red">Age has caught up to you</div>
+                    <div class="sidebar-element" style="color: gray">Your age has met your lifespan, use the behelit to rebirth before you pass away</div>
+                </span>
+                <div class="" style="font-size: large">Age <span id="ageDisplay">14</span> Day <span id="dayDisplay">0</span></div>
+                <div class="sidebar-element" style="color: gray">Lifespan: <span id="lifespanDisplay">70</span> years</div>
+                <button id="pauseButton" class="w3-button button sidebar-element" onClick="setPause()">Pause</button>
+                <div style="font-size: large" id="coinDisplay">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div style="color: gray">Balance (in coins)</div>
+                <ul class="sidebar-element" style="padding-left: 20px;">
+                    <li><span style="color: green">Income/day: </span><span id="incomeDisplay">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </span></li>
+                    <li><span style="color: red">Expense/day: </span><span id="expenseDisplay">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </span></li>
+                </ul>
+                <div style="font-size: large"><span style="color: rgb(15, 105, 207)">Happiness: </span><span id="happinessDisplay"></span></div>
+                <div style="color: gray" class="sidebar-element">Affects xp gain</div>
+                <div style="font-size: large"><span style="color: rgb(114, 32, 182)">Debug speed: </span><span id="debugSpeedDisplay">1</span></div>
+                <input id="debugSlider" type="range" min="0" max="100" value="0">
+                <div style="color: gray" class="sidebar-element">Affects game speed</div>
+            </div>
+
+            <div class="w3-white w3-margin-left" style="width: 900px; height: 40px; float: left">
+                <div class="w3-button w3-bar-item" onClick="setTab('jobs')">Jobs</div>
+                <div class="w3-button w3-bar-item" onClick="setTab('skills')">Skills</div>
+                <div class="w3-button w3-bar-item" id="shopTabButton" onClick="setTab('shop')">Shop</div>
+                <div class="w3-button w3-bar-item" id="rebirthTabButton" onClick="setTab('rebirthOne')">Behelit</div>
+                <div class="w3-button w3-bar-item" onClick="setTab('settings')" style="float: right">Settings</div>
+            </div>
+
+            <div class="w3-white w3-margin-left w3-margin-top w3-padding scroll" style="width: 900px; height: 544px; float: left">
+                <template class="headerRowTaskTemplate">
+                    <tr>
+                        <th class="category" style="width: 250px">Job</th>
+                        <th>Level</th>
+                        <th class="valueType">Value type</th>
+                        <th>Xp/day</th>
+                        <th>Xp left</th>
+                        <th class="maxLevel">Max level</th>
+                    </tr>
+                </template>
+
+                <template class="headerRowItemTemplate">
+                    <tr>
+                        <th class="category" style="width: 250px">Item</th>
+                        <th style="width: 100px">Active</th>
+                        <th style="width: 250px">Effect</th>
+                        <th>Expense/day</th>
+                    </tr>
+                </template>
+
+                <template class="rowTaskTemplate">
+                    <tr>
+                        <td>
+                            <div class="progress-bar progressBar tooltip">
+                                <div class="progress-fill progressFill"></div>
+                                <div class="progress-text name">Task</div>
+                                <span class="tooltipText"></span>
+                            </div>
+                        </td>
+                        <td class="level">Level</td>
+                        <td class="value">
+                            <div class="effect"></div>
+                            <div class="income">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </td>
+                        <td class="xpGain">Xp/day</td>
+                        <td class="xpLeft">Xp left</td>
+                        <td class="maxLevel">Max level</td>
+                    </tr>
+                </template>
+
+                <template class="rowItemTemplate">
+                    <tr>
+                        <td>
+                            
+                            <button class="button item-button tooltip">
+                                <span class="name"></span>
+                                <span class="tooltipText">tooltip</span>
+                            </button>
+                            
+                        </td>
+                        <td>
+                            <div class="w3-border w3-circle" style="width: 40px; height: 40px; padding: 7px">
+                                <div class="active w3-circle" style="width: 24px; height: 24px;"></div>
+                            </div>
+                        </td>
+                        <td class="effect"></td>
+                        <td class="expense">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </td>
+                    </tr>
+                </template>
+
+                <template class="requiredRowTemplate">
+                    <td class="w3-text-gray" style="padding-left: 16px" colspan=5>
+                        Required: 
+                        <span class="value" colspan=5>
+                            <span class="levels"></span>
+                            <span class="coins">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </span>
+                        </span>
+                    </td> 
+                </template>
+
+                <div class="tab" id="jobs">
+                    <table id="jobTable" class="w3-table w3-bordered">
+                    </table>
+                </div>
+
+                <div class="tab" id="skills">
+                    <table id="skillTable" class="w3-table w3-bordered">
+                    </table>
+                </div>
+
+                <div class="tab" id="shop">
+                    <table id="itemTable" class="w3-table w3-bordered">
+                    </table>
+                </div>
+
+                <div class="tab" id="rebirthOne">
+                    <ul >
+                        <li id="rebirthNote1">
+                            (Work in progress) By rebirthing with the behelit, you will restart life again, losing all your levels and coins.
+                            However, you will gain xp multipliers for your jobs and skills equivalent to: the maximum level of the skill or job / 10.
+                            This means you will learn everything again much more quickly than you did in your previous life.
+                        </li>
+                        </br>
+                        <button class="w3-button button" onclick="rebirthOne()">Rebirth</button>
+                    </ul>
+                </div>
+
+                <div class="tab" id="settings">
+                    <ul>
+                        <li>
+                            <h2>Import/export save</h2>
+                            <button class="w3-button button" onClick="importGameData()">Import</button>
+                            <button class="w3-button button" onClick="exportGameData()">Export</button>
+                            <form style="margin-top: 16px"> 
+                                <input id="importExportBox" type="text" style="width:300px; height:30px"></input>
+                            </form>
+                        </li>
+                        <li>
+                            <h2>Hard reset game</h2>
+                            <button class="w3-button button w3-red" onClick="resetGameData()">Reset</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script type="text/javascript" src="js/classes.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
+
+
+</html>
