@@ -146,7 +146,7 @@ const tooltips = {
     "Battle tactics": "Create and revise battle strategies, improving experience gained in the military.",
     "Muscle memory": "Strengthen your neurons through habit and repetition, improving strength gains throughout the body.",
 
-    "Mana control": "Strengthen your mana channels throughout your body, increasing your magic learning speed.",
+    "Mana control": "Strengthen your mana channels throughout your body, allowing you to learn magical techniques much faster.",
     "Immortality": "Lengthen your lifespan through the means of magic. However, is this truly the immortality you have tried seeking...?",
 
     "Homeless": "Sleep on the uncomfortable, filthy streets while almost freezing to death every night. It cannot get any worse than this.",
@@ -863,3 +863,5 @@ document.getElementById("debugSlider").oninput = function() {
     debugSpeed = Math.pow(2, this.value / 12)
     document.getElementById("debugSpeedDisplay").textContent = debugSpeed.toFixed(1)
 }
+
+document.getElementById("debug").style.display = "none"
