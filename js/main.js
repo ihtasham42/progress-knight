@@ -30,6 +30,8 @@ var debugSpeed = 1
 
 var skillWithLowestMaxXp = null
 
+
+
 const autoPromoteElement = document.getElementById("autoPromote")
 const autoLearnElement = document.getElementById("autoLearn")
 
