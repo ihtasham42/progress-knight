@@ -92,7 +92,7 @@ class Item {
 
     getEffectDescription() {
         var description = this.baseData.description
-        if (itemCategories["Properties"].includes(this.name)) description = "happiness"
+        if (itemCategories["Properties"].includes(this.name)) description = "Happiness"
         var text = "x" + this.baseData.effect.toFixed(1) + " " + description
         return text
     }
@@ -150,7 +150,17 @@ class AgeRequirement extends Requirement {
     }
 
     getCondition(requirement) {
-        
         return daysToYears(gameData.days) >= requirement.requirement
     }
+}
+
+class EvilRequirement extends Requirement {
+    constructor(elements, requirements) {
+        super(elements, requirements)
+        this.type = "evil"
+    }
+
+    getCondition(requirement) {
+        return gameData.evil >= requirement.requirement
+    }    
 }
