@@ -70,18 +70,6 @@
                     <div style="color: gray" class="sidebar-element">Affects dark magic xp gain</div>
                 </span>
 
-                <!--
-                <span id="scheduling">
-                    <div style="font-size: large">Scheduling</div>
-                    <div style="color: gray" class="sidebar-element">Schedule time to jobs/skills</div>
-                    <span style="height: 30px"> 
-                        <p style="width: 5px">Jobs</br>(32%)</p>
-                        <input id="schedulingSlider" class="slider" type="range" min="0" max="100" value="0">
-                        <p style="width: 5px">Skills</br>(68%)</p>
-                    </span>
-                </span>
-                -->
-
                 <span id="timeWarping">
                     <div style="font-size: large"><span style="color: rgb(177, 30, 190)">Time warping: </span><span id="timeWarpingDisplay"></span></div>
                     <div style="color: gray">Affects game speed</div>
@@ -112,6 +100,7 @@
                         <th>Xp/day</th>
                         <th>Xp left</th>
                         <th class="maxLevel">Max level</th>
+                        <th class="shouldSkip">Skip</th>
                     </tr>
                 </template>
 
@@ -146,6 +135,7 @@
                         <td class="xpGain">Xp/day</td>
                         <td class="xpLeft">Xp left</td>
                         <td class="maxLevel">Max level</td>
+                        <td class="skip"><input type="checkbox" class="skipBox" name="vehicle1" value="Bike"></td>
                     </tr>
                 </template>
 

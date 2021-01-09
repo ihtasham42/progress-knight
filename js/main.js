@@ -25,6 +25,7 @@ var gameData = {
 }
 
 var tempData = {}
+var skipSkills = []
 
 var debugSpeed = 1
 
@@ -373,6 +374,18 @@ function setTask(taskName) {
     task instanceof Job ? gameData.currentJob = task : gameData.currentSkill = task
 }
 
+function toggleSkip(taskName) {
+
+    let index = skipSkills.indexOf(taskName)
+
+    if (index !== -1){
+        skipSkills.splice(index, 1)
+    } else {
+        skipSkills.push(taskName)
+    }
+
+}
+
 function setProperty(propertyName) {
     var property = gameData.itemData[propertyName]
     gameData.currentProperty = property
@@ -435,6 +448,7 @@ function createRow(templates, name, categoryName, categoryType) {
     row.id = "row " + name
     if (categoryType != itemCategories) {
         row.getElementsByClassName("progressBar")[0].onclick = function() {setTask(name)}
+        row.getElementsByClassName("skipBox")[0].onclick = function() {toggleSkip(name)}
     } else {
         row.getElementsByClassName("button")[0].onclick = categoryName == "Properties" ? function() {setProperty(name)} : function() {setMisc(name)}
     }
@@ -699,7 +713,7 @@ function setSkillWithLowestMaxXp() {
     for (skillName in gameData.taskData) {
         var skill = gameData.taskData[skillName]
         var requirement = gameData.requirements[skillName]
-        if (skill instanceof Skill && requirement.isCompleted()) {
+        if (skill instanceof Skill && requirement.isCompleted() && !skipSkills.includes(skill.name)) {
             xpDict[skill.name] = skill.level //skill.getMaxXp() / skill.getXpGain()
         }
     }
@@ -727,6 +741,7 @@ function getKeyOfLowestValueFromDict(dict) {
 
 function autoLearn() {
     if (!autoLearnElement.checked || !skillWithLowestMaxXp) return
+
     gameData.currentSkill = skillWithLowestMaxXp
 }
 
