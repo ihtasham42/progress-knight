@@ -2,15 +2,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+    <link rel="stylesheet" type="text/css" href="css/dark.css">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"> 
     <title>Progress Knight</title>
 </head>
-<body class="w3-light-gray">
+<body id="body" class="dark">
     <div class="w3-margin"> 
         <h1>Progress Knight</h1>
         <div style="width: 1220px; height: 600px"> 
-            <div class="w3-white w3-padding scroll" style="width: 300px; height: 600px; float: left">
+            <div class="panel w3-padding" style="width: 300px; height: auto; float: left">
                 <span id="deathText">
                     <div style="font-size: large; color: red">Age has caught up to you</div>
                     <div class="sidebar-element" style="color: gray">Your age has met your lifespan, use the amulet to rebirth before you pass away</div>
@@ -42,7 +43,7 @@
                 <div style="color: gray">Balance (in coins)</div>
 
                 <ul class="sidebar-element" style="padding-left: 20px;">
-                    <li><span style="color: rgb(22, 125, 173)">Net/day: </span ><b id="signDisplay"></b><span id="netDisplay">
+                    <li><span style="color: rgb(9, 160, 230)">Net/day: </span ><b id="signDisplay"></b><span id="netDisplay">
                         <span></span>
                         <span></span>
                         <span></span>
@@ -61,6 +62,20 @@
                         <span></span>
                     </span></li>
                 </ul>
+
+                <span id="quickTaskDisplay">
+                    <div style="width: 230px" class="small-margin inline job progress-bar progressBar">
+                        <div class="progress-fill progressFill" style="background-color:rgb(225, 165, 0)"></div>
+                        <div class="progress-text name">Task</div>
+                    </div>
+                    <div class="sidebar-element" style="color: gray">Current job</div>
+
+                    <div style="width: 230px" class="small-margin skill progress-bar progressBar">
+                        <div class="progress-fill progressFill" style="background-color:rgb(225, 165, 0)"></div>
+                        <div class="progress-text name">Task</div>              
+                    </div>
+                    <div class="sidebar-element" style="color: gray">Current skill</div>
+                </span>
 
                 <div style="font-size: large"><span style="color: rgb(15, 105, 207)">Happiness: </span><span id="happinessDisplay"></span></div>
                 <div style="color: gray" class="sidebar-element">Affects all xp gain</div>
@@ -83,19 +98,13 @@
                 -->
 
                 <span id="timeWarping">
-                    <div style="font-size: large"><span style="color: rgb(177, 30, 190)">Time warping: </span><span id="timeWarpingDisplay"></span></div>
+                    <div style="font-size: large"><span style="color: rgb(204, 34, 219)">Time warping: </span><span id="timeWarpingDisplay"></span></div>
                     <div style="color: gray">Affects game speed</div>
                     <button id="timeWarpingButton" class="w3-button button sidebar-element" style="margin-top: 5px; width:150px" onClick="setTimeWarping()">Enable warp</button>
                 </span>
-
-                <span id="debug">
-                    <div style="font-size: large"><span style="color: rgb(114, 32, 182)">Debug speed: </span><span id="debugSpeedDisplay">1</span></div>
-                    <input id="debugSlider" type="range" min="0" max="100" value="0">
-                    <div style="color: gray" class="sidebar-element">Affects game speed</div>
-                </span>
             </div>
 
-            <div class="w3-white w3-margin-left" style="width: 900px; height: 40px; float: left">
+            <div class="panel w3-margin-left" style="width: 900px; height: 40px; float: left">
                 <div class="w3-button w3-bar-item tabButton" id="jobTabButton" onClick="setTab(this, 'jobs')">Jobs</div>
                 <div class="w3-button w3-bar-item tabButton" onClick="setTab(this, 'skills')">Skills</div>
                 <div class="w3-button w3-bar-item tabButton" id="shopTabButton" onClick="setTab(this, 'shop')">Shop</div>
@@ -103,7 +112,7 @@
                 <div class="w3-button w3-bar-item tabButton" onClick="setTab(this, 'settings')" style="float: right">Settings</div>
             </div>
 
-            <div class="w3-white w3-margin-left w3-margin-top w3-padding scroll" style="width: 900px; height: 544px; float: left">
+            <div class="panel w3-margin-left w3-margin-top w3-padding" style="width: 900px; height: auto; float: left">
                 <template class="headerRowTaskTemplate">
                     <tr>
                         <th class="category" style="width: 250px">Job</th>
@@ -112,6 +121,7 @@
                         <th>Xp/day</th>
                         <th>Xp left</th>
                         <th class="maxLevel">Max level</th>
+                        <th class="skipSkill">Skip</th>
                     </tr>
                 </template>
 
@@ -146,6 +156,9 @@
                         <td class="xpGain">Xp/day</td>
                         <td class="xpLeft">Xp left</td>
                         <td class="maxLevel">Max level</td>
+                        <td class="skipSkill">
+                            <input class="checkbox" type="checkbox"></input>
+                        </td>
                     </tr>
                 </template>
 
@@ -226,7 +239,7 @@
                             </div>
                             <i style="color: grey">
                                 By touching the eyeball, you will be reborn and have to restart life again, losing all your levels and coins.
-                                However, you will gain <b>xp multipliers</b> for your jobs and skills equivalent to: <b>the maximum level of the skill or job / 10.</b>
+                                However, you will gain <b>xp multipliers</b> for your jobs and skills equivalent to: <b>1 + the max level of the skill or job / 10.</b>
                                 This means you will learn everything again much more quickly than you did in your previous life. <span style="color: rgb(200, 0, 0)">
                                 Something tells you that the amulet might transform even further after living for <b>2 whole centuries</b>...</span>
                             </i>
@@ -260,6 +273,16 @@
                             <form style="margin-top: 16px"> 
                                 <input id="importExportBox" type="text" style="width:300px; height:30px"></input>
                             </form>
+                        </li>
+                        <li>
+                            <h2>Toggle light/dark mode</h2>
+                            <button class="w3-button button" onClick="setLightDarkMode()">Toggle</button>
+                        </li>
+                        <li>
+                            <h2>Join the discord community!</h2>
+                            <a href="https://discord.gg/fTRS4pHGka" target="_blank">
+                                <img src="https://cdn.icon-icons.com/icons2/2108/PNG/512/discord_icon_130958.png" width="100" height="100"></img>
+                            </a>
                         </li>
                         <li>
                             <h2>Hard reset game</h2>

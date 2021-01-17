@@ -1,0 +1,23 @@
+.dark {
+    background-color: rgb(32, 32, 32);
+    color: white
+}
+
+.dark .panel {
+    background-color: rgb(46, 46, 46);
+}
+
+.dark .button {
+    background-color: rgb(31, 31, 31);
+    border-color: white !important;
+    color: white !important
+}
+
+.dark .w3-bordered tr, .w3-table-all tr {
+    border-bottom: 1px solid rgb(73, 73, 73);
+}
+
+.dark .w3-button:hover {
+    background-color: rgb(82, 82, 82) !important;
+    color: white !important
+}

@@ -1,10 +1,3 @@
-
-//Complete second rebirth descriptions
-//Automation
-//Complete third prestige layer 
-
-//Mini: checkbox
-
 var gameData = {
     taskData: {},
     itemData: {},
@@ -26,11 +19,7 @@ var gameData = {
 
 var tempData = {}
 
-var debugSpeed = 1
-
 var skillWithLowestMaxXp = null
-
-
 
 const autoPromoteElement = document.getElementById("autoPromote")
 const autoLearnElement = document.getElementById("autoLearn")
@@ -41,7 +30,7 @@ const baseLifespan = 365 * 70
 
 const baseGameSpeed = 4
 
-const permanentUnlocks = ["Scheduling", "Shop", "Automation"]
+const permanentUnlocks = ["Scheduling", "Shop", "Automation", "Quick task display"]
 
 const jobBaseData = {
     "Beggar": {name: "Beggar", maxXp: 50, income: 5},
@@ -80,13 +69,16 @@ const skillBaseData = {
 
     "Mana control": {name: "Mana control", maxXp: 100, effect: 0.01, description: "T.A.A. xp"},
     "Immortality": {name: "Immortality", maxXp: 100, effect: 0.01, description: "Longer lifespan"},
+    "Time warping": {name: "Time warping", maxXp: 100, effect: 0.01, description: "Gamespeed"},
     "Super immortality": {name: "Super immortality", maxXp: 100, effect: 0.01, description: "Longer lifespan"},
 
     "Dark influence": {name: "Dark influence", maxXp: 100, effect: 0.01, description: "All xp"},
     "Evil control": {name: "Evil control", maxXp: 100, effect: 0.01, description: "Evil gain"},
-    "Demon training": {name: "Demon training", maxXp: 100, effect: 0.02, description: "All xp"},
-    "Blood meditation": {name: "Blood meditation", maxXp: 100, effect: 0.02, description: "Evil gain"},
-    "Time warping": {name: "Time warping", maxXp: 100, effect: 0.01, description: "Gamespeed"},
+    "Intimidation": {name: "Intimidation", maxXp: 100, effect: -0.01, description: "Expenses"},
+    "Demon training": {name: "Demon training", maxXp: 100, effect: 0.01, description: "All xp"},
+    "Blood meditation": {name: "Blood meditation", maxXp: 100, effect: 0.01, description: "Evil gain"},
+    "Demon's wealth": {name: "Demon's wealth", maxXp: 100, effect: 0.002, description: "Job pay"},
+    
 }
 
 const itemBaseData = {
@@ -118,8 +110,8 @@ const jobCategories = {
 const skillCategories = {
     "Fundamentals": ["Concentration", "Productivity", "Bargaining", "Meditation"],
     "Combat": ["Strength", "Battle tactics", "Muscle memory"],
-    "Magic": ["Mana control", "Immortality", "Super immortality"],
-    "Dark magic": ["Dark influence", "Evil control", "Demon training", "Blood meditation", "Time warping"]
+    "Magic": ["Mana control", "Immortality", "Time warping", "Super immortality"],
+    "Dark magic": ["Dark influence", "Evil control", "Intimidation", "Demon training", "Blood meditation", "Demon's wealth"]
 }
 
 const itemCategories = {
@@ -145,7 +137,7 @@ const tooltips = {
     "Fisherman": "Reel in various fish and sell them for a handful of coins. A relaxing but still a poor paying job.",
     "Miner": "Delve into dangerous caverns and mine valuable ores. The pay is quite meager compared to the risk involved.",
     "Blacksmith": "Smelt ores and carefully forge weapons for the military. A respectable and OK paying commoner job.",
-    "Merchant": "Travel from town to town, bartering fine goods. The job pays decently well and is alot less manually-intensive.",
+    "Merchant": "Travel from town to town, bartering fine goods. The job pays decently well and is a lot less manually-intensive.",
 
     "Squire": "Carry around your knight's shield and sword along the battlefield. Very meager pay but the work experience is quite valuable.",
     "Footman": "Put down your life to battle with enemy soldiers. A courageous, respectable job but you are still worthless in the grand scheme of things.",
@@ -163,24 +155,26 @@ const tooltips = {
     "Master wizard": "Blessed with unparalleled talent, perform unbelievable feats with magic at will. It is said that a master wizard has enough destructive power to wipe an empire off the map.",
     "Chairman": "Spend your days administrating The Arcane Association and investigate the concepts of true immortality. The chairman receives ludicrous amounts of pay daily.",
 
-    "Concentration": "Improve your learning speed through practicing intense concentration activities.",
-    "Productivity": "Learn to procastinate less at work and receive more job experience per day.",
+    "Concentration": "Improve your learning speed through practising intense concentration activities.",
+    "Productivity": "Learn to procrastinate less at work and receive more job experience per day.",
     "Bargaining": "Study the tricks of the trade and persuasive skills to lower any type of expense.",
     "Meditation": "Fill your mind with peace and tranquility to tap into greater happiness from within.",
 
-    "Strength": "Condition your body and strength to harsh training. Stronger individuals are paid more in the military",
+    "Strength": "Condition your body and strength through harsh training. Stronger individuals are paid more in the military.",
     "Battle tactics": "Create and revise battle strategies, improving experience gained in the military.",
     "Muscle memory": "Strengthen your neurons through habit and repetition, improving strength gains throughout the body.",
 
     "Mana control": "Strengthen your mana channels throughout your body, aiding you in becoming a more powerful magical user.",
     "Immortality": "Lengthen your lifespan through the means of magic. However, is this truly the immortality you have tried seeking for...?",
+    "Time warping": "Bend space and time through forbidden techniques, resulting in a faster gamespeed.",
     "Super immortality": "Through harnessing ancient, forbidden techniques, lengthen your lifespan drastically beyond comprehension.",
 
     "Dark influence": "Encompass yourself with formidable power bestowed upon you by evil, allowing you to pick up and absorb any job or skill with ease.",
     "Evil control": "Tame the raging and growing evil within you, improving evil gain in-between rebirths.",
+    "Intimidation": "Learn to emit a devilish aura which strikes extreme fear into other merchants, forcing them to give you heavy discounts.",
     "Demon training": "A mere human body is too feeble and weak to withstand evil. Train with forbidden methods to slowly manifest into a demon, capable of absorbing knowledge rapidly.",
     "Blood meditation": "Grow and culture the evil within you through the sacrifise of other living beings, drastically increasing evil gain.",
-    "Time warping": "Bend space and time through forbidden techniques, resulting in a faster gamespeed.",
+    "Demon's wealth": "Through the means of dark magic, multiply the raw matter of the coins you receive from your job.",
 
     "Homeless": "Sleep on the uncomfortable, filthy streets while almost freezing to death every night. It cannot get any worse than this.",
     "Tent": "A thin sheet of tattered cloth held up by a couple of feeble, wooden sticks. Horrible living conditions but at least you have a roof over your head.",
@@ -191,7 +185,7 @@ const tooltips = {
     "Small palace": "A very rich and meticulously built structure rimmed with fine metals such as silver. Extremely high expenses to maintain for a lavish lifestyle.",
     "Grand palace": "A grand residence completely composed of gold and silver. Provides the utmost luxurious and comfortable living conditions possible for a ludicrous price.",
 
-    "Book": "A place to write down all your thoughts and discoveries, allowing you to learn alot more quickly.",
+    "Book": "A place to write down all your thoughts and discoveries, allowing you to learn a lot more quickly.",
     "Dumbbells": "Heavy tools used in strenuous exercise to toughen up and accumulate strength even faster than before. ",
     "Personal squire": "Assists you in completing day to day activities, giving you more time to be productive at work.",
     "Steel longsword": "A fine blade used to slay enemies even quicker in combat and therefore gain more experience.",
@@ -204,8 +198,6 @@ const tooltips = {
 const units = ["", "k", "M", "B", "T", "q", "Q", "Sx", "Sp", "Oc"];
 
 const jobTabButton = document.getElementById("jobTabButton")
-
-
 
 function getBaseLog(x, y) {
     return Math.log(y) / Math.log(x);
@@ -235,6 +227,7 @@ function addMultipliers() {
 
         if (task instanceof Job) {
             task.incomeMultipliers.push(task.getLevelMultiplier.bind(task))
+            task.incomeMultipliers.push(getBindedTaskEffect("Demon's wealth"))
             task.xpMultipliers.push(getBindedTaskEffect("Productivity"))
             task.xpMultipliers.push(getBindedItemEffect("Personal squire"))    
         } else if (task instanceof Skill) {
@@ -264,6 +257,7 @@ function addMultipliers() {
         var item = gameData.itemData[itemName]
         item.expenseMultipliers = []
         item.expenseMultipliers.push(getBindedTaskEffect("Bargaining"))
+        item.expenseMultipliers.push(getBindedTaskEffect("Intimidation"))
     }
 }
 
@@ -272,6 +266,19 @@ function setCustomEffects() {
     bargaining.getEffect = function() {
         var multiplier = 1 - getBaseLog(7, bargaining.level + 1) / 10
         if (multiplier < 0.1) {multiplier = 0.1}
+        return multiplier
+    }
+
+    var intimidation = gameData.taskData["Intimidation"]
+    intimidation.getEffect = function() {
+        var multiplier = 1 - getBaseLog(7, intimidation.level + 1) / 10
+        if (multiplier < 0.1) {multiplier = 0.1}
+        return multiplier
+    }
+
+    var timeWarping = gameData.taskData["Time warping"]
+    timeWarping.getEffect = function() {
+        var multiplier = 1 + getBaseLog(13, timeWarping.level + 1) 
         return multiplier
     }
 
@@ -318,7 +325,7 @@ function getEvilGain() {
 function getGameSpeed() {
     var timeWarping = gameData.taskData["Time warping"]
     var timeWarpingSpeed = gameData.timeWarpingEnabled ? timeWarping.getEffect() : 1
-    var gameSpeed = baseGameSpeed * +!gameData.paused * +isAlive() * timeWarpingSpeed * debugSpeed
+    var gameSpeed = baseGameSpeed * +!gameData.paused * +isAlive() * timeWarpingSpeed
     return gameSpeed
 }
 
@@ -465,6 +472,14 @@ function createAllRows(categoryType, tableId) {
     }
 }
 
+function updateQuickTaskDisplay(taskType) {
+    var currentTask = taskType == "job" ? gameData.currentJob : gameData.currentSkill
+    var quickTaskDisplayElement = document.getElementById("quickTaskDisplay")
+    var progressBar = quickTaskDisplayElement.getElementsByClassName(taskType)[0]
+    progressBar.getElementsByClassName("name")[0].textContent = currentTask.name + " lvl " + currentTask.level
+    progressBar.getElementsByClassName("progressFill")[0].style.width = currentTask.xp / currentTask.getMaxXp() * 100 + "%"
+}
+
 function updateRequiredRows(data, categoryType) {
     var requiredRows = document.getElementsByClassName("requiredRow")
     for (requiredRow of requiredRows) {
@@ -551,6 +566,10 @@ function updateTaskRows() {
         var valueElement = row.getElementsByClassName("value")[0]
         valueElement.getElementsByClassName("income")[0].style.display = task instanceof Job
         valueElement.getElementsByClassName("effect")[0].style.display = task instanceof Skill
+
+        var skipSkillElement = row.getElementsByClassName("skipSkill")[0]
+        skipSkillElement.style.display = task instanceof Skill && autoLearnElement.checked ? "block" : "none"
+
         if (task instanceof Job) {
             formatCoins(task.getIncome(), valueElement.getElementsByClassName("income")[0])
         } else {
@@ -579,6 +598,8 @@ function updateHeaderRows(categories) {
         var headerRow = document.getElementsByClassName(className)[0]
         var maxLevelElement = headerRow.getElementsByClassName("maxLevel")[0]
         gameData.rebirthOneCount > 0 ? maxLevelElement.classList.remove("hidden") : maxLevelElement.classList.add("hidden")
+        var skipSkillElement = headerRow.getElementsByClassName("skipSkill")[0]
+        skipSkillElement.style.display = categories == skillCategories && autoLearnElement.checked ? "block" : "none"
     }
 }
 
@@ -693,15 +714,26 @@ function autoPromote() {
     if (requirement.isCompleted()) gameData.currentJob = nextEntity
 }
 
+function checkSkillSkipped(skill) {
+    var row = document.getElementById("row " + skill.name)
+    var isSkillSkipped = row.getElementsByClassName("checkbox")[0].checked
+    return isSkillSkipped
+}
+
 function setSkillWithLowestMaxXp() {
     var xpDict = {}
 
     for (skillName in gameData.taskData) {
         var skill = gameData.taskData[skillName]
         var requirement = gameData.requirements[skillName]
-        if (skill instanceof Skill && requirement.isCompleted()) {
+        if (skill instanceof Skill && requirement.isCompleted() && !checkSkillSkipped(skill)) {
             xpDict[skill.name] = skill.level //skill.getMaxXp() / skill.getXpGain()
         }
+    }
+
+    if (xpDict == {}) {
+        skillWithLowestMaxXp = gameData.taskData["Concentration"]
+        return
     }
 
     var skillName = getKeyOfLowestValueFromDict(xpDict)
@@ -803,6 +835,11 @@ function getItemElement(itemName) {
 function getElementsByClass(className) {
     var elements = document.getElementsByClassName(removeSpaces(className))
     return elements
+}
+
+function setLightDarkMode() {
+    var body = document.getElementById("body")
+    body.classList.contains("dark") ? body.classList.remove("dark") : body.classList.add("dark")
 }
 
 function removeSpaces(string) {
@@ -926,6 +963,10 @@ function replaceSaveDict(dict, saveDict) {
     for (key in dict) {
         if (!(key in saveDict)) {
             saveDict[key] = dict[key]
+        } else if (dict == gameData.requirements) {
+            if (saveDict[key].type != tempData["requirements"][key].type) {
+                saveDict[key] = tempData["requirements"][key]
+            }
         }
     }
 
@@ -963,6 +1004,8 @@ function updateUI() {
     updateRequiredRows(gameData.itemData, itemCategories)
     updateHeaderRows(jobCategories)
     updateHeaderRows(skillCategories)
+    updateQuickTaskDisplay("job")
+    updateQuickTaskDisplay("skill")
     hideEntities()
     updateText()  
 }
@@ -1020,8 +1063,9 @@ gameData.requirements = {
     "Rebirth note 2": new AgeRequirement([document.getElementById("rebirthNote2")], [{requirement: 65}]),
     "Rebirth note 3": new AgeRequirement([document.getElementById("rebirthNote3")], [{requirement: 200}]),
     "Evil info": new EvilRequirement([document.getElementById("evilInfo")], [{requirement: 1}]),
-    "Time warping info": new EvilRequirement([document.getElementById("timeWarping")], [{requirement: 1000}]),
+    "Time warping info": new TaskRequirement([document.getElementById("timeWarping")], [{task: "Mage", requirement: 10}]),
     "Automation": new AgeRequirement([document.getElementById("automation")], [{requirement: 20}]),
+    "Quick task display": new AgeRequirement([document.getElementById("quickTaskDisplay")], [{requirement: 20}]),
 
     //Common work
     "Beggar": new TaskRequirement([getTaskElement("Beggar")], []),
@@ -1031,7 +1075,7 @@ gameData.requirements = {
     "Blacksmith": new TaskRequirement([getTaskElement("Blacksmith")], [{task: "Strength", requirement: 30}, {task: "Miner", requirement: 10}]),
     "Merchant": new TaskRequirement([getTaskElement("Merchant")], [{task: "Bargaining", requirement: 50}, {task: "Blacksmith", requirement: 10}]),
 
-    //Military
+    //Military 
     "Squire": new TaskRequirement([getTaskElement("Squire")], [{task: "Strength", requirement: 5}]),
     "Footman": new TaskRequirement([getTaskElement("Footman")], [{task: "Strength", requirement: 20}, {task: "Squire", requirement: 10}]),
     "Veteran footman": new TaskRequirement([getTaskElement("Veteran footman")], [{task: "Battle tactics", requirement: 40}, {task: "Footman", requirement: 10}]),
@@ -1063,14 +1107,16 @@ gameData.requirements = {
     //Magic
     "Mana control": new TaskRequirement([getTaskElement("Mana control")], [{task: "Concentration", requirement: 200}, {task: "Meditation", requirement: 200}]),
     "Immortality": new TaskRequirement([getTaskElement("Immortality")], [{task: "Apprentice mage", requirement: 10}]),
+    "Time warping": new TaskRequirement([getTaskElement("Time warping")], [{task: "Mage", requirement: 10}]),
     "Super immortality": new TaskRequirement([getTaskElement("Super immortality")], [{task: "Chairman", requirement: 1000}]),
 
     //Dark magic
     "Dark influence": new EvilRequirement([getTaskElement("Dark influence")], [{requirement: 1}]),
-    "Evil control": new EvilRequirement([getTaskElement("Evil control")], [{requirement: 2}]),
+    "Evil control": new EvilRequirement([getTaskElement("Evil control")], [{requirement: 1}]),
+    "Intimidation": new EvilRequirement([getTaskElement("Intimidation")], [{requirement: 1}]),
     "Demon training": new EvilRequirement([getTaskElement("Demon training")], [{requirement: 25}]),
     "Blood meditation": new EvilRequirement([getTaskElement("Blood meditation")], [{requirement: 75}]),
-    "Time warping": new EvilRequirement([getTaskElement("Time warping")], [{requirement: 1000}]),
+    "Demon's wealth": new EvilRequirement([getTaskElement("Demon's wealth")], [{requirement: 500}]),
 
     //Properties
     "Homeless": new CoinRequirement([getItemElement("Homeless")], [{requirement: 0}]),
@@ -1110,10 +1156,3 @@ update()
 setInterval(update, 1000 / updateSpeed)
 setInterval(saveGameData, 3000)
 setInterval(setSkillWithLowestMaxXp, 1000)
-
-document.getElementById("debugSlider").oninput = function() {
-    debugSpeed = Math.pow(2, this.value / 12)
-    document.getElementById("debugSpeedDisplay").textContent = debugSpeed.toFixed(1)
-}
-
-document.getElementById("debug").style.display = "none"
