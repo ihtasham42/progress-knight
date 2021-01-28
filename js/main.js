@@ -446,6 +446,7 @@ function createRow(templates, name, categoryName, categoryType) {
     row.getElementsByClassName("name")[0].textContent = name
     row.getElementsByClassName("tooltipText")[0].textContent = tooltips[name]
     row.id = "row " + name
+
     if (categoryType != itemCategories) {
         row.getElementsByClassName("progressBar")[0].onclick = function() {setTask(name)}
         row.getElementsByClassName("skipBox")[0].onclick = function() {toggleSkip(name)}
@@ -456,25 +457,28 @@ function createRow(templates, name, categoryName, categoryType) {
     return row
 }
 
+
 function createAllRows(categoryType, tableId) {
-    var templates = {
+    let categoryName;
+
+    const templates = {
         headerRow: document.getElementsByClassName(categoryType == itemCategories ? "headerRowItemTemplate" : "headerRowTaskTemplate")[0],
         row: document.getElementsByClassName(categoryType == itemCategories ? "rowItemTemplate" : "rowTaskTemplate")[0],
     }
 
-    var table = document.getElementById(tableId)
+    let table = document.getElementById(tableId)
 
     for (categoryName in categoryType) {
-        var headerRow = createHeaderRow(templates, categoryType, categoryName)
+        let headerRow = createHeaderRow(templates, categoryType, categoryName)
         table.appendChild(headerRow)
         
-        var category = categoryType[categoryName]
+        const category = categoryType[categoryName]
         category.forEach(function(name) {
-            var row = createRow(templates, name, categoryName, categoryType)
+            let row = createRow(templates, name, categoryName, categoryType)
             table.appendChild(row)       
         })
 
-        var requiredRow = createRequiredRow(categoryName)
+        const requiredRow = createRequiredRow(categoryName)
         table.append(requiredRow)
     }
 }
@@ -560,7 +564,13 @@ function updateTaskRows() {
 
         var progressFill = row.getElementsByClassName("progressFill")[0]
         progressFill.style.width = task.xp / task.getMaxXp() * 100 + "%"
-        task == gameData.currentJob || task == gameData.currentSkill ? progressFill.classList.add("current") : progressFill.classList.remove("current")
+        if(task == gameData.currentJob || task == gameData.currentSkill){
+            progressFill.classList.add("current")
+            progressFill.classList.add("current-pb")
+        } else {
+            progressFill.classList.remove("current")
+            progressFill.classList.remove("current-pb")
+        }
 
         var valueElement = row.getElementsByClassName("value")[0]
         valueElement.getElementsByClassName("income")[0].style.display = task instanceof Job
@@ -979,7 +989,7 @@ function updateUI() {
     updateHeaderRows(jobCategories)
     updateHeaderRows(skillCategories)
     hideEntities()
-    updateText()  
+    updateText()
 }
 
 function update() {
@@ -1008,6 +1018,18 @@ function importGameData() {
 function exportGameData() {
     var importExportBox = document.getElementById("importExportBox")
     importExportBox.value = window.btoa(JSON.stringify(gameData))
+}
+
+function toggleDarkMode(){
+    if (document.body.classList.contains('dark')) {
+        document.body.classList.remove("dark")
+        document.body.classList.add("w3-light-gray")
+
+    } else {
+        document.body.classList.add("dark");
+        document.body.classList.remove("w3-light-gray")
+    }
+
 }
 
 //Init

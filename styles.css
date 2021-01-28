@@ -10,6 +10,7 @@ td {
 
 .current {
     background-color: orange !important;
+    background: rgb(155, 100, 0);
 }
 
 .progress-text {
@@ -25,11 +26,34 @@ td {
     background-color: rgb(12, 101, 173);
     cursor: pointer;
     width: 200px;
+    border-radius: 4px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }
 
 .progress-fill {
     height: 30px;
-    background-color: rgb(46, 148, 231)
+    background-color: rgb(46, 148, 231);
+    border-radius: 4px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+    background-size: 40px 40px;
+}
+
+.progress-fill.current {
+    animation: progress-bar-stripes 2s linear infinite;
+}
+
+.progress-bar.current-pb {
+    background: rgb(155, 100, 0);
+}
+
+@keyframes progress-bar-stripes {
+    from {
+        background-position: 40px 0;
+    }
+    to {
+        background-position: 0 0;
+    }
 }
 
 .hidden {
@@ -50,11 +74,18 @@ td {
     width: 200px;
     height: 40px;
     padding: 8px;
+    border: 1px solid rgba(0,0,0,0.15);
+    border-radius: 4px;
+    transition: all 0.3s ease-out;
+    box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.5),
+            0 2px 2px rgba(0,0,0,0.2),
+            0 0 4px 1px rgba(0,0,0,0.1);
 }
 
 .item-button:hover {
     cursor: pointer;
-    background-color: rgb(192, 192, 192);
+    background-color: #ddd;
 }
 
 button:focus {
@@ -138,4 +169,33 @@ button:focus {
 
 .inline {
     display: inline-block;
+}
+
+.dark {
+    background-color: #222;
+    color: #ddd;
+}
+
+
+body.dark w3-light-gray{
+    background-color: black !important;
+}
+
+
+body.dark div.w3-white {
+    background-color: #333 !important;
+}
+
+body.dark button {
+    background-color: #666;
+    color: #ddd;
+}
+
+body.dark button:hover {
+    background-color: #888;
+}
+
+.scroll {
+    overflow: visible;
+    height: auto;
 }
