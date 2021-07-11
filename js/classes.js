@@ -6,8 +6,7 @@ class Task {
         this.maxLevel = 0 
         this.xp = 0
 
-        this.xpMultipliers = [
-        ]
+        this.xpMultipliers = []
     }
 
     getMaxXp() {
@@ -31,21 +30,24 @@ class Task {
     increaseXp() {
         this.xp += applySpeed(this.getXpGain())
         if (this.xp >= this.getMaxXp()) {
-            var excess = this.xp - this.getMaxXp()
-            while (excess >= 0) {
-                this.level += 1
-                excess -= this.getMaxXp()
-            }
-            this.xp = this.getMaxXp() + excess
+            this.levelUp()
         }
+    }
+
+    levelUp() {
+        var excess = this.xp - this.getMaxXp()
+        while (excess >= 0) {
+            this.level += 1
+            excess -= this.getMaxXp()
+        }
+        this.xp = this.getMaxXp() + excess
     }
 }
 
 class Job extends Task {
     constructor(baseData) {
         super(baseData)   
-        this.incomeMultipliers = [
-        ]
+        this.incomeMultipliers = []
     }
 
     getLevelMultiplier() {
@@ -79,9 +81,7 @@ class Item {
     constructor(baseData) {  
         this.baseData = baseData
         this.name = baseData.name
-        this.expenseMultipliers = [
-         
-        ]
+        this.expenseMultipliers = []
     }
 
     getEffect() {
@@ -111,11 +111,13 @@ class Requirement {
 
     isCompleted() {
         if (this.completed) {return true}
+        
         for (var requirement of this.requirements) {
             if (!this.getCondition(requirement)) {
                 return false
             }
         }
+
         this.completed = true
         return true
     }

@@ -6,11 +6,15 @@
     <link rel="stylesheet" type="text/css" href="css/dark.css">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"> 
     <title>Progress Knight</title>
+
+    <meta name="description" 
+    content="Progress Knight is a life-sim incremental based in a fantasy/medieval setting, 
+    where you must progress through the career ladder and acquire new skills to become the ultimate being.">
 </head>
 <body id="body" class="dark">
     <div class="w3-margin"> 
         <h1>Progress Knight</h1>
-        <div style="width: 1220px; height: 600px"> 
+        <div style="width: 1220px;"> 
             <div class="panel w3-padding" style="width: 300px; height: auto; float: left">
                 <span id="deathText">
                     <div style="font-size: large; color: red">Age has caught up to you</div>
@@ -85,18 +89,6 @@
                     <div style="color: gray" class="sidebar-element">Affects dark magic xp gain</div>
                 </span>
 
-                <!--
-                <span id="scheduling">
-                    <div style="font-size: large">Scheduling</div>
-                    <div style="color: gray" class="sidebar-element">Schedule time to jobs/skills</div>
-                    <span style="height: 30px"> 
-                        <p style="width: 5px">Jobs</br>(32%)</p>
-                        <input id="schedulingSlider" class="slider" type="range" min="0" max="100" value="0">
-                        <p style="width: 5px">Skills</br>(68%)</p>
-                    </span>
-                </span>
-                -->
-
                 <span id="timeWarping">
                     <div style="font-size: large"><span style="color: rgb(204, 34, 219)">Time warping: </span><span id="timeWarpingDisplay"></span></div>
                     <div style="color: gray">Affects game speed</div>
@@ -113,8 +105,8 @@
             </div>
 
             <div class="panel w3-margin-left w3-margin-top w3-padding" style="width: 900px; height: auto; float: left">
-                <template class="headerRowTaskTemplate">
-                    <tr>
+                <template id="headerRowTaskTemplate">
+                    <tr> 
                         <th class="category" style="width: 250px">Job</th>
                         <th>Level</th>
                         <th class="valueType">Value type</th>
@@ -125,7 +117,7 @@
                     </tr>
                 </template>
 
-                <template class="headerRowItemTemplate">
+                <template id="headerRowItemTemplate">
                     <tr>
                         <th class="category" style="width: 250px">Item</th>
                         <th style="width: 100px">Active</th>
@@ -134,7 +126,7 @@
                     </tr>
                 </template>
 
-                <template class="rowTaskTemplate">
+                <template id="rowTaskTemplate">
                     <tr>
                         <td>
                             <div class="progress-bar progressBar tooltip">
@@ -162,7 +154,7 @@
                     </tr>
                 </template>
 
-                <template class="rowItemTemplate">
+                <template id="rowItemTemplate">
                     <tr>
                         <td>
                             
@@ -187,7 +179,7 @@
                     </tr>
                 </template>
 
-                <template class="requiredRowTemplate">
+                <template id="requiredRowTemplate">
                     <td class="w3-text-gray" style="padding-left: 16px" colspan=5>
                         Required: 
                         <span class="value" colspan=5>

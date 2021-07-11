@@ -1,36 +1,18 @@
-var gameData = {
-    taskData: {},
-    itemData: {},
-
-    coins: 0,
-    days: 365 * 14,
-    evil: 0,
-    paused: false,
-    timeWarpingEnabled: true,
-
-    rebirthOneCount: 0,
-    rebirthTwoCount: 0,
-
-    currentJob: null,
-    currentSkill: null,
-    currentProperty: null,
-    currentMisc: null,
-}
-
-var tempData = {}
-
-var skillWithLowestMaxXp = null
-
 const autoPromoteElement = document.getElementById("autoPromote")
 const autoLearnElement = document.getElementById("autoLearn")
+const jobTabButton = document.getElementById("jobTabButton")
+
+const rowTaskTemplate = document.getElementById("rowTaskTemplate")
+const rowItemTemplate = document.getElementById("rowItemTemplate")
+const headerRowTaskTemplate = document.getElementById("headerRowTaskTemplate")
+const headerRowItemTemplate = document.getElementById("headerRowItemTemplate")
+const requiredRowTemplate = document.getElementById("requiredRowTemplate")
 
 const updateSpeed = 20
-
 const baseLifespan = 365 * 70
-
 const baseGameSpeed = 4
-
 const permanentUnlocks = ["Scheduling", "Shop", "Automation", "Quick task display"]
+const units = ["", "k", "M", "B", "T", "q", "Q", "Sx", "Sp", "Oc"];
 
 const jobBaseData = {
     "Beggar": {name: "Beggar", maxXp: 50, income: 5},
@@ -195,9 +177,34 @@ const tooltips = {
     "Library": "Stores a collection of books, each containing vast amounts of information from basic life skills to complex magic spells.",
 }
 
-const units = ["", "k", "M", "B", "T", "q", "Q", "Sx", "Sp", "Oc"];
+var gameData = {
+    taskData: {},
+    itemData: {},
 
-const jobTabButton = document.getElementById("jobTabButton")
+    coins: 0,
+    days: 365 * 14,
+    evil: 0,
+    paused: false,
+    timeWarpingEnabled: true,
+
+    rebirthOneCount: 0,
+    rebirthTwoCount: 0,
+
+    currentJob: null,
+    currentSkill: null,
+    currentProperty: null,
+    currentMisc: null,
+}
+
+var requirementsCache = {}
+
+var rows = {
+    "rows": {},
+    "headerRows": {},
+    "requiredRows": {}
+}
+
+var skillWithLowestMaxXp = null
 
 function getBaseLog(x, y) {
     return Math.log(y) / Math.log(x);
@@ -256,6 +263,7 @@ function addMultipliers() {
     for (itemName in gameData.itemData) {
         var item = gameData.itemData[itemName]
         item.expenseMultipliers = []
+
         item.expenseMultipliers.push(getBindedTaskEffect("Bargaining"))
         item.expenseMultipliers.push(getBindedTaskEffect("Intimidation"))
     }
@@ -353,7 +361,6 @@ function goBankrupt() {
 }
 
 function setTab(element, selectedTab) {
-
     var tabs = Array.prototype.slice.call(document.getElementsByClassName("tab"))
     tabs.forEach(function(tab) {
         tab.style.display = "none"
@@ -406,144 +413,177 @@ function createData(data, baseData) {
 }
 
 function createEntity(data, entity) {
-    if ("income" in entity) {data[entity.name] = new Job(entity)}
-    else if ("maxXp" in entity) {data[entity.name] = new Skill(entity)}
-    else {data[entity.name] = new Item(entity)}
+    if ("income" in entity) {
+        data[entity.name] = new Job(entity)
+    } else if ("maxXp" in entity) {
+        data[entity.name] = new Skill(entity)
+    } else {
+        data[entity.name] = new Item(entity)
+    }
+
     data[entity.name].id = "row " + entity.name
 }
 
-function createRequiredRow(categoryName) {
-    var requiredRow = document.getElementsByClassName("requiredRowTemplate")[0].content.firstElementChild.cloneNode(true)
-    requiredRow.classList.add("requiredRow")
-    requiredRow.classList.add(removeSpaces(categoryName))
-    requiredRow.id = categoryName
-    return requiredRow
+function createRequiredRow(categoryName, table) {
+    var row = requiredRowTemplate.content.firstElementChild.cloneNode(true)
+    row.classList.add("requiredRow")
+    row.classList.add(removeSpaces(categoryName))
+    row.id = categoryName
+    rows["requiredRows"][categoryName] = row
+
+    table.appendChild(row)
 }
 
-function createHeaderRow(templates, categoryType, categoryName) {
-    var headerRow = templates.headerRow.content.firstElementChild.cloneNode(true)
-    headerRow.getElementsByClassName("category")[0].textContent = categoryName
+function createHeaderRow(template, categoryType, categoryName, table) {
+    var row = template.content.firstElementChild.cloneNode(true)
+
+    row.getElementsByClassName("category")[0].textContent = categoryName
+    
     if (categoryType != itemCategories) {
-        headerRow.getElementsByClassName("valueType")[0].textContent = categoryType == jobCategories ? "Income/day" : "Effect"
+        row.getElementsByClassName("valueType")[0].textContent = categoryType == jobCategories ? "Income/day" : "Effect"
     }
 
-    headerRow.style.backgroundColor = headerRowColors[categoryName]
-    headerRow.style.color = "#ffffff"
-    headerRow.classList.add(removeSpaces(categoryName))
-    headerRow.classList.add("headerRow")
+    row.style.backgroundColor = headerRowColors[categoryName]
+    row.style.color = "#ffffff"
+    row.classList.add(removeSpaces(categoryName))
+    rows["headerRows"][categoryName] = row
+    row.classList.add("headerRow")
     
-    return headerRow
+    table.appendChild(row)
 }
 
-function createRow(templates, name, categoryName, categoryType) {
-    var row = templates.row.content.firstElementChild.cloneNode(true)
+function createRow(template, categoryType, categoryName, name, table) {
+    var row = template.content.firstElementChild.cloneNode(true)
+
     row.getElementsByClassName("name")[0].textContent = name
     row.getElementsByClassName("tooltipText")[0].textContent = tooltips[name]
-    row.id = "row " + name
+    
     if (categoryType != itemCategories) {
         row.getElementsByClassName("progressBar")[0].onclick = function() {setTask(name)}
     } else {
         row.getElementsByClassName("button")[0].onclick = categoryName == "Properties" ? function() {setProperty(name)} : function() {setMisc(name)}
     }
 
-    return row
+    row.id = "row " + name
+    rows["rows"][name] = row
+    table.appendChild(row)
+
+    
 }
 
 function createAllRows(categoryType, tableId) {
+    var isItemCategories = categoryType == itemCategories
+
     var templates = {
-        headerRow: document.getElementsByClassName(categoryType == itemCategories ? "headerRowItemTemplate" : "headerRowTaskTemplate")[0],
-        row: document.getElementsByClassName(categoryType == itemCategories ? "rowItemTemplate" : "rowTaskTemplate")[0],
+        headerRow: isItemCategories  ? headerRowItemTemplate : headerRowTaskTemplate,
+        row: isItemCategories ? rowItemTemplate : rowTaskTemplate,
     }
 
     var table = document.getElementById(tableId)
 
     for (categoryName in categoryType) {
-        var headerRow = createHeaderRow(templates, categoryType, categoryName)
-        table.appendChild(headerRow)
+        createHeaderRow(templates.headerRow, categoryType, categoryName, table)
         
         var category = categoryType[categoryName]
         category.forEach(function(name) {
-            var row = createRow(templates, name, categoryName, categoryType)
-            table.appendChild(row)       
+            createRow(templates.row, categoryType, categoryName, name, table)  
         })
 
-        var requiredRow = createRequiredRow(categoryName)
-        table.append(requiredRow)
+        createRequiredRow(categoryName, table)
     }
 }
 
 function updateQuickTaskDisplay(taskType) {
     var currentTask = taskType == "job" ? gameData.currentJob : gameData.currentSkill
+
     var quickTaskDisplayElement = document.getElementById("quickTaskDisplay")
     var progressBar = quickTaskDisplayElement.getElementsByClassName(taskType)[0]
+
     progressBar.getElementsByClassName("name")[0].textContent = currentTask.name + " lvl " + currentTask.level
     progressBar.getElementsByClassName("progressFill")[0].style.width = currentTask.xp / currentTask.getMaxXp() * 100 + "%"
 }
 
 function updateRequiredRows(data, categoryType) {
     var requiredRows = document.getElementsByClassName("requiredRow")
+
     for (requiredRow of requiredRows) {
-        var nextEntity = null
         var category = categoryType[requiredRow.id] 
-        if (category == null) {continue}
-        for (i = 0; i < category.length; i++) {
-            var entityName = category[i]
-            if (i >= category.length - 1) break
-            var requirements = gameData.requirements[entityName]
-            if (requirements && i == 0) {
-                if (!requirements.isCompleted()) {
-                    nextEntity = data[entityName]
-                    break
-                }
-            }
 
-            var nextIndex = i + 1
-            if (nextIndex >= category.length) {break}
-            var nextEntityName = category[nextIndex]
-            nextEntityRequirements = gameData.requirements[nextEntityName]
-
-            if (!nextEntityRequirements.isCompleted()) {
-                nextEntity = data[nextEntityName]
-                break
-            }       
+        if (category == null) {
+            continue
         }
 
-        if (nextEntity == null) {
+        var lockedEntity = getLockedEntity(category, data)
+
+        if (lockedEntity == null) {
             requiredRow.classList.add("hiddenTask")           
         } else {
             requiredRow.classList.remove("hiddenTask")
-            var requirementObject = gameData.requirements[nextEntity.name]
-            var requirements = requirementObject.requirements
-
-            var coinElement = requiredRow.getElementsByClassName("coins")[0]
-            var levelElement = requiredRow.getElementsByClassName("levels")[0]
-            var evilElement = requiredRow.getElementsByClassName("evil")[0]
-
-            coinElement.classList.add("hiddenTask")
-            levelElement.classList.add("hiddenTask")
-            evilElement.classList.add("hiddenTask")
-
-            var finalText = ""
-            if (data == gameData.taskData) {
-                if (requirementObject instanceof EvilRequirement) {
-                    evilElement.classList.remove("hiddenTask")
-                    evilElement.textContent = format(requirements[0].requirement) + " evil"
-                } else {
-                    levelElement.classList.remove("hiddenTask")
-                    for (requirement of requirements) {
-                        var task = gameData.taskData[requirement.task]
-                        if (task.level >= requirement.requirement) continue
-                        var text = " " + requirement.task + " level " + format(task.level) + "/" + format(requirement.requirement) + ","
-                        finalText += text
-                    }
-                    finalText = finalText.substring(0, finalText.length - 1)
-                    levelElement.textContent = finalText
-                }
-            } else if (data == gameData.itemData) {
-                coinElement.classList.remove("hiddenTask")
-                formatCoins(requirements[0].requirement, coinElement)
-            }
+            setRequiredRowText(requiredRow, lockedEntity, data)
         }   
+    }
+}
+
+function getLockedEntity(category, data) {
+    for (i = 0; i < category.length; i++) {
+        var entityName = category[i]
+
+        if (i >= category.length - 1) return null
+
+        var requirements = gameData.requirements[entityName]
+
+        if (requirements && i == 0) {
+            if (!requirements.isCompleted()) {
+                return data[entityName]
+            }
+        }
+
+        var nextIndex = i + 1
+        var nextEntityName = category[nextIndex]
+        nextEntityRequirements = gameData.requirements[nextEntityName]
+
+        if (!nextEntityRequirements.isCompleted()) {
+            return data[nextEntityName]
+        }       
+    }
+}
+
+function setRequiredRowText(requiredRow, lockedEntity, data) {
+    var requirementObject = gameData.requirements[lockedEntity.name]
+    var requirements = requirementObject.requirements
+
+    var coinElement = requiredRow.getElementsByClassName("coins")[0]
+    var levelElement = requiredRow.getElementsByClassName("levels")[0]
+    var evilElement = requiredRow.getElementsByClassName("evil")[0]
+
+    coinElement.classList.add("hiddenTask")
+    levelElement.classList.add("hiddenTask")
+    evilElement.classList.add("hiddenTask")
+
+    var finalText = ""
+
+    if (data == gameData.taskData) {
+        if (requirementObject instanceof EvilRequirement) {
+            evilElement.classList.remove("hiddenTask")
+            evilElement.textContent = format(requirements[0].requirement) + " evil"
+        } else {
+            levelElement.classList.remove("hiddenTask")
+
+            for (requirement of requirements) {
+                var task = gameData.taskData[requirement.task]
+                var text = " " + requirement.task + " level " + format(task.level) + "/" + format(requirement.requirement) + ","
+
+                if (task.level >= requirement.requirement) continue
+    
+                finalText += text
+            }
+
+            finalText = finalText.substring(0, finalText.length - 1)
+            levelElement.textContent = finalText
+        }
+    } else if (data == gameData.itemData) {
+        coinElement.classList.remove("hiddenTask")
+        formatCoins(requirements[0].requirement, coinElement)
     }
 }
 
@@ -551,6 +591,7 @@ function updateTaskRows() {
     for (key in gameData.taskData) {
         var task = gameData.taskData[key]
         var row = document.getElementById("row " + task.name)
+
         row.getElementsByClassName("level")[0].textContent = task.level
         row.getElementsByClassName("xpGain")[0].textContent = format(task.getXpGain())
         row.getElementsByClassName("xpLeft")[0].textContent = format(task.getXpLeft())
@@ -566,15 +607,14 @@ function updateTaskRows() {
         var valueElement = row.getElementsByClassName("value")[0]
         valueElement.getElementsByClassName("income")[0].style.display = task instanceof Job
         valueElement.getElementsByClassName("effect")[0].style.display = task instanceof Skill
-
-        var skipSkillElement = row.getElementsByClassName("skipSkill")[0]
-        skipSkillElement.style.display = task instanceof Skill && autoLearnElement.checked ? "block" : "none"
-
         if (task instanceof Job) {
             formatCoins(task.getIncome(), valueElement.getElementsByClassName("income")[0])
         } else {
             valueElement.getElementsByClassName("effect")[0].textContent = task.getEffectDescription()
         }
+
+        var skipSkillElement = row.getElementsByClassName("skipSkill")[0]
+        skipSkillElement.style.display = task instanceof Skill && autoLearnElement.checked ? "block" : "none"
     }
 }
 
@@ -582,11 +622,14 @@ function updateItemRows() {
     for (key in gameData.itemData) {
         var item = gameData.itemData[key]
         var row = document.getElementById("row " + item.name)
+
         var button = row.getElementsByClassName("button")[0]
         button.disabled = gameData.coins < item.getExpense()
+
         var active = row.getElementsByClassName("active")[0]
         var color = itemCategories["Properties"].includes(item.name) ? headerRowColors["Properties"] : headerRowColors["Misc"]
         active.style.backgroundColor = gameData.currentMisc.includes(item) || item == gameData.currentProperty ? color : "white"
+
         row.getElementsByClassName("effect")[0].textContent = item.getEffectDescription()
         formatCoins(item.getExpense(), row.getElementsByClassName("expense")[0])
     }
@@ -596,8 +639,10 @@ function updateHeaderRows(categories) {
     for (categoryName in categories) {
         var className = removeSpaces(categoryName)
         var headerRow = document.getElementsByClassName(className)[0]
+
         var maxLevelElement = headerRow.getElementsByClassName("maxLevel")[0]
         gameData.rebirthOneCount > 0 ? maxLevelElement.classList.remove("hidden") : maxLevelElement.classList.add("hidden")
+
         var skipSkillElement = headerRow.getElementsByClassName("skipSkill")[0]
         skipSkillElement.style.display = categories == skillCategories && autoLearnElement.checked ? "block" : "none"
     }
@@ -778,21 +823,15 @@ function increaseDays() {
 }
 
 function format(number) {
-
-    // what tier? (determines SI symbol)
     var tier = Math.log10(number) / 3 | 0;
 
-    // if zero, we don't need a suffix
     if(tier == 0) return number;
 
-    // get suffix and determine scale
     var suffix = units[tier];
     var scale = Math.pow(10, tier * 3);
 
-    // scale the number
     var scaled = number / scale;
 
-    // format number and add suffix
     return scaled.toFixed(1) + suffix;
 }
 
@@ -914,9 +953,8 @@ function assignMethods() {
     for (key in gameData.taskData) {
         var task = gameData.taskData[key]
         if (task.baseData.income) {
-            task.baseData = jobBaseData[task.name]
-            task = Object.assign(new Job(jobBaseData[task.name]), task)
-            
+            task.baseData = jobBaseData[task.name] //(1)
+            task = Object.assign(new Job(jobBaseData[task.name]), task)     
         } else {
             task.baseData = skillBaseData[task.name]
             task = Object.assign(new Skill(skillBaseData[task.name]), task)
@@ -943,12 +981,29 @@ function assignMethods() {
             requirement = Object.assign(new EvilRequirement(requirement.elements, requirement.requirements), requirement)
         }
 
-        var tempRequirement = tempData["requirements"][key]
+        var tempRequirement = requirementsCache[key]
         requirement.elements = tempRequirement.elements
         requirement.requirements = tempRequirement.requirements
         gameData.requirements[key] = requirement
     }
+}
 
+//Adjusts the save-game to new changes
+function replaceSaveDict(dict, saveDict) {
+    for (key in dict) {
+        if (!(key in saveDict) || saveDict[key].type != dict[key].type) {
+            saveDict[key] = dict[key]
+        } 
+    }
+
+    for (key in saveDict) {
+        if (!(key in dict)) {
+            delete saveDict[key]
+        }
+    }
+}
+
+function setCurrentEntities() {
     gameData.currentJob = gameData.taskData[gameData.currentJob.name]
     gameData.currentSkill = gameData.taskData[gameData.currentSkill.name]
     gameData.currentProperty = gameData.itemData[gameData.currentProperty.name]
@@ -959,24 +1014,6 @@ function assignMethods() {
     gameData.currentMisc = newArray
 }
 
-function replaceSaveDict(dict, saveDict) {
-    for (key in dict) {
-        if (!(key in saveDict)) {
-            saveDict[key] = dict[key]
-        } else if (dict == gameData.requirements) {
-            if (saveDict[key].type != tempData["requirements"][key].type) {
-                saveDict[key] = tempData["requirements"][key]
-            }
-        }
-    }
-
-    for (key in saveDict) {
-        if (!(key in dict)) {
-            delete saveDict[key]
-        }
-    }
-}
-
 function saveGameData() {
     localStorage.setItem("gameDataSave", JSON.stringify(gameData))
 }
@@ -985,6 +1022,7 @@ function loadGameData() {
     var gameDataSave = JSON.parse(localStorage.getItem("gameDataSave"))
 
     if (gameDataSave !== null) {
+        //This can be elegantly replaced with recursion
         replaceSaveDict(gameData, gameDataSave)
         replaceSaveDict(gameData.requirements, gameDataSave.requirements)
         replaceSaveDict(gameData.taskData, gameDataSave.taskData)
@@ -994,9 +1032,10 @@ function loadGameData() {
     }
 
     assignMethods()
+    setCurrentEntities()
 }
 
-function updateUI() {
+function updateInterface() {
     updateTaskRows()
     updateItemRows()
     updateRequiredRows(gameData.taskData, jobCategories)
@@ -1017,7 +1056,7 @@ function update() {
     doCurrentTask(gameData.currentJob)
     doCurrentTask(gameData.currentSkill)
     applyExpenses()
-    updateUI()
+    updateInterface()
 }
 
 function resetGameData() {
@@ -1052,7 +1091,6 @@ gameData.currentJob = gameData.taskData["Beggar"]
 gameData.currentSkill = gameData.taskData["Concentration"]
 gameData.currentProperty = gameData.itemData["Homeless"]
 gameData.currentMisc = []
-
 gameData.requirements = {
     //Other
     "The Arcane Association": new TaskRequirement(getElementsByClass("The Arcane Association"), [{task: "Concentration", requirement: 200}, {task: "Meditation", requirement: 200}]),
@@ -1139,10 +1177,9 @@ gameData.requirements = {
     "Library": new CoinRequirement([getItemElement("Library")], [{requirement: gameData.itemData["Library"].getExpense() * 100}]), 
 }
 
-tempData["requirements"] = {}
 for (key in gameData.requirements) {
     var requirement = gameData.requirements[key]
-    tempData["requirements"][key] = requirement
+    requirementsCache[key] = requirement
 }
 
 loadGameData()
