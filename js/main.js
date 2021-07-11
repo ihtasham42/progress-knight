@@ -205,6 +205,7 @@ var rows = {
 }
 
 var skillWithLowestMaxXp = null
+var debugSpeed = 4
 
 function getBaseLog(x, y) {
     return Math.log(y) / Math.log(x);
@@ -333,7 +334,7 @@ function getEvilGain() {
 function getGameSpeed() {
     var timeWarping = gameData.taskData["Time warping"]
     var timeWarpingSpeed = gameData.timeWarpingEnabled ? timeWarping.getEffect() : 1
-    var gameSpeed = baseGameSpeed * +!gameData.paused * +isAlive() * timeWarpingSpeed
+    var gameSpeed = baseGameSpeed * +!gameData.paused * +isAlive() * timeWarpingSpeed * debugSpeed
     return gameSpeed
 }
 
@@ -420,15 +421,11 @@ function createEntity(data, entity) {
     } else {
         data[entity.name] = new Item(entity)
     }
-
-    data[entity.name].id = "row " + entity.name
 }
 
 function createRequiredRow(categoryName, table) {
     var row = requiredRowTemplate.content.firstElementChild.cloneNode(true)
-    row.classList.add("requiredRow")
-    row.classList.add(removeSpaces(categoryName))
-    row.id = categoryName
+
     rows["requiredRows"][categoryName] = row
 
     table.appendChild(row)
@@ -445,9 +442,8 @@ function createHeaderRow(template, categoryType, categoryName, table) {
 
     row.style.backgroundColor = headerRowColors[categoryName]
     row.style.color = "#ffffff"
-    row.classList.add(removeSpaces(categoryName))
+
     rows["headerRows"][categoryName] = row
-    row.classList.add("headerRow")
     
     table.appendChild(row)
 }
@@ -464,11 +460,9 @@ function createRow(template, categoryType, categoryName, name, table) {
         row.getElementsByClassName("button")[0].onclick = categoryName == "Properties" ? function() {setProperty(name)} : function() {setMisc(name)}
     }
 
-    row.id = "row " + name
     rows["rows"][name] = row
-    table.appendChild(row)
 
-    
+    table.appendChild(row)
 }
 
 function createAllRows(categoryType, tableId) {
@@ -504,10 +498,11 @@ function updateQuickTaskDisplay(taskType) {
 }
 
 function updateRequiredRows(data, categoryType) {
-    var requiredRows = Object.values(rows["requiredRows"])
+    var requiredRows = rows["requiredRows"]
 
-    for (requiredRow of requiredRows) {
-        var category = categoryType[requiredRow.id] 
+    for (key in requiredRows) {
+        var requiredRow = requiredRows[key]
+        var category = categoryType[key] 
 
         if (category == null) {
             continue
@@ -637,8 +632,7 @@ function updateItemRows() {
 
 function updateHeaderRows(categories) {
     for (categoryName in categories) {
-        var className = removeSpaces(categoryName)
-        var headerRow = document.getElementsByClassName(className)[0]
+        var headerRow = rows["headerRows"][categoryName]
 
         var maxLevelElement = headerRow.getElementsByClassName("maxLevel")[0]
         gameData.rebirthOneCount > 0 ? maxLevelElement.classList.remove("hidden") : maxLevelElement.classList.add("hidden")
@@ -706,7 +700,6 @@ function hideEntities() {
 function createItemData(baseData) {
     for (var item of baseData) {
         gameData.itemData[item.name] = "happiness" in item ? new Property(task) : new Misc(task)
-        gameData.itemData[item.name].id = "item " + item.name
     }
 }
 
@@ -760,7 +753,7 @@ function autoPromote() {
 }
 
 function checkSkillSkipped(skill) {
-    var row = document.getElementById("row " + skill.name)
+    var row = rows["rows"][skill.name]
     var isSkillSkipped = row.getElementsByClassName("checkbox")[0].checked
     return isSkillSkipped
 }
@@ -859,31 +852,9 @@ function formatCoins(coins, element) {
     element.children[3].style.color = colors["c"]
 }
 
-function getTaskElement(taskName) {
-    var task = gameData.taskData[taskName]
-    var element = document.getElementById(task.id)
-    return element
-}
-
-function getItemElement(itemName) {
-    var item = gameData.itemData[itemName]
-    var element = document.getElementById(item.id)
-    return element
-}
-
-function getElementsByClass(className) {
-    var elements = document.getElementsByClassName(removeSpaces(className))
-    return elements
-}
-
 function setLightDarkMode() {
     var body = document.getElementById("body")
     body.classList.contains("dark") ? body.classList.remove("dark") : body.classList.add("dark")
-}
-
-function removeSpaces(string) {
-    var string = string.replace(/ /g, "")
-    return string
 }
 
 function rebirthOne() {
@@ -1093,8 +1064,16 @@ gameData.currentProperty = gameData.itemData["Homeless"]
 gameData.currentMisc = []
 gameData.requirements = {
     //Other
-    "The Arcane Association": new TaskRequirement(getElementsByClass("The Arcane Association"), [{task: "Concentration", requirement: 200}, {task: "Meditation", requirement: 200}]),
-    "Dark magic": new EvilRequirement(getElementsByClass("Dark magic"), [{requirement: 1}]),
+    "The Arcane Association": new TaskRequirement(
+        [rows["headerRows"]["The Arcane Association"], rows["requiredRows"]["The Arcane Association"]], 
+        [{task: "Concentration", requirement: 200}, {task: "Meditation", requirement: 200}]
+    ),
+
+    "Dark magic": new EvilRequirement(
+        [rows["headerRows"]["Dark magic"], rows["requiredRows"]["Dark magic"]], 
+        [{requirement: 1}]
+    ),
+
     "Shop": new CoinRequirement([document.getElementById("shopTabButton")], [{requirement: gameData.itemData["Tent"].getExpense() * 50}]),
     "Rebirth tab": new AgeRequirement([document.getElementById("rebirthTabButton")], [{requirement: 25}]),
     "Rebirth note 1": new AgeRequirement([document.getElementById("rebirthNote1")], [{requirement: 45}]),
@@ -1106,75 +1085,75 @@ gameData.requirements = {
     "Quick task display": new AgeRequirement([document.getElementById("quickTaskDisplay")], [{requirement: 20}]),
 
     //Common work
-    "Beggar": new TaskRequirement([getTaskElement("Beggar")], []),
-    "Farmer": new TaskRequirement([getTaskElement("Farmer")], [{task: "Beggar", requirement: 10}]),
-    "Fisherman": new TaskRequirement([getTaskElement("Fisherman")], [{task: "Farmer", requirement: 10}]),
-    "Miner": new TaskRequirement([getTaskElement("Miner")], [{task: "Strength", requirement: 10}, {task: "Fisherman", requirement: 10}]),
-    "Blacksmith": new TaskRequirement([getTaskElement("Blacksmith")], [{task: "Strength", requirement: 30}, {task: "Miner", requirement: 10}]),
-    "Merchant": new TaskRequirement([getTaskElement("Merchant")], [{task: "Bargaining", requirement: 50}, {task: "Blacksmith", requirement: 10}]),
+    "Beggar": new TaskRequirement([rows["rows"]["Beggar"]], []),
+    "Farmer": new TaskRequirement([rows["rows"]["Farmer"]], [{task: "Beggar", requirement: 10}]),
+    "Fisherman": new TaskRequirement([rows["rows"]["Fisherman"]], [{task: "Farmer", requirement: 10}]),
+    "Miner": new TaskRequirement([rows["rows"]["Miner"]], [{task: "Strength", requirement: 10}, {task: "Fisherman", requirement: 10}]),
+    "Blacksmith": new TaskRequirement([rows["rows"]["Blacksmith"]], [{task: "Strength", requirement: 30}, {task: "Miner", requirement: 10}]),
+    "Merchant": new TaskRequirement([rows["rows"]["Merchant"]], [{task: "Bargaining", requirement: 50}, {task: "Blacksmith", requirement: 10}]),
 
     //Military 
-    "Squire": new TaskRequirement([getTaskElement("Squire")], [{task: "Strength", requirement: 5}]),
-    "Footman": new TaskRequirement([getTaskElement("Footman")], [{task: "Strength", requirement: 20}, {task: "Squire", requirement: 10}]),
-    "Veteran footman": new TaskRequirement([getTaskElement("Veteran footman")], [{task: "Battle tactics", requirement: 40}, {task: "Footman", requirement: 10}]),
-    "Knight": new TaskRequirement([getTaskElement("Knight")], [{task: "Strength", requirement: 100}, {task: "Veteran footman", requirement: 10}]),
-    "Veteran knight": new TaskRequirement([getTaskElement("Veteran knight")], [{task: "Battle tactics", requirement: 150}, {task: "Knight", requirement: 10}]),
-    "Elite knight": new TaskRequirement([getTaskElement("Elite knight")], [{task: "Strength", requirement: 300}, {task: "Veteran knight", requirement: 10}]),
-    "Holy knight": new TaskRequirement([getTaskElement("Holy knight")], [{task: "Mana control", requirement: 500}, {task: "Elite knight", requirement: 10}]),
-    "Legendary knight": new TaskRequirement([getTaskElement("Legendary knight")], [{task: "Mana control", requirement: 1000}, {task: "Battle tactics", requirement: 1000}, {task: "Holy knight", requirement: 10}]),
+    "Squire": new TaskRequirement([rows["rows"]["Squire"]], [{task: "Strength", requirement: 5}]),
+    "Footman": new TaskRequirement([rows["rows"]["Footman"]], [{task: "Strength", requirement: 20}, {task: "Squire", requirement: 10}]),
+    "Veteran footman": new TaskRequirement([rows["rows"]["Veteran footman"]], [{task: "Battle tactics", requirement: 40}, {task: "Footman", requirement: 10}]),
+    "Knight": new TaskRequirement([rows["rows"]["Knight"]], [{task: "Strength", requirement: 100}, {task: "Veteran footman", requirement: 10}]),
+    "Veteran knight": new TaskRequirement([rows["rows"]["Veteran knight"]], [{task: "Battle tactics", requirement: 150}, {task: "Knight", requirement: 10}]),
+    "Elite knight": new TaskRequirement([rows["rows"]["Elite knight"]], [{task: "Strength", requirement: 300}, {task: "Veteran knight", requirement: 10}]),
+    "Holy knight": new TaskRequirement([rows["rows"]["Holy knight"]], [{task: "Mana control", requirement: 500}, {task: "Elite knight", requirement: 10}]),
+    "Legendary knight": new TaskRequirement([rows["rows"]["Legendary knight"]], [{task: "Mana control", requirement: 1000}, {task: "Battle tactics", requirement: 1000}, {task: "Holy knight", requirement: 10}]),
 
     //The Arcane Association
-    "Student": new TaskRequirement([getTaskElement("Student")], [{task: "Concentration", requirement: 200}, {task: "Meditation", requirement: 200}]),
-    "Apprentice mage": new TaskRequirement([getTaskElement("Apprentice mage")], [{task: "Mana control", requirement: 400}, {task: "Student", requirement: 10}]),
-    "Mage": new TaskRequirement([getTaskElement("Mage")], [{task: "Mana control", requirement: 700}, {task: "Apprentice mage", requirement: 10}]),
-    "Wizard": new TaskRequirement([getTaskElement("Wizard")], [{task: "Mana control", requirement: 1000}, {task: "Mage", requirement: 10}]),
-    "Master wizard": new TaskRequirement([getTaskElement("Master wizard")], [{task: "Mana control", requirement: 1500}, {task: "Wizard", requirement: 10}]),
-    "Chairman": new TaskRequirement([getTaskElement("Chairman")], [{task: "Mana control", requirement: 2000}, {task: "Master wizard", requirement: 10}]),
+    "Student": new TaskRequirement([rows["rows"]["Student"]], [{task: "Concentration", requirement: 200}, {task: "Meditation", requirement: 200}]),
+    "Apprentice mage": new TaskRequirement([rows["rows"]["Apprentice mage"]], [{task: "Mana control", requirement: 400}, {task: "Student", requirement: 10}]),
+    "Mage": new TaskRequirement([rows["rows"]["Mage"]], [{task: "Mana control", requirement: 700}, {task: "Apprentice mage", requirement: 10}]),
+    "Wizard": new TaskRequirement([rows["rows"]["Wizard"]], [{task: "Mana control", requirement: 1000}, {task: "Mage", requirement: 10}]),
+    "Master wizard": new TaskRequirement([rows["rows"]["Master wizard"]], [{task: "Mana control", requirement: 1500}, {task: "Wizard", requirement: 10}]),
+    "Chairman": new TaskRequirement([rows["rows"]["Chairman"]], [{task: "Mana control", requirement: 2000}, {task: "Master wizard", requirement: 10}]),
 
     //Fundamentals
-    "Concentration": new TaskRequirement([getTaskElement("Concentration")], []),
-    "Productivity": new TaskRequirement([getTaskElement("Productivity")], [{task: "Concentration", requirement: 5}]),
-    "Bargaining": new TaskRequirement([getTaskElement("Bargaining")], [{task: "Concentration", requirement: 20}]),
-    "Meditation": new TaskRequirement([getTaskElement("Meditation")], [{task: "Concentration", requirement: 30}, {task: "Productivity", requirement: 20}]),
+    "Concentration": new TaskRequirement([rows["rows"]["Concentration"]], []),
+    "Productivity": new TaskRequirement([rows["rows"]["Productivity"]], [{task: "Concentration", requirement: 5}]),
+    "Bargaining": new TaskRequirement([rows["rows"]["Bargaining"]], [{task: "Concentration", requirement: 20}]),
+    "Meditation": new TaskRequirement([rows["rows"]["Meditation"]], [{task: "Concentration", requirement: 30}, {task: "Productivity", requirement: 20}]),
 
     //Combat
-    "Strength": new TaskRequirement([getTaskElement("Strength")], []),
-    "Battle tactics": new TaskRequirement([getTaskElement("Battle tactics")], [{task: "Concentration", requirement: 20}]),
-    "Muscle memory": new TaskRequirement([getTaskElement("Muscle memory")], [{task: "Concentration", requirement: 30}, {task: "Strength", requirement: 30}]),
+    "Strength": new TaskRequirement([rows["rows"]["Strength"]], []),
+    "Battle tactics": new TaskRequirement([rows["rows"]["Battle tactics"]], [{task: "Concentration", requirement: 20}]),
+    "Muscle memory": new TaskRequirement([rows["rows"]["Muscle memory"]], [{task: "Concentration", requirement: 30}, {task: "Strength", requirement: 30}]),
 
     //Magic
-    "Mana control": new TaskRequirement([getTaskElement("Mana control")], [{task: "Concentration", requirement: 200}, {task: "Meditation", requirement: 200}]),
-    "Immortality": new TaskRequirement([getTaskElement("Immortality")], [{task: "Apprentice mage", requirement: 10}]),
-    "Time warping": new TaskRequirement([getTaskElement("Time warping")], [{task: "Mage", requirement: 10}]),
-    "Super immortality": new TaskRequirement([getTaskElement("Super immortality")], [{task: "Chairman", requirement: 1000}]),
+    "Mana control": new TaskRequirement([rows["rows"]["Mana control"]], [{task: "Concentration", requirement: 200}, {task: "Meditation", requirement: 200}]),
+    "Immortality": new TaskRequirement([rows["rows"]["Immortality"]], [{task: "Apprentice mage", requirement: 10}]),
+    "Time warping": new TaskRequirement([rows["rows"]["Time warping"]], [{task: "Mage", requirement: 10}]),
+    "Super immortality": new TaskRequirement([rows["rows"]["Super immortality"]], [{task: "Chairman", requirement: 1000}]),
 
     //Dark magic
-    "Dark influence": new EvilRequirement([getTaskElement("Dark influence")], [{requirement: 1}]),
-    "Evil control": new EvilRequirement([getTaskElement("Evil control")], [{requirement: 1}]),
-    "Intimidation": new EvilRequirement([getTaskElement("Intimidation")], [{requirement: 1}]),
-    "Demon training": new EvilRequirement([getTaskElement("Demon training")], [{requirement: 25}]),
-    "Blood meditation": new EvilRequirement([getTaskElement("Blood meditation")], [{requirement: 75}]),
-    "Demon's wealth": new EvilRequirement([getTaskElement("Demon's wealth")], [{requirement: 500}]),
+    "Dark influence": new EvilRequirement([rows["rows"]["Dark influence"]], [{requirement: 1}]),
+    "Evil control": new EvilRequirement([rows["rows"]["Evil control"]], [{requirement: 1}]),
+    "Intimidation": new EvilRequirement([rows["rows"]["Intimidation"]], [{requirement: 1}]),
+    "Demon training": new EvilRequirement([rows["rows"]["Demon training"]], [{requirement: 25}]),
+    "Blood meditation": new EvilRequirement([rows["rows"]["Blood meditation"]], [{requirement: 75}]),
+    "Demon's wealth": new EvilRequirement([rows["rows"]["Demon's wealth"]], [{requirement: 500}]),
 
     //Properties
-    "Homeless": new CoinRequirement([getItemElement("Homeless")], [{requirement: 0}]),
-    "Tent": new CoinRequirement([getItemElement("Tent")], [{requirement: 0}]),
-    "Wooden hut": new CoinRequirement([getItemElement("Wooden hut")], [{requirement: gameData.itemData["Wooden hut"].getExpense() * 100}]),
-    "Cottage": new CoinRequirement([getItemElement("Cottage")], [{requirement: gameData.itemData["Cottage"].getExpense() * 100}]),
-    "House": new CoinRequirement([getItemElement("House")], [{requirement: gameData.itemData["House"].getExpense() * 100}]),
-    "Large house": new CoinRequirement([getItemElement("Large house")], [{requirement: gameData.itemData["Large house"].getExpense() * 100}]),
-    "Small palace": new CoinRequirement([getItemElement("Small palace")], [{requirement: gameData.itemData["Small palace"].getExpense() * 100}]),
-    "Grand palace": new CoinRequirement([getItemElement("Grand palace")], [{requirement: gameData.itemData["Grand palace"].getExpense() * 100}]),
+    "Homeless": new CoinRequirement([rows["rows"]["Homeless"]], [{requirement: 0}]),
+    "Tent": new CoinRequirement([rows["rows"]["Tent"]], [{requirement: 0}]),
+    "Wooden hut": new CoinRequirement([rows["rows"]["Wooden hut"]], [{requirement: gameData.itemData["Wooden hut"].getExpense() * 100}]),
+    "Cottage": new CoinRequirement([rows["rows"]["Cottage"]], [{requirement: gameData.itemData["Cottage"].getExpense() * 100}]),
+    "House": new CoinRequirement([rows["rows"]["House"]], [{requirement: gameData.itemData["House"].getExpense() * 100}]),
+    "Large house": new CoinRequirement([rows["rows"]["Large house"]], [{requirement: gameData.itemData["Large house"].getExpense() * 100}]),
+    "Small palace": new CoinRequirement([rows["rows"]["Small palace"]], [{requirement: gameData.itemData["Small palace"].getExpense() * 100}]),
+    "Grand palace": new CoinRequirement([rows["rows"]["Grand palace"]], [{requirement: gameData.itemData["Grand palace"].getExpense() * 100}]),
 
     //Misc
-    "Book": new CoinRequirement([getItemElement("Book")], [{requirement: 0}]),
-    "Dumbbells": new CoinRequirement([getItemElement("Dumbbells")], [{requirement: gameData.itemData["Dumbbells"].getExpense() * 100}]),
-    "Personal squire": new CoinRequirement([getItemElement("Personal squire")], [{requirement: gameData.itemData["Personal squire"].getExpense() * 100}]),
-    "Steel longsword": new CoinRequirement([getItemElement("Steel longsword")], [{requirement: gameData.itemData["Steel longsword"].getExpense() * 100}]),
-    "Butler": new CoinRequirement([getItemElement("Butler")], [{requirement: gameData.itemData["Butler"].getExpense() * 100}]),
-    "Sapphire charm": new CoinRequirement([getItemElement("Sapphire charm")], [{requirement: gameData.itemData["Sapphire charm"].getExpense() * 100}]),
-    "Study desk": new CoinRequirement([getItemElement("Study desk")], [{requirement: gameData.itemData["Study desk"].getExpense() * 100}]),
-    "Library": new CoinRequirement([getItemElement("Library")], [{requirement: gameData.itemData["Library"].getExpense() * 100}]), 
+    "Book": new CoinRequirement([rows["rows"]["Book"]], [{requirement: 0}]),
+    "Dumbbells": new CoinRequirement([rows["rows"]["Dumbbells"]], [{requirement: gameData.itemData["Dumbbells"].getExpense() * 100}]),
+    "Personal squire": new CoinRequirement([rows["rows"]["Personal squire"]], [{requirement: gameData.itemData["Personal squire"].getExpense() * 100}]),
+    "Steel longsword": new CoinRequirement([rows["rows"]["Steel longsword"]], [{requirement: gameData.itemData["Steel longsword"].getExpense() * 100}]),
+    "Butler": new CoinRequirement([rows["rows"]["Butler"]], [{requirement: gameData.itemData["Butler"].getExpense() * 100}]),
+    "Sapphire charm": new CoinRequirement([rows["rows"]["Sapphire charm"]], [{requirement: gameData.itemData["Sapphire charm"].getExpense() * 100}]),
+    "Study desk": new CoinRequirement([rows["rows"]["Study desk"]], [{requirement: gameData.itemData["Study desk"].getExpense() * 100}]),
+    "Library": new CoinRequirement([rows["rows"]["Library"]], [{requirement: gameData.itemData["Library"].getExpense() * 100}]), 
 }
 
 for (key in gameData.requirements) {
