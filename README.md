@@ -1,2 +1,2 @@
 # progress-knight
-An incremental game developed by me. Link to the game: https://ihtasham42.github.io/progress-knight/
+This is the developer branch of Progress Knight. Any future changes will be stored here. 
