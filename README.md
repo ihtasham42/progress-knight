@@ -13,6 +13,6 @@ Will you decide to take the easy route of doing simple commoner work? Or will yo
 Eventually, your age will catch up to you. You will be given an option to prestige and gain xp multipliers (based on the performance of your current life) for your next life at the cost of losing all your levels and assets. Fear not though, as you will re-gain your levels much, much more quickly than in your previous life...
 
 ## Where can I play Progress Knight?
-Progress Knight can be played on the following sites:
-[Github Pages](https://ihtasham42.github.io/progress-knight/)
+Progress Knight can be played on the following sites:  
+[Github Pages](https://ihtasham42.github.io/progress-knight/)  
 [Armor Games](https://armorgames.com/progress-knight-game/19095)
