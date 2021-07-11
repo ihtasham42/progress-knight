@@ -504,7 +504,7 @@ function updateQuickTaskDisplay(taskType) {
 }
 
 function updateRequiredRows(data, categoryType) {
-    var requiredRows = document.getElementsByClassName("requiredRow")
+    var requiredRows = Object.values(rows["requiredRows"])
 
     for (requiredRow of requiredRows) {
         var category = categoryType[requiredRow.id] 
@@ -590,7 +590,7 @@ function setRequiredRowText(requiredRow, lockedEntity, data) {
 function updateTaskRows() {
     for (key in gameData.taskData) {
         var task = gameData.taskData[key]
-        var row = document.getElementById("row " + task.name)
+        var row = rows["rows"][key]
 
         row.getElementsByClassName("level")[0].textContent = task.level
         row.getElementsByClassName("xpGain")[0].textContent = format(task.getXpGain())
@@ -621,7 +621,7 @@ function updateTaskRows() {
 function updateItemRows() {
     for (key in gameData.itemData) {
         var item = gameData.itemData[key]
-        var row = document.getElementById("row " + item.name)
+        var row = rows["rows"][key]
 
         var button = row.getElementsByClassName("button")[0]
         button.disabled = gameData.coins < item.getExpense()
