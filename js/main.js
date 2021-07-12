@@ -12,7 +12,7 @@ const updateSpeed = 20
 const baseLifespan = 365 * 70
 const baseGameSpeed = 4
 const permanentUnlocks = ["Scheduling", "Shop", "Automation", "Quick task display"]
-const units = ["", "k", "M", "B", "T", "q", "Q", "Sx", "Sp", "Oc"];
+const units = ["", "k", "M", "B", "T", "q", "Q", "Sx", "Sp", "Oc", "Nn"];
 
 const jobBaseData = {
     "Beggar": {name: "Beggar", maxXp: 50, income: 5},
@@ -20,7 +20,7 @@ const jobBaseData = {
     "Fisherman": {name: "Fisherman", maxXp: 200, income: 15},
     "Miner": {name: "Miner", maxXp: 400, income: 40},
     "Blacksmith": {name: "Blacksmith", maxXp: 800, income: 80},
-    "Merchant": {name: "Merchant", maxXp: 1600, income: 150},
+    "Merchant": {name: "Merchant", maxXp: 1600, income: 300},
 
     "Squire": {name: "Squire", maxXp: 100, income: 5},
     "Footman": {name: "Footman", maxXp: 1000, income: 50},
@@ -71,7 +71,8 @@ const itemBaseData = {
     "House": {name: "House", expense: 3000, effect: 6},
     "Large house": {name: "Large house", expense: 25000, effect: 12},
     "Small palace": {name: "Small palace", expense: 300000, effect: 25},
-    "Grand palace": {name: "Grand palace", expense: 5000000, effect: 60},
+    "Grand palace": {name: "Grand palace", expense: 15000000, effect: 60},
+    "Sky fortress": {name: "Sky fortress", expense: 1000000000, effect: 200},
 
     "Book": {name: "Book", expense: 10, effect: 1.5, description: "Skill xp"},
     "Dumbbells": {name: "Dumbbells", expense: 50, effect: 1.5, description: "Strength xp"},
@@ -97,7 +98,7 @@ const skillCategories = {
 }
 
 const itemCategories = {
-    "Properties": ["Homeless", "Tent", "Wooden hut", "Cottage", "House", "Large house", "Small palace", "Grand palace"],
+    "Properties": ["Homeless", "Tent", "Wooden hut", "Cottage", "House", "Large house", "Small palace", "Grand palace", "Sky fortress"],
     "Misc": ["Book", "Dumbbells", "Personal squire", "Steel longsword", "Butler", "Sapphire charm", "Study desk", "Library"]
 }
 
@@ -166,6 +167,7 @@ const tooltips = {
     "Large house": "Much larger than a regular house, which boasts even more rooms and multiple floors. The building is quite spacious but comes with a hefty price tag.",
     "Small palace": "A very rich and meticulously built structure rimmed with fine metals such as silver. Extremely high expenses to maintain for a lavish lifestyle.",
     "Grand palace": "A grand residence completely composed of gold and silver. Provides the utmost luxurious and comfortable living conditions possible for a ludicrous price.",
+    "Sky fortress": "",
 
     "Book": "A place to write down all your thoughts and discoveries, allowing you to learn a lot more quickly.",
     "Dumbbells": "Heavy tools used in strenuous exercise to toughen up and accumulate strength even faster than before. ",
@@ -257,7 +259,7 @@ function addMultipliers() {
         } else if (jobCategories["The Arcane Association"].includes(task.name)) {
             task.xpMultipliers.push(getBindedTaskEffect("Mana control"))
         } else if (skillCategories["Dark magic"].includes(task.name)) {
-            task.xpMultipliers.push(getEvil)
+            task.xpMultipliers.push(getEvilMultiplier)
         }
     }
 
@@ -305,8 +307,9 @@ function getHappiness() {
     return happiness
 }
 
-function getEvil() {
-    return gameData.evil
+function getEvilMultiplier() {
+    if (gameData.evil == 0) {return 0}
+    return 1 + getBaseLog(1.5, gameData.evil)
 }
 
 function applyMultipliers(value, multipliers) {
@@ -1144,6 +1147,7 @@ gameData.requirements = {
     "Large house": new CoinRequirement([rows["rows"]["Large house"]], [{requirement: gameData.itemData["Large house"].getExpense() * 100}]),
     "Small palace": new CoinRequirement([rows["rows"]["Small palace"]], [{requirement: gameData.itemData["Small palace"].getExpense() * 100}]),
     "Grand palace": new CoinRequirement([rows["rows"]["Grand palace"]], [{requirement: gameData.itemData["Grand palace"].getExpense() * 100}]),
+    "Grand palace": new CoinRequirement([rows["rows"]["Sky fortress"]], [{requirement: gameData.itemData["Sky fortress"].getExpense() * 100}]),
 
     //Misc
     "Book": new CoinRequirement([rows["rows"]["Book"]], [{requirement: 0}]),
@@ -1172,3 +1176,8 @@ update()
 setInterval(update, 1000 / updateSpeed)
 setInterval(saveGameData, 3000)
 setInterval(setSkillWithLowestMaxXp, 1000)
+
+document.getElementById("debugSlider").oninput = function() {
+    debugSpeed = Math.pow(2, this.value / 12)
+    document.getElementById("debugSpeedDisplay").textContent = debugSpeed.toFixed(1)
+} 

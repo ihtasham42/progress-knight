@@ -127,6 +127,10 @@ class TaskRequirement extends Requirement {
     constructor(elements, requirements) {
         super(elements, requirements)
         this.type = "task"
+        
+        if (elements in gameData.taskData) {
+            elements = [rows["rows"][elements.name]]
+        }
     }
 
     getCondition(requirement) {
