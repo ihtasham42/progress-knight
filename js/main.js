@@ -85,21 +85,56 @@ const itemBaseData = {
 }
 
 const jobCategories = {
-    "Common work": ["Beggar", "Farmer", "Fisherman", "Miner", "Blacksmith", "Merchant"],
-    "Military" : ["Squire", "Footman", "Veteran footman", "Knight", "Veteran knight", "Elite knight", "Holy knight", "Legendary knight"],
-    "The Arcane Association" : ["Student", "Apprentice mage", "Mage", "Wizard", "Master wizard", "Chairman"]
+    "Common work": [
+        "Beggar", "Farmer", "Fisherman", 
+        "Miner", "Blacksmith", "Merchant"
+    ],
+    
+    "Military" : [
+        "Squire", "Footman", "Veteran footman", 
+        "Knight", "Veteran knight", "Elite knight", 
+        "Holy knight", "Legendary knight"
+    ],
+
+    "The Arcane Association" : [
+        "Student", "Apprentice mage", "Mage", 
+        "Wizard", "Master wizard", "Chairman"
+    ]
 }
 
 const skillCategories = {
-    "Fundamentals": ["Concentration", "Productivity", "Bargaining", "Meditation"],
-    "Combat": ["Strength", "Battle tactics", "Muscle memory"],
-    "Magic": ["Mana control", "Immortality", "Time warping", "Super immortality"],
-    "Dark magic": ["Dark influence", "Evil control", "Intimidation", "Demon training", "Blood meditation", "Demon's wealth"]
+    "Fundamentals": [
+        "Concentration", "Productivity", "Bargaining", 
+        "Meditation"
+    ],
+
+    "Combat": [
+        "Strength", "Battle tactics", "Muscle memory"
+    ],
+
+    "Magic": [
+        "Mana control", "Immortality", "Time warping", 
+        "Super immortality"
+    ],
+
+    "Dark magic": [
+        "Dark influence", "Evil control", "Intimidation", 
+        "Demon training", "Blood meditation", "Demon's wealth"
+    ]
 }
 
 const itemCategories = {
-    "Properties": ["Homeless", "Tent", "Wooden hut", "Cottage", "House", "Large house", "Small palace", "Grand palace", "Sky fortress"],
-    "Misc": ["Book", "Dumbbells", "Personal squire", "Steel longsword", "Butler", "Sapphire charm", "Study desk", "Library"]
+    "Properties": [
+        "Homeless", "Tent", "Wooden hut", 
+        "Cottage", "House", "Large house", 
+        "Small palace", "Grand palace", "Sky fortress"
+    ],
+
+    "Misc": [
+        "Book", "Dumbbells", "Personal squire", 
+        "Steel longsword", "Butler", 
+        "Sapphire charm", "Study desk", "Library"
+    ]
 }
 
 const headerRowColors = {
