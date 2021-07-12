@@ -690,6 +690,7 @@ function hideEntities() {
     for (key in gameData.requirements) {
         var requirement = gameData.requirements[key]
         var completed = requirement.isCompleted()
+        
         for (element of requirement.elements) {
             if (completed) {
                 element.classList.remove("hidden")
@@ -1088,76 +1089,79 @@ gameData.requirements = {
     "Quick task display": new AgeRequirement([document.getElementById("quickTaskDisplay")], [{requirement: 20}]),
 
     //Common work
-    "Beggar": new TaskRequirement([rows["rows"]["Beggar"]], []),
-    "Farmer": new TaskRequirement([rows["rows"]["Farmer"]], [{task: "Beggar", requirement: 10}]),
-    "Fisherman": new TaskRequirement([rows["rows"]["Fisherman"]], [{task: "Farmer", requirement: 10}]),
-    "Miner": new TaskRequirement([rows["rows"]["Miner"]], [{task: "Strength", requirement: 10}, {task: "Fisherman", requirement: 10}]),
-    "Blacksmith": new TaskRequirement([rows["rows"]["Blacksmith"]], [{task: "Strength", requirement: 30}, {task: "Miner", requirement: 10}]),
-    "Merchant": new TaskRequirement([rows["rows"]["Merchant"]], [{task: "Bargaining", requirement: 50}, {task: "Blacksmith", requirement: 10}]),
+    "Beggar": new TaskRequirement("Beggar", []),
+    "Farmer": new TaskRequirement("Farmer", [{task: "Beggar", requirement: 10}]),
+    "Fisherman": new TaskRequirement("Fisherman", [{task: "Farmer", requirement: 10}]),
+    "Miner": new TaskRequirement("Miner", [{task: "Strength", requirement: 10}, {task: "Fisherman", requirement: 10}]),
+    "Blacksmith": new TaskRequirement("Blacksmith", [{task: "Strength", requirement: 30}, {task: "Miner", requirement: 10}]),
+    "Merchant": new TaskRequirement("Merchant", [{task: "Bargaining", requirement: 50}, {task: "Blacksmith", requirement: 10}]),
 
     //Military 
-    "Squire": new TaskRequirement([rows["rows"]["Squire"]], [{task: "Strength", requirement: 5}]),
-    "Footman": new TaskRequirement([rows["rows"]["Footman"]], [{task: "Strength", requirement: 20}, {task: "Squire", requirement: 10}]),
-    "Veteran footman": new TaskRequirement([rows["rows"]["Veteran footman"]], [{task: "Battle tactics", requirement: 40}, {task: "Footman", requirement: 10}]),
-    "Knight": new TaskRequirement([rows["rows"]["Knight"]], [{task: "Strength", requirement: 100}, {task: "Veteran footman", requirement: 10}]),
-    "Veteran knight": new TaskRequirement([rows["rows"]["Veteran knight"]], [{task: "Battle tactics", requirement: 150}, {task: "Knight", requirement: 10}]),
-    "Elite knight": new TaskRequirement([rows["rows"]["Elite knight"]], [{task: "Strength", requirement: 300}, {task: "Veteran knight", requirement: 10}]),
-    "Holy knight": new TaskRequirement([rows["rows"]["Holy knight"]], [{task: "Mana control", requirement: 500}, {task: "Elite knight", requirement: 10}]),
-    "Legendary knight": new TaskRequirement([rows["rows"]["Legendary knight"]], [{task: "Mana control", requirement: 1000}, {task: "Battle tactics", requirement: 1000}, {task: "Holy knight", requirement: 10}]),
+    "Squire": new TaskRequirement("Squire", [{task: "Strength", requirement: 5}]),
+    "Footman": new TaskRequirement("Footman", [{task: "Strength", requirement: 20}, {task: "Squire", requirement: 10}]),
+    "Veteran footman": new TaskRequirement("Veteran footman", [{task: "Battle tactics", requirement: 40}, {task: "Footman", requirement: 10}]),
+    "Knight": new TaskRequirement("Knight", [{task: "Strength", requirement: 100}, {task: "Veteran footman", requirement: 10}]),
+    "Veteran knight": new TaskRequirement("Veteran knight", [{task: "Battle tactics", requirement: 150}, {task: "Knight", requirement: 10}]),
+    "Elite knight": new TaskRequirement("Elite knight", [{task: "Strength", requirement: 300}, {task: "Veteran knight", requirement: 10}]),
+    "Holy knight": new TaskRequirement("Holy knight", [{task: "Mana control", requirement: 500}, {task: "Elite knight", requirement: 10}]),
+    "Legendary knight": new TaskRequirement(
+        "Legendary knight", 
+        [{task: "Mana control", requirement: 1000}, {task: "Battle tactics", requirement: 1000}, {task: "Holy knight", requirement: 10}]
+    ),
 
     //The Arcane Association
-    "Student": new TaskRequirement([rows["rows"]["Student"]], [{task: "Concentration", requirement: 200}, {task: "Meditation", requirement: 200}]),
-    "Apprentice mage": new TaskRequirement([rows["rows"]["Apprentice mage"]], [{task: "Mana control", requirement: 400}, {task: "Student", requirement: 10}]),
-    "Mage": new TaskRequirement([rows["rows"]["Mage"]], [{task: "Mana control", requirement: 700}, {task: "Apprentice mage", requirement: 10}]),
-    "Wizard": new TaskRequirement([rows["rows"]["Wizard"]], [{task: "Mana control", requirement: 1000}, {task: "Mage", requirement: 10}]),
-    "Master wizard": new TaskRequirement([rows["rows"]["Master wizard"]], [{task: "Mana control", requirement: 1500}, {task: "Wizard", requirement: 10}]),
-    "Chairman": new TaskRequirement([rows["rows"]["Chairman"]], [{task: "Mana control", requirement: 2000}, {task: "Master wizard", requirement: 10}]),
+    "Student": new TaskRequirement("Student", [{task: "Concentration", requirement: 200}, {task: "Meditation", requirement: 200}]),
+    "Apprentice mage": new TaskRequirement("Apprentice mage", [{task: "Mana control", requirement: 400}, {task: "Student", requirement: 10}]),
+    "Mage": new TaskRequirement("Mage", [{task: "Mana control", requirement: 700}, {task: "Apprentice mage", requirement: 10}]),
+    "Wizard": new TaskRequirement("Wizard", [{task: "Mana control", requirement: 1000}, {task: "Mage", requirement: 10}]),
+    "Master wizard": new TaskRequirement("Master wizard", [{task: "Mana control", requirement: 1500}, {task: "Wizard", requirement: 10}]),
+    "Chairman": new TaskRequirement("Chairman", [{task: "Mana control", requirement: 2000}, {task: "Master wizard", requirement: 10}]),
 
     //Fundamentals
-    "Concentration": new TaskRequirement([rows["rows"]["Concentration"]], []),
-    "Productivity": new TaskRequirement([rows["rows"]["Productivity"]], [{task: "Concentration", requirement: 5}]),
-    "Bargaining": new TaskRequirement([rows["rows"]["Bargaining"]], [{task: "Concentration", requirement: 20}]),
-    "Meditation": new TaskRequirement([rows["rows"]["Meditation"]], [{task: "Concentration", requirement: 30}, {task: "Productivity", requirement: 20}]),
+    "Concentration": new TaskRequirement("Concentration", []),
+    "Productivity": new TaskRequirement("Productivity", [{task: "Concentration", requirement: 5}]),
+    "Bargaining": new TaskRequirement("Bargaining", [{task: "Concentration", requirement: 20}]),
+    "Meditation": new TaskRequirement("Meditation", [{task: "Concentration", requirement: 30}, {task: "Productivity", requirement: 20}]),
 
     //Combat
-    "Strength": new TaskRequirement([rows["rows"]["Strength"]], []),
-    "Battle tactics": new TaskRequirement([rows["rows"]["Battle tactics"]], [{task: "Concentration", requirement: 20}]),
-    "Muscle memory": new TaskRequirement([rows["rows"]["Muscle memory"]], [{task: "Concentration", requirement: 30}, {task: "Strength", requirement: 30}]),
+    "Strength": new TaskRequirement("Strength", []),
+    "Battle tactics": new TaskRequirement("Battle tactics", [{task: "Concentration", requirement: 20}]),
+    "Muscle memory": new TaskRequirement("Muscle memory", [{task: "Concentration", requirement: 30}, {task: "Strength", requirement: 30}]),
 
     //Magic
-    "Mana control": new TaskRequirement([rows["rows"]["Mana control"]], [{task: "Concentration", requirement: 200}, {task: "Meditation", requirement: 200}]),
-    "Immortality": new TaskRequirement([rows["rows"]["Immortality"]], [{task: "Apprentice mage", requirement: 10}]),
-    "Time warping": new TaskRequirement([rows["rows"]["Time warping"]], [{task: "Mage", requirement: 10}]),
-    "Super immortality": new TaskRequirement([rows["rows"]["Super immortality"]], [{task: "Chairman", requirement: 1000}]),
+    "Mana control": new TaskRequirement("Mana control", [{task: "Concentration", requirement: 200}, {task: "Meditation", requirement: 200}]),
+    "Immortality": new TaskRequirement("Immortality", [{task: "Apprentice mage", requirement: 10}]),
+    "Time warping": new TaskRequirement("Time warping", [{task: "Mage", requirement: 10}]),
+    "Super immortality": new TaskRequirement("Super immortality", [{task: "Chairman", requirement: 1000}]),
 
     //Dark magic
-    "Dark influence": new EvilRequirement([rows["rows"]["Dark influence"]], [{requirement: 1}]),
-    "Evil control": new EvilRequirement([rows["rows"]["Evil control"]], [{requirement: 1}]),
-    "Intimidation": new EvilRequirement([rows["rows"]["Intimidation"]], [{requirement: 1}]),
-    "Demon training": new EvilRequirement([rows["rows"]["Demon training"]], [{requirement: 25}]),
-    "Blood meditation": new EvilRequirement([rows["rows"]["Blood meditation"]], [{requirement: 75}]),
-    "Demon's wealth": new EvilRequirement([rows["rows"]["Demon's wealth"]], [{requirement: 500}]),
+    "Dark influence": new EvilRequirement("Dark influence", [{requirement: 1}]),
+    "Evil control": new EvilRequirement("Evil control", [{requirement: 1}]),
+    "Intimidation": new EvilRequirement("Intimidation", [{requirement: 1}]),
+    "Demon training": new EvilRequirement("Demon training", [{requirement: 25}]),
+    "Blood meditation": new EvilRequirement("Blood meditation", [{requirement: 75}]),
+    "Demon's wealth": new EvilRequirement("Demon's wealth", [{requirement: 500}]),
 
     //Properties
-    "Homeless": new CoinRequirement([rows["rows"]["Homeless"]], [{requirement: 0}]),
-    "Tent": new CoinRequirement([rows["rows"]["Tent"]], [{requirement: 0}]),
-    "Wooden hut": new CoinRequirement([rows["rows"]["Wooden hut"]], [{requirement: gameData.itemData["Wooden hut"].getExpense() * 100}]),
-    "Cottage": new CoinRequirement([rows["rows"]["Cottage"]], [{requirement: gameData.itemData["Cottage"].getExpense() * 100}]),
-    "House": new CoinRequirement([rows["rows"]["House"]], [{requirement: gameData.itemData["House"].getExpense() * 100}]),
-    "Large house": new CoinRequirement([rows["rows"]["Large house"]], [{requirement: gameData.itemData["Large house"].getExpense() * 100}]),
-    "Small palace": new CoinRequirement([rows["rows"]["Small palace"]], [{requirement: gameData.itemData["Small palace"].getExpense() * 100}]),
-    "Grand palace": new CoinRequirement([rows["rows"]["Grand palace"]], [{requirement: gameData.itemData["Grand palace"].getExpense() * 100}]),
-    "Grand palace": new CoinRequirement([rows["rows"]["Sky fortress"]], [{requirement: gameData.itemData["Sky fortress"].getExpense() * 100}]),
+    "Homeless": new CoinRequirement("Homeless", [{requirement: 0}]),
+    "Tent": new CoinRequirement("Tent", [{requirement: 0}]),
+    "Wooden hut": new CoinRequirement("Wooden hut", [{requirement: gameData.itemData["Wooden hut"].getExpense() * 100}]),
+    "Cottage": new CoinRequirement("Cottage", [{requirement: gameData.itemData["Cottage"].getExpense() * 100}]),
+    "House": new CoinRequirement("House", [{requirement: gameData.itemData["House"].getExpense() * 100}]),
+    "Large house": new CoinRequirement("Large house", [{requirement: gameData.itemData["Large house"].getExpense() * 100}]),
+    "Small palace": new CoinRequirement("Small palace", [{requirement: gameData.itemData["Small palace"].getExpense() * 100}]),
+    "Grand palace": new CoinRequirement("Grand palace", [{requirement: gameData.itemData["Grand palace"].getExpense() * 100}]),
+    "Grand palace": new CoinRequirement("Sky fortress", [{requirement: gameData.itemData["Sky fortress"].getExpense() * 100}]),
 
     //Misc
-    "Book": new CoinRequirement([rows["rows"]["Book"]], [{requirement: 0}]),
-    "Dumbbells": new CoinRequirement([rows["rows"]["Dumbbells"]], [{requirement: gameData.itemData["Dumbbells"].getExpense() * 100}]),
-    "Personal squire": new CoinRequirement([rows["rows"]["Personal squire"]], [{requirement: gameData.itemData["Personal squire"].getExpense() * 100}]),
-    "Steel longsword": new CoinRequirement([rows["rows"]["Steel longsword"]], [{requirement: gameData.itemData["Steel longsword"].getExpense() * 100}]),
-    "Butler": new CoinRequirement([rows["rows"]["Butler"]], [{requirement: gameData.itemData["Butler"].getExpense() * 100}]),
-    "Sapphire charm": new CoinRequirement([rows["rows"]["Sapphire charm"]], [{requirement: gameData.itemData["Sapphire charm"].getExpense() * 100}]),
-    "Study desk": new CoinRequirement([rows["rows"]["Study desk"]], [{requirement: gameData.itemData["Study desk"].getExpense() * 100}]),
-    "Library": new CoinRequirement([rows["rows"]["Library"]], [{requirement: gameData.itemData["Library"].getExpense() * 100}]), 
+    "Book": new CoinRequirement("Book", [{requirement: 0}]),
+    "Dumbbells": new CoinRequirement("Dumbbells", [{requirement: gameData.itemData["Dumbbells"].getExpense() * 100}]),
+    "Personal squire": new CoinRequirement("Personal squire", [{requirement: gameData.itemData["Personal squire"].getExpense() * 100}]),
+    "Steel longsword": new CoinRequirement("Steel longsword", [{requirement: gameData.itemData["Steel longsword"].getExpense() * 100}]),
+    "Butler": new CoinRequirement("Butler", [{requirement: gameData.itemData["Butler"].getExpense() * 100}]),
+    "Sapphire charm": new CoinRequirement("Sapphire charm", [{requirement: gameData.itemData["Sapphire charm"].getExpense() * 100}]),
+    "Study desk": new CoinRequirement("Study desk", [{requirement: gameData.itemData["Study desk"].getExpense() * 100}]),
+    "Library": new CoinRequirement("Library", [{requirement: gameData.itemData["Library"].getExpense() * 100}]), 
 }
 
 for (key in gameData.requirements) {

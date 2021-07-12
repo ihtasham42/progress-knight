@@ -107,6 +107,10 @@ class Requirement {
         this.elements = elements
         this.requirements = requirements
         this.completed = false
+
+        if (gameData.taskData[elements] || gameData.itemData[elements]) {
+            this.elements = [rows["rows"][elements]]
+        }
     }
 
     isCompleted() {
@@ -127,10 +131,6 @@ class TaskRequirement extends Requirement {
     constructor(elements, requirements) {
         super(elements, requirements)
         this.type = "task"
-        
-        if (elements in gameData.taskData) {
-            elements = [rows["rows"][elements.name]]
-        }
     }
 
     getCondition(requirement) {
