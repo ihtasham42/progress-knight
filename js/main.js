@@ -21,6 +21,7 @@ const jobBaseData = {
     "Miner": {name: "Miner", maxXp: 400, income: 40},
     "Blacksmith": {name: "Blacksmith", maxXp: 800, income: 80},
     "Merchant": {name: "Merchant", maxXp: 1600, income: 300},
+    "Travelling merchant": {name: "Travelling merchant", maxXp: 3200, income: 1000},
 
     "Squire": {name: "Squire", maxXp: 100, income: 5},
     "Footman": {name: "Footman", maxXp: 1000, income: 50},
@@ -87,7 +88,8 @@ const itemBaseData = {
 const jobCategories = {
     "Common work": [
         "Beggar", "Farmer", "Fisherman", 
-        "Miner", "Blacksmith", "Merchant"
+        "Miner", "Blacksmith", "Merchant",
+        "Travelling merchant"
     ],
     
     "Military" : [
@@ -156,6 +158,7 @@ const tooltips = {
     "Miner": "Delve into dangerous caverns and mine valuable ores. The pay is quite meager compared to the risk involved.",
     "Blacksmith": "Smelt ores and carefully forge weapons for the military. A respectable and OK paying commoner job.",
     "Merchant": "Travel from town to town, bartering fine goods. The job pays decently well and is a lot less manually-intensive.",
+    "Travelling merchant": "",
 
     "Squire": "Carry around your knight's shield and sword along the battlefield. Very meager pay but the work experience is quite valuable.",
     "Footman": "Put down your life to battle with enemy soldiers. A courageous, respectable job but you are still worthless in the grand scheme of things.",
@@ -241,7 +244,7 @@ var rows = {
     "requiredRows": {}
 }
 
-var skillWithLowestMaxXp = null
+var autoLearnSkill = null
 var debugSpeed = 4
 
 function getBaseLog(x, y) {
@@ -295,6 +298,8 @@ function addMultipliers() {
             task.xpMultipliers.push(getBindedTaskEffect("Mana control"))
         } else if (skillCategories["Dark magic"].includes(task.name)) {
             task.xpMultipliers.push(getEvilMultiplier)
+        } else if (task.name == "Travelling merchant") {
+            task.incomeMultipliers.push(getInterestMultiplier)
         }
     }
 
@@ -309,17 +314,17 @@ function addMultipliers() {
 
 function setCustomEffects() {
     var bargaining = gameData.taskData["Bargaining"]
-    bargaining.getEffect = function() {
+    bargaining.getEffect = function(name) {
         var multiplier = 1 - getBaseLog(7, bargaining.level + 1) / 10
         if (multiplier < 0.1) {multiplier = 0.1}
-        return multiplier
+        return name ? bargaining.name : multiplier
     }
 
     var intimidation = gameData.taskData["Intimidation"]
-    intimidation.getEffect = function() {
+    intimidation.getEffect = function(name) {
         var multiplier = 1 - getBaseLog(7, intimidation.level + 1) / 10
         if (multiplier < 0.1) {multiplier = 0.1}
-        return multiplier
+        return name ? intimidation.name : multiplier
     }
 
     var timeWarping = gameData.taskData["Time warping"]
@@ -333,18 +338,29 @@ function setCustomEffects() {
         var multiplier = 1 + getBaseLog(33, immortality.level + 1) 
         return multiplier
     }
+
+    var travellingMerchant = gameData.taskData["Travelling merchant"]
+    travellingMerchant.getIncome = function() {
+        var income = gameData.coins / 1000000
+        return applyMultipliers(income, travellingMerchant.incomeMultipliers)
+    }
 }
 
-function getHappiness() {
+function getInterestMultiplier(name) {
+    var multiplier = 1 + gameData.taskData["Bargaining"].level / 300
+    return name ? "Bargaining" : multiplier
+}
+
+function getHappiness(name) {
     var meditationEffect = getBindedTaskEffect("Meditation")
     var butlerEffect = getBindedItemEffect("Butler")
     var happiness = meditationEffect() * butlerEffect() * gameData.currentProperty.getEffect()
-    return happiness
+    return name ? "Happiness" : happiness
 }
 
-function getEvilMultiplier() {
+function getEvilMultiplier(name) {
     if (gameData.evil == 0) {return 0}
-    return 1 + getBaseLog(1.5, gameData.evil)
+    return name ? "Evil" : 1 + getBaseLog(1.5, gameData.evil)
 }
 
 function applyMultipliers(value, multipliers) {
@@ -620,6 +636,27 @@ function setRequiredRowText(requiredRow, lockedEntity, data) {
     }
 }
 
+function getTaskMultiplierList(multiplierList) {
+    var text = ""
+
+    for (multiplierFunction of multiplierList) {
+        multiplierValue = multiplierFunction().toFixed(2)
+        if (multiplierValue == 1) {continue}
+        multiplierText = multiplierFunction(true)
+        text += multiplierText + " (x" + multiplierValue + "), "
+    }
+
+    text = text.substring(0, text.length - 2)
+
+    if (text == "") {
+        text = "No multipliers currently available."
+    } else {
+        text = "Multipliers: " + text
+    }
+
+    return text
+}
+
 function updateTaskRows() {
     for (key in gameData.taskData) {
         var task = gameData.taskData[key]
@@ -628,6 +665,7 @@ function updateTaskRows() {
         row.getElementsByClassName("level")[0].textContent = task.level
         row.getElementsByClassName("xpGain")[0].textContent = format(task.getXpGain())
         row.getElementsByClassName("xpLeft")[0].textContent = format(task.getXpLeft())
+        row.getElementsByClassName("xpMultipliers")[0].textContent = getTaskMultiplierList(task.xpMultipliers)
 
         var maxLevel = row.getElementsByClassName("maxLevel")[0]
         maxLevel.textContent = task.maxLevel
@@ -638,9 +676,11 @@ function updateTaskRows() {
         task == gameData.currentJob || task == gameData.currentSkill ? progressFill.classList.add("current") : progressFill.classList.remove("current")
 
         var valueElement = row.getElementsByClassName("value")[0]
-        valueElement.getElementsByClassName("income")[0].style.display = task instanceof Job
-        valueElement.getElementsByClassName("effect")[0].style.display = task instanceof Skill
+        valueElement.getElementsByClassName("income")[0].style.display = task instanceof Job ? "block" : "none"
+        valueElement.getElementsByClassName("effect")[0].style.display = task instanceof Skill ? "block" : "none"
+
         if (task instanceof Job) {
+            row.getElementsByClassName("incomeMultipliers")[0].textContent = getTaskMultiplierList(task.incomeMultipliers)
             formatCoins(task.getIncome(), valueElement.getElementsByClassName("income")[0])
         } else {
             valueElement.getElementsByClassName("effect")[0].textContent = task.getEffectDescription()
@@ -648,6 +688,8 @@ function updateTaskRows() {
 
         var skipSkillElement = row.getElementsByClassName("skipSkill")[0]
         skipSkillElement.style.display = task instanceof Skill && autoLearnElement.checked ? "block" : "none"
+
+        
     }
 }
 
@@ -665,6 +707,8 @@ function updateItemRows() {
 
         row.getElementsByClassName("effect")[0].textContent = item.getEffectDescription()
         formatCoins(item.getExpense(), row.getElementsByClassName("expense")[0])
+
+        row.getElementsByClassName("expenseMultipliers")[0].textContent = getTaskMultiplierList(item.expenseMultipliers)
     }
 }
 
@@ -797,24 +841,24 @@ function checkSkillSkipped(skill) {
     return isSkillSkipped
 }
 
-function setSkillWithLowestMaxXp() {
+function setAutoLearnSkill() {
     var xpDict = {}
 
     for (skillName in gameData.taskData) {
         var skill = gameData.taskData[skillName]
         var requirement = gameData.requirements[skillName]
         if (skill instanceof Skill && requirement.isCompleted() && !checkSkillSkipped(skill)) {
-            xpDict[skill.name] = skill.level //skill.getMaxXp() / skill.getXpGain()
+            xpDict[skill.name] = skill.getMaxXp() / skill.getXpGain()
         }
     }
 
     if (xpDict == {}) {
-        skillWithLowestMaxXp = gameData.taskData["Concentration"]
+        autoLearnSkill = gameData.taskData["Concentration"]
         return
     }
 
     var skillName = getKeyOfLowestValueFromDict(xpDict)
-    skillWithLowestMaxXp = gameData.taskData[skillName]
+    autoLearnSkill = gameData.taskData[skillName]
 }
 
 function getKeyOfLowestValueFromDict(dict) {
@@ -835,8 +879,8 @@ function getKeyOfLowestValueFromDict(dict) {
 }
 
 function autoLearn() {
-    if (!autoLearnElement.checked || !skillWithLowestMaxXp) return
-    gameData.currentSkill = skillWithLowestMaxXp
+    if (!autoLearnElement.checked || !autoLearnSkill) return
+    gameData.currentSkill = autoLearnSkill
 }
 
 function yearsToDays(years) {
@@ -1130,6 +1174,7 @@ gameData.requirements = {
     "Miner": new TaskRequirement("Miner", [{task: "Strength", requirement: 10}, {task: "Fisherman", requirement: 10}]),
     "Blacksmith": new TaskRequirement("Blacksmith", [{task: "Strength", requirement: 30}, {task: "Miner", requirement: 10}]),
     "Merchant": new TaskRequirement("Merchant", [{task: "Bargaining", requirement: 50}, {task: "Blacksmith", requirement: 10}]),
+    "Travelling merchant": new TaskRequirement("Travelling merchant", [{task: "Bargaining", requirement: 1000}, {task: "Merchant", requirement: 300}]),
 
     //Military 
     "Squire": new TaskRequirement("Squire", [{task: "Strength", requirement: 5}]),
@@ -1186,7 +1231,7 @@ gameData.requirements = {
     "Large house": new CoinRequirement("Large house", [{requirement: gameData.itemData["Large house"].getExpense() * 100}]),
     "Small palace": new CoinRequirement("Small palace", [{requirement: gameData.itemData["Small palace"].getExpense() * 100}]),
     "Grand palace": new CoinRequirement("Grand palace", [{requirement: gameData.itemData["Grand palace"].getExpense() * 100}]),
-    "Grand palace": new CoinRequirement("Sky fortress", [{requirement: gameData.itemData["Sky fortress"].getExpense() * 100}]),
+    "Sky fortress": new CoinRequirement("Sky fortress", [{requirement: gameData.itemData["Sky fortress"].getExpense() * 100}]),
 
     //Misc
     "Book": new CoinRequirement("Book", [{requirement: 0}]),
@@ -1214,7 +1259,7 @@ setTab(jobTabButton, "jobs")
 update()
 setInterval(update, 1000 / updateSpeed)
 setInterval(saveGameData, 3000)
-setInterval(setSkillWithLowestMaxXp, 1000)
+setInterval(setAutoLearnSkill, 1000)
 
 document.getElementById("debugSlider").oninput = function() {
     debugSpeed = Math.pow(2, this.value / 12)

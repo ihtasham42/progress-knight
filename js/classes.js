@@ -18,9 +18,9 @@ class Task {
         return Math.round(this.getMaxXp() - this.xp)
     }
 
-    getMaxLevelMultiplier() {
+    getMaxLevelMultiplier(name) {
         var maxLevelMultiplier = 1 + this.maxLevel / 10
-        return maxLevelMultiplier
+        return name ? "Max level" : maxLevelMultiplier
     }
 
     getXpGain() {
@@ -50,9 +50,9 @@ class Job extends Task {
         this.incomeMultipliers = []
     }
 
-    getLevelMultiplier() {
+    getLevelMultiplier(name) {
         var levelMultiplier = 1 + Math.log10(this.level + 1)
-        return levelMultiplier
+        return name ? "Level" : levelMultiplier
     }
     
     getIncome() {
@@ -65,9 +65,9 @@ class Skill extends Task {
         super(baseData)
     }
 
-    getEffect() {
+    getEffect(name) {
         var effect = 1 + this.baseData.effect * this.level
-        return effect
+        return name ? this.baseData.name : effect
     }
 
     getEffectDescription() {
@@ -84,10 +84,10 @@ class Item {
         this.expenseMultipliers = []
     }
 
-    getEffect() {
+    getEffect(name) {
         if (gameData.currentProperty != this && !gameData.currentMisc.includes(this)) return 1
         var effect = this.baseData.effect
-        return effect
+        return name ? this.baseData.name : effect
     }
 
     getEffectDescription() {

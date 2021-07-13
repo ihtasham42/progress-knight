@@ -5,6 +5,9 @@
     <link rel="stylesheet" type="text/css" href="css/styles.css">
     <link rel="stylesheet" type="text/css" href="css/dark.css">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"> 
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
     <title>Progress Knight</title>
 
     <meta name="description" 
@@ -13,9 +16,13 @@
 </head>
 <body id="body" class="dark">
     <div class="w3-margin"> 
-        <h1>Progress Knight</h1>
+        <div data-aos="fade-right" style="margin-bottom: 10px;">
+            <img src="img/progress-knight-logo.png" style="width: 60px; height: 60px; display: inline-block; vertical-align:middle;"></img>
+            <h1 style="display: inline-block; vertical-align:middle;">Progress Knight</h1>
+        </div>
+
         <div style="width: 1220px;"> 
-            <div class="panel w3-padding" style="width: 300px; height: auto; float: left">
+            <div data-aos="fade-right" class="panel w3-padding" style="width: 300px; height: auto; float: left">
                 <span id="deathText">
                     <div style="font-size: large; color: red">Age has caught up to you</div>
                     <div class="sidebar-element" style="color: gray">Your age has met your lifespan, use the amulet to rebirth before you pass away</div>
@@ -100,7 +107,7 @@
                 <div style="color: gray" class="sidebar-element">Affects game speed</div>
             </div>
 
-            <div class="panel w3-margin-left" style="width: 900px; height: 40px; float: left">
+            <div data-aos="fade-down" class="panel w3-margin-left" style="width: 900px; height: 40px; float: left">
                 <div class="w3-button w3-bar-item tabButton" id="jobTabButton" onClick="setTab(this, 'jobs')">Jobs</div>
                 <div class="w3-button w3-bar-item tabButton" onClick="setTab(this, 'skills')">Skills</div>
                 <div class="w3-button w3-bar-item tabButton" id="shopTabButton" onClick="setTab(this, 'shop')">Shop</div>
@@ -108,7 +115,7 @@
                 <div class="w3-button w3-bar-item tabButton" onClick="setTab(this, 'settings')" style="float: right">Settings</div>
             </div>
 
-            <div class="panel w3-margin-left w3-margin-top w3-padding" style="width: 900px; height: auto; float: left">
+            <div data-aos="fade-left" class="panel w3-margin-left w3-margin-top w3-padding" style="width: 900px; height: auto; float: left">
                 <template id="headerRowTaskTemplate">
                     <tr> 
                         <th class="category" style="width: 250px">Job</th>
@@ -147,9 +154,21 @@
                                 <span></span>
                                 <span></span>
                                 <span></span>
+                                <span class="tooltip">
+                                    <span class="fa fa-question-circle"></span>
+                                    <span class="incomeMultipliers tooltipText"></span>
+                                </span>
                             </div>
                         </td>
-                        <td class="xpGain">Xp/day</td>
+                        <td>
+                            <span class="xpGain">
+                                Xp/day 
+                            </span>
+                            <span class="tooltip">
+                                <span class="fa fa-question-circle"></span>
+                                <span class="xpMultipliers tooltipText">as</span>
+                            </span>
+                        </td>
                         <td class="xpLeft">Xp left</td>
                         <td class="maxLevel">Max level</td>
                         <td class="skipSkill">
@@ -179,6 +198,10 @@
                             <span></span>
                             <span></span>
                             <span></span>
+                            <span class="tooltip">
+                                <span class="fa fa-question-circle"></span>
+                                <span class="expenseMultipliers tooltipText"></span>
+                            </span>
                         </td>
                     </tr>
                 </template>
@@ -293,6 +316,9 @@
 
 <script type="text/javascript" src="js/HackTimer.js"></script>
 <script type="text/javascript" src="js/classes.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
+
+<script>AOS.init();</script>
 
 </html>
