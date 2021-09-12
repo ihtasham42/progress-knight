@@ -170,3 +170,36 @@ class EvilRequirement extends Requirement {
         return gameData.evil >= requirement.requirement
     }    
 }
+
+class Milestone {
+    constructor(taskName, level, requirements) {
+        this.taskName = taskName
+        this.level = level
+        this.requirements = requirements
+        
+        this.completed = false
+    }
+
+    getCondition(requirement) {
+        return gameData.taskData[requirement.task].level >= requirement.requirement
+    }
+
+    isCompleted() {
+        if (this.completed) {return true}
+        
+        for (var requirement of this.requirements) {
+            if (!this.getCondition(requirement)) {
+                return false
+            }
+        }
+
+        this.completed = true
+        return true
+    }
+
+    setEntityLevel() {
+        if (this.isCompleted()) {
+            gameData.taskData[this.taskName].level = this.level
+        }
+    }
+}

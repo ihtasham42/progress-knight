@@ -220,6 +220,8 @@ const tooltips = {
 var gameData = {
     taskData: {},
     itemData: {},
+    requirements: {},
+    milestones: {},
 
     coins: 0,
     days: 365 * 14,
@@ -541,6 +543,10 @@ function createAllRows(categoryType, tableId) {
     }
 }
 
+function createMilestoneRows(milestoneName) {
+    
+}
+
 function updateQuickTaskDisplay(taskType) {
     var currentTask = taskType == "job" ? gameData.currentJob : gameData.currentSkill
 
@@ -744,6 +750,10 @@ function updateText() {
 
     document.getElementById("timeWarpingDisplay").textContent = "x" + gameData.taskData["Time warping"].getEffect().toFixed(2)
     document.getElementById("timeWarpingButton").textContent = gameData.timeWarpingEnabled ? "Disable warp" : "Enable warp"
+}
+
+function updateMilestoneRows() {
+
 }
 
 function setSignDisplay() {
@@ -1100,6 +1110,7 @@ function updateInterface() {
     updateQuickTaskDisplay("job")
     updateQuickTaskDisplay("skill")
     hideEntities()
+    updateMilestoneRows()
     updateText()  
 }
 
@@ -1111,6 +1122,13 @@ function update() {
     doCurrentTask(gameData.currentSkill)
     applyExpenses()
     updateInterface()
+}
+
+function setEntityDefaults() {
+    gameData.currentJob = gameData.taskData["Beggar"]
+    gameData.currentSkill = gameData.taskData["Concentration"]
+    gameData.currentProperty = gameData.itemData["Homeless"]
+    gameData.currentMisc = []
 }
 
 function resetGameData() {
@@ -1141,10 +1159,6 @@ createData(gameData.taskData, jobBaseData)
 createData(gameData.taskData, skillBaseData)
 createData(gameData.itemData, itemBaseData) 
 
-gameData.currentJob = gameData.taskData["Beggar"]
-gameData.currentSkill = gameData.taskData["Concentration"]
-gameData.currentProperty = gameData.itemData["Homeless"]
-gameData.currentMisc = []
 gameData.requirements = {
     //Other
     "The Arcane Association": new TaskRequirement(
@@ -1159,6 +1173,7 @@ gameData.requirements = {
 
     "Shop": new CoinRequirement([document.getElementById("shopTabButton")], [{requirement: gameData.itemData["Tent"].getExpense() * 50}]),
     "Rebirth tab": new AgeRequirement([document.getElementById("rebirthTabButton")], [{requirement: 25}]),
+    "Milestones tab": new TaskRequirement([document.getElementById("milestoneTabButton")], [{task: "Strength", requirement: 50}]),
     "Rebirth note 1": new AgeRequirement([document.getElementById("rebirthNote1")], [{requirement: 45}]),
     "Rebirth note 2": new AgeRequirement([document.getElementById("rebirthNote2")], [{requirement: 65}]),
     "Rebirth note 3": new AgeRequirement([document.getElementById("rebirthNote3")], [{requirement: 200}]),
@@ -1244,10 +1259,18 @@ gameData.requirements = {
     "Library": new CoinRequirement("Library", [{requirement: gameData.itemData["Library"].getExpense() * 100}]), 
 }
 
+gameData.milestones = {
+    "Fit": new Milestone("Strength", 5, {task: "Strength", requirement: 50}),
+    "Buff": new Milestone("Strength", 20, {task: "Strength", requirement: 250}),
+    "Hercules": new Milestone("Strength", 50, {task: "Strength", requirement: 1000}),
+}
+
 for (key in gameData.requirements) {
     var requirement = gameData.requirements[key]
     requirementsCache[key] = requirement
 }
+
+setEntityDefaults()
 
 loadGameData()
 
