@@ -61,7 +61,13 @@ const skillBaseData = {
     "Demon training": {name: "Demon training", maxXp: 100, effect: 0.01, description: "All xp"},
     "Blood meditation": {name: "Blood meditation", maxXp: 100, effect: 0.01, description: "Evil gain"},
     "Demon's wealth": {name: "Demon's wealth", maxXp: 100, effect: 0.002, description: "Job pay"},
-    
+
+    "Holy influence": {name: "Holy influence", maxXp: 100, effect: 0.01, description: "All xp"},
+    "Redemption Strength": {name: "Redemption Strength", maxXp: 100, effect: 0.01, description: "Blessings gain"},
+    "Clairvoyance": {name: "Clairvoyance", maxXp: 100, effect: 0.02, description: "Redemption strength xp"},
+    "Serene focus": {name: "Serene focus", maxXp: 100, effect: 0.03, description: "Clairvoyance xp"},
+    "Photon attraction": {name: "Photon attraction", maxXp: 100, effect: 0.04, description: "Serene focus xp"},
+    "Angelic aura": {name: "Angelic aura", maxXp: 100, effect: 0.05, description: "Photon attraction xp"},
 }
 
 const itemBaseData = {
@@ -83,6 +89,7 @@ const itemBaseData = {
     "Sapphire charm": {name: "Sapphire charm", expense: 50000, effect: 3, description: "Magic xp"},
     "Study desk": {name: "Study desk", expense: 1000000, effect: 2, description: "Skill xp"},
     "Library": {name: "Library", expense: 10000000, effect: 1.5, description: "Skill xp"},
+    "Obsidian ring": {name: "Obsidian ring", expense: 80000000, effect: 5, description: "Amulet xp"},
 }
 
 const jobCategories = {
@@ -122,6 +129,11 @@ const skillCategories = {
     "Dark magic": [
         "Dark influence", "Evil control", "Intimidation", 
         "Demon training", "Blood meditation", "Demon's wealth"
+    ],
+
+    "Holy magic": [
+        "Holy influence", "Redemption strength", "Clairvoyance", 
+        "Serene focus", "Photon attraction", "Angelic aura"
     ]
 }
 
@@ -147,6 +159,7 @@ const headerRowColors = {
     "Combat": "#ff704d",
     "Magic": "#875F9A",
     "Dark magic": "#73000f",
+    "Holy magic": "#3dd5ff",
     "Properties": "#219ebc",
     "Misc": "#b56576",
 }
@@ -215,6 +228,13 @@ const tooltips = {
     "Sapphire charm": "Embedded with a rare sapphire, this charm activates more mana channels within your body, providing a much easier time learning magic.",
     "Study desk": "A dedicated area which provides many fine stationary and equipment designed for furthering your progress in research.",
     "Library": "Stores a collection of books, each containing vast amounts of information from basic life skills to complex magic spells.",
+
+    "Holy influence": "",
+    "Redemption strength": "",
+    "Clairvoyance": "",
+    "Serene focus": "",
+    "Photon attraction": "",
+    "Angelic Aura": "",
 }
 
 var gameData = {
@@ -225,7 +245,10 @@ var gameData = {
 
     coins: 0,
     days: 365 * 14,
+
     evil: 0,
+    blessings: 0,
+
     paused: false,
     timeWarpingEnabled: true,
 
@@ -274,6 +297,7 @@ function addMultipliers() {
         task.xpMultipliers.push(getHappiness)
         task.xpMultipliers.push(getBindedTaskEffect("Dark influence"))
         task.xpMultipliers.push(getBindedTaskEffect("Demon training"))
+        task.xpMultipliers.push(getBindedTaskEffect("Holy influence"))
 
         if (task instanceof Job) {
             task.incomeMultipliers.push(task.getLevelMultiplier.bind(task))
@@ -302,6 +326,16 @@ function addMultipliers() {
             task.xpMultipliers.push(getEvilMultiplier)
         } else if (task.name == "Travelling merchant") {
             task.incomeMultipliers.push(getInterestMultiplier)
+        }
+
+        if (task.name == "Clairvoyance") {
+            task.xpMultipliers.push(getBindedTaskEffect("Redemption strength"))
+        } else if (task.name == "Serene focus") {
+            task.xpMultipliers.push(getBindedTaskEffect("Clairvoyance"))
+        } else if (task.name == "Photon attraction") {
+            task.xpMultipliers.push(getBindedTaskEffect("Serene focus"))
+        } else if (task.name == "Angelic aura") {
+            task.xpMultipliers.push(getBindedTaskEffect("Photon attraction"))
         }
     }
 
@@ -1043,6 +1077,8 @@ function assignMethods() {
             requirement = Object.assign(new AgeRequirement(requirement.elements, requirement.requirements), requirement)
         } else if (requirement.type == "evil") {
             requirement = Object.assign(new EvilRequirement(requirement.elements, requirement.requirements), requirement)
+        } else if (requirement.type == "blessings") {
+            requirement = Object.assign(new BlessingsRequirement(requirement.elements, requirement.requirements), requirement)
         }
 
         var tempRequirement = requirementsCache[key]
@@ -1173,7 +1209,7 @@ gameData.requirements = {
 
     "Shop": new CoinRequirement([document.getElementById("shopTabButton")], [{requirement: gameData.itemData["Tent"].getExpense() * 50}]),
     "Rebirth tab": new AgeRequirement([document.getElementById("rebirthTabButton")], [{requirement: 25}]),
-    "Milestones tab": new TaskRequirement([document.getElementById("milestoneTabButton")], [{task: "Strength", requirement: 50}]),
+    //"Milestones tab": new TaskRequirement([document.getElementById("milestoneTabButton")], [{task: "Strength", requirement: 50}]),
     "Rebirth note 1": new AgeRequirement([document.getElementById("rebirthNote1")], [{requirement: 45}]),
     "Rebirth note 2": new AgeRequirement([document.getElementById("rebirthNote2")], [{requirement: 65}]),
     "Rebirth note 3": new AgeRequirement([document.getElementById("rebirthNote3")], [{requirement: 200}]),
@@ -1236,6 +1272,14 @@ gameData.requirements = {
     "Demon training": new EvilRequirement("Demon training", [{requirement: 25}]),
     "Blood meditation": new EvilRequirement("Blood meditation", [{requirement: 75}]),
     "Demon's wealth": new EvilRequirement("Demon's wealth", [{requirement: 500}]),
+
+    //Holy magic
+    "Holy influence": new BlessingsRequirement("Holy influence", [{requirement: 1}]),
+    "Redemption strength": new BlessingsRequirement("Redemption strength", [{requirement: 1}]),
+    "Clairvoyance": new BlessingsRequirement("Clairvoyance", [{requirement: 1}]),
+    "Serene focus": new BlessingsRequirement("Serene focus", [{requirement: 25}]),
+    "Photon attraction": new BlessingsRequirement("Photon attraction", [{requirement: 75}]),
+    "Angelic aura": new BlessingsRequirement("Angelic aura", [{requirement: 150}]),
 
     //Properties
     "Homeless": new CoinRequirement("Homeless", [{requirement: 0}]),

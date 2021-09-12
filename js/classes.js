@@ -171,6 +171,17 @@ class EvilRequirement extends Requirement {
     }    
 }
 
+class BlessingsRequirement extends Requirement {
+    constructor(elements, requirements) {
+        super(elements, requirements)
+        this.type = "blessings"
+    }
+
+    getCondition(requirement) {
+        return gameData.blessings >= requirement.requirement
+    }    
+}
+
 class Milestone {
     constructor(taskName, level, requirements) {
         this.taskName = taskName
