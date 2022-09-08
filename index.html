@@ -16,10 +16,81 @@
   <body class="container">
     <h1 class="my-3">Progress Knight</h1>
     <div class="game-content">
-      <div class="status-panel panel">a</div>
+      <div class="status-panel">
+        <div class="card px-3 py-1">
+          <div class="status-group status-group-time">
+            <div>
+              <h5>Age 14, Day 64</h5>
+              <div class="text-muted">Lifespan <b>70 years</b></div>
+            </div>
+            <button class="btn btn-outline-primary">Pause</button>
+          </div>
+
+          <div class="status-group">
+            <h5 class="mt-2">27g 83s 31c</h5>
+            <div class="text-muted">Balance (in coins)</div>
+            <div class="mt-1">
+              <div>
+                <span>Net/day: </span>
+                <span>14c</span>
+              </div>
+              <div>
+                <span>Income/day: </span>
+                <span>14c</span>
+              </div>
+              <div>
+                <span>Expense/day: </span>
+                <span>14c</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="status-group">
+            <h5 class="mb-2">Current tasks</h5>
+            <div>
+              <div class="mb-1">
+                <div class="progress">
+                  <div
+                    class="progress-bar progress-bar-striped progress-bar-animated"
+                    style="width: 25%"
+                  ></div>
+                  <h6 class="progress-label">Beggar Lvl 9</h6>
+                </div>
+              </div>
+              <div class="text-muted">Current job</div>
+            </div>
+            <div class="mt-2">
+              <div class="mb-1">
+                <div class="progress">
+                  <div
+                    class="progress-bar progress-bar-striped progress-bar-animated"
+                    style="width: 45%"
+                  ></div>
+                  <h6 class="progress-label">Concentration Lvl 4</h6>
+                </div>
+              </div>
+              <div class="text-muted">Current skill</div>
+            </div>
+          </div>
+
+          <div class="status-group">
+            <h5>Happiness: 5</h5>
+            <div class="text-muted">Affects all xp gain</div>
+          </div>
+        </div>
+      </div>
       <div class="game-content-right">
-        <div class="nav-panel panel">b</div>
-        <div class="main-panel panel">c</div>
+        <div class="nav-panel">
+          <div>
+            <button class="btn btn-outline-primary active">Jobs</button>
+            <button class="btn btn-outline-primary">Skills</button>
+            <button class="btn btn-outline-primary">Shop</button>
+          </div>
+          <div>
+            <button class="btn btn-outline-secondary m-0">Settings</button>
+          </div>
+        </div>
+        <div class="card p-3">c</div>
       </div>
     </div>
   </body>

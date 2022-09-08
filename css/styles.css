@@ -2,6 +2,10 @@
   box-sizing: border-box;
 }
 
+.container {
+  max-width: 1100px;
+}
+
 .game-content {
   display: flex;
   align-items: flex-start;
@@ -17,19 +21,52 @@
   row-gap: 20px;
 }
 
-.panel {
-  padding: 8px;
+.nav-panel {
+  display: flex;
+  justify-content: space-between;
 }
 
-.nav-panel {
-  background-color: red;
+.nav-panel .btn {
+  margin-right: 8px;
+  min-width: 100px;
 }
 
 .main-panel {
-  background-color: blue;
 }
 
 .status-panel {
-  background-color: green;
   width: 500px;
+}
+
+.status-group {
+  margin: 10px 0;
+}
+
+.progress {
+  background-color: rgb(126, 122, 90);
+  position: relative;
+  height: 30px;
+  width: 250px;
+}
+
+.progress-bar {
+  background-color: rgb(245, 178, 53);
+}
+
+.progress-label {
+  color: #ffffff;
+  height: 100%;
+  position: absolute;
+  left: 5px;
+  top: 16%;
+}
+
+.status-group-time {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+h5 {
+  margin-bottom: 2px;
 }
