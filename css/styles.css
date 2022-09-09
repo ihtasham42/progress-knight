@@ -104,3 +104,7 @@ table button {
 td {
   vertical-align: middle;
 }
+
+#settings .card {
+  margin-bottom: 20px;
+}

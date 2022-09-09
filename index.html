@@ -14,11 +14,16 @@
     <title>Progress Knight</title>
   </head>
   <body class="container">
-    <div class="d-flex align-items-center ">
-      <img src="img/progress-knight-logo.png" width=55 height=55 class="me-1"/>
+    <div class="d-flex align-items-center">
+      <img
+        src="img/progress-knight-logo.png"
+        width="55"
+        height="55"
+        class="me-1"
+      />
       <h1 class="my-3">Progress Knight</h1>
     </div>
-    
+
     <div class="game-content mb-5">
       <div class="status-panel">
         <div class="card px-3 py-1">
@@ -48,7 +53,6 @@
                   <span>14c</span>
                 </li>
               </ul>
-
             </div>
           </div>
 
@@ -173,7 +177,7 @@
             </table>
           </div> -->
 
-          <div>
+          <!-- <div>
             <div class="settings-group">
               <h5 class="">Import/Export save</h5>
               <div class="text-muted mb-2">Import a save string or export your game data into a save string</div>
@@ -202,6 +206,75 @@
               <div class="text-muted mb-2">Reset your game data <b>permanently</b></div>
               <button class="btn btn-danger">Reset game</button>
             </div>
+          </div> -->
+          <div id="settings">
+            <h5 class="">Amulet</h5>
+            <div class="text-muted mb-2">
+              This amulet seems to be quite important
+            </div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                You stumble across a strange looking amulet on your 25th
+                birthday. It does not look like it has any worth on the market
+                given that it's made from cheap-looking copper. However, you
+                feel a weird urge to keep the amulet, so you slip it into your
+                pocket for safekeeping.
+              </li>
+              <li class="list-group-item">
+                On your 45th birthday, you feel the amulet shiver uncontrollably
+                in your pocket. You take it out and the constant shivering
+                suddenly stops. More to your bizarre surprise, you notice a
+                strange etching on the centre of the amulet.
+              </li>
+              <li class="list-group-item">
+                <div class="mb-1">
+                  On your 65th birthday, you once again encounter the strange,
+                  unexplained shivering from your amulet. But this time, a
+                  living eyeball emerges from the centre. Although terribly
+                  frightened, you realise you do not have many years to live
+                  left anyway so you consider touching the eye to see what
+                  happens.
+                </div>
+
+                <div class="mb-2">
+                  <i style="color: rgb(226, 74, 74)">
+                    By touching the eyeball, you will be reborn and have to
+                    restart life again, losing all your levels and coins.
+                    However, you will gain xp multipliers for your jobs and
+                    skills equivalent to: 1 + the max level of the skill or job
+                    / 10. This means you will learn everything again much more
+                    quickly than you did in your previous life. Something tells
+                    you that the amulet might transform even further after
+                    living for 2 whole centuries...
+                  </i>
+                </div>
+                <button class="btn btn-danger mb-2" onClick="rebirthTwo()">
+                  Touch the eye
+                </button>
+              </li>
+              <li class="list-group-item">
+                <div class="mb-1">
+                  Your gut instinct was right. The moment you hit the grand age
+                  of 200, you hear an ominous hum coming from the amulet. A
+                  mouth emerges from its surface and begins to cackle, and
+                  proceeds to say: "So you've made it this far... Are you ready
+                  to embrace evil?"
+                </div>
+                <div class="mb-2">
+                  <i style="color: rgb(196, 7, 7)">
+                    If you decide to embrace evil, all of your levels, coins and
+                    even max levels will be reset. You will be reborn as a fresh
+                    slate. However, you will unlock a new line of skills and
+                    gain
+                    <b><span id="evilGainDisplay"></span> evil</b>, which will
+                    heavily impact your future lives.
+                  </i>
+                </div>
+                <button class="btn btn-danger mb-2" onClick="rebirthTwo()">
+                  Embrace evil
+                </button>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
