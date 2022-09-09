@@ -43,13 +43,22 @@
 }
 
 .progress {
-  background-color: rgb(126, 122, 90);
+  background-color: rgb(12, 101, 173);
   position: relative;
   height: 30px;
   width: 250px;
+  margin: 3px 0;
+}
+
+.progress .active {
+  background-color: rgb(126, 122, 90);
 }
 
 .progress-bar {
+  background-color: rgb(29, 143, 236);
+}
+
+.progress-bar .active {
   background-color: rgb(245, 178, 53);
 }
 
@@ -67,6 +76,27 @@
   align-items: flex-start;
 }
 
+tbody tr:not(:last-child) {
+  border-bottom: 0.5px solid rgb(143, 143, 143);
+}
+
+tbody tr {
+  align-items: center;
+}
+
 h5 {
   margin-bottom: 2px;
+}
+
+.card {
+  border-color: rgba(133, 133, 133, 0.425)
+}
+
+table button {
+  width: 250px;
+  margin: 3px 0;
+}
+
+td {
+  vertical-align: middle;
 }

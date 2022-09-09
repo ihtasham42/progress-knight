@@ -11,10 +11,14 @@
       crossorigin="anonymous"
     />
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
-    <title>Document</title>
+    <title>Progress Knight</title>
   </head>
   <body class="container">
-    <h1 class="my-3">Progress Knight</h1>
+    <div class="d-flex align-items-center ">
+      <img src="img/progress-knight-logo.png" width=55 height=55 class="me-1"/>
+      <h1 class="my-3">Progress Knight</h1>
+    </div>
+    
     <div class="game-content">
       <div class="status-panel">
         <div class="card px-3 py-1">
@@ -34,14 +38,17 @@
                 <span>Net/day: </span>
                 <span>14c</span>
               </div>
-              <div>
-                <span>Income/day: </span>
-                <span>14c</span>
-              </div>
-              <div>
-                <span>Expense/day: </span>
-                <span>14c</span>
-              </div>
+              <ul class="mb-0">
+                <li>
+                  <span>Income/day: </span>
+                  <span>14c</span>
+                </li>
+                <li>
+                  <span>Expense/day: </span>
+                  <span>14c</span>
+                </li>
+              </ul>
+
             </div>
           </div>
 
@@ -87,46 +94,83 @@
             <button class="btn btn-outline-primary">Shop</button>
           </div>
           <div>
-            <button class="btn btn-outline-secondary m-0">Settings</button>
+            <button class="btn btn-outline-primary m-0">Settings</button>
           </div>
         </div>
         <div class="card p-3">
-          <table class="table">
-            <thead
-              style="
-                background-color: rgb(180, 65, 65);
-                color: white;
-                border-radius: 5px;
-              "
-            >
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">First</th>
-                <th scope="col">Last</th>
-                <th scope="col">Handle</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">1</th>
-                <td>Mark</td>
-                <td>Otto</td>
-                <td>@mdo</td>
-              </tr>
-              <tr>
-                <th scope="row">2</th>
-                <td>Jacob</td>
-                <td>Thornton</td>
-                <td>@fat</td>
-              </tr>
-              <tr>
-                <th scope="row">3</th>
-                <td>Larry</td>
-                <td>the Bird</td>
-                <td>@twitter</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-responsive">
+            <table class="table table-borderless">
+              <thead
+                style="
+                  background-color: rgb(114, 170, 42);
+                  color: rgb(255, 255, 255);
+                  border-radius: 5px;
+                "
+              >
+                <tr>
+                  <th>Common work</th>
+                  <th>Level</th>
+                  <th>Income/day</th>
+                  <th>Xp/day</th>
+                  <th>Xp/left</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="progress">
+                      <div
+                        class="progress-bar progress-bar-striped progress-bar-animated"
+                        style="width: 45%"
+                      />
+                      <h6 class="progress-label">Concentration Lvl 4</h6>
+                    </div>
+                  </td>
+                  <td>43</td>
+                  <td>13c</td>
+                  <td>18</td>
+                  <td>81</td>
+                </tr>
+                
+                <tr>
+                  <td class="text-muted">Required <b>Strength level 0/5</b></td>
+                </tr>
+              </tbody>
+              
+            </table>
+            <table class="table table-borderless ">
+              <thead
+                style="
+                  background-color: rgb(190, 74, 74);
+                  color: rgb(255, 255, 255);
+                  border-radius: 5px;
+                "
+              >
+                <tr>
+                  <th>Properties</th>
+                  <th>Effect</th>
+                  <th>Expense/day</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <button class="btn btn-outline-primary">
+                      Homeless
+                    </button>
+                  </td>
+                  <td>1.7x happiness</td>
+                  <td>13c</td>
+                </tr>
+                
+                <tr>
+                  <td class="text-muted">Required <b>2g 42s 11c</b></td>
+                </tr>
+              </tbody>
+              
+            </table>
+          </div>
+
         </div>
       </div>
     </div>
