@@ -19,7 +19,7 @@
       <h1 class="my-3">Progress Knight</h1>
     </div>
     
-    <div class="game-content">
+    <div class="game-content mb-5">
       <div class="status-panel">
         <div class="card px-3 py-1">
           <div class="status-group status-group-time">
@@ -64,7 +64,7 @@
                   <h6 class="progress-label">Beggar Lvl 9</h6>
                 </div>
               </div>
-              <div class="text-muted">Current job</div>
+              <div class="text-muted">Currently working</div>
             </div>
             <div class="mt-2">
               <div class="mb-1">
@@ -76,7 +76,7 @@
                   <h6 class="progress-label">Concentration Lvl 4</h6>
                 </div>
               </div>
-              <div class="text-muted">Current skill</div>
+              <div class="text-muted">Currently learning</div>
             </div>
           </div>
 
@@ -98,7 +98,7 @@
           </div>
         </div>
         <div class="card p-3">
-          <div class="table-responsive">
+          <!-- <div class="table-responsive">
             <table class="table table-borderless">
               <thead
                 style="
@@ -138,6 +138,8 @@
               </tbody>
               
             </table>
+          </div>
+          <div class="table-responsive">
             <table class="table table-borderless ">
               <thead
                 style="
@@ -169,8 +171,38 @@
               </tbody>
               
             </table>
-          </div>
+          </div> -->
 
+          <div>
+            <div class="settings-group">
+              <h5 class="">Import/Export save</h5>
+              <div class="text-muted mb-2">Import a save string or export your game data into a save string</div>
+              <div class="d-flex col mb-3">
+                <button class="btn btn-primary me-2">
+                  Import
+                </button>
+                <button class="btn btn-primary">
+                  Export
+                </button>
+              </div>
+              <input type="text" class="form-control" placeholder="Save data string" style="max-width: 500px;">
+            </div>
+            <div class="settings-group">
+              <h5 class="">Appearance</h5>
+              <div class="text-muted mb-2">Change the appereance of the game</div>
+              <button class="btn btn-primary">Toggle light/dark mode</button>
+            </div>
+            <div class="settings-group">
+              <h5 class="">Discord</h5>
+              <div class="text-muted mb-2">Join the Discord community!</div>
+              <button class="btn btn-primary">Click to Join!</button>
+            </div>
+            <div class="settings-group">
+              <h5>Reset</h5>
+              <div class="text-muted mb-2">Reset your game data <b>permanently</b></div>
+              <button class="btn btn-danger">Reset game</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

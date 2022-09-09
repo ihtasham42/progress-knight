@@ -3,7 +3,7 @@
 }
 
 .container {
-  max-width: 1250px;
+  max-width: 1150px;
 }
 
 .game-content {
@@ -15,7 +15,7 @@
 }
 
 .game-content-right {
-  width: 100%;
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
   row-gap: 20px;
@@ -35,11 +35,15 @@
 }
 
 .status-panel {
-  width: 500px;
+  min-width: 325px;
 }
 
 .status-group {
   margin: 10px 0;
+}
+
+.settings-group {
+  margin-bottom: 15px;
 }
 
 .progress {
