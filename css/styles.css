@@ -15,7 +15,7 @@
 }
 
 .game-content-right {
-  flex-grow: 1;
+  flex: 1;
   display: flex;
   flex-direction: column;
   row-gap: 20px;
@@ -36,6 +36,7 @@
 
 .status-panel {
   min-width: 325px;
+  max-width: 325px;
 }
 
 .status-group {
@@ -52,18 +53,15 @@
   height: 30px;
   width: 250px;
   margin: 3px 0;
+  cursor: pointer;
 }
 
-.progress .active {
-  background-color: rgb(126, 122, 90);
-}
-
-.progress-bar {
+/* .progress-bar {
   background-color: rgb(29, 143, 236);
-}
+} */
 
-.progress-bar .active {
-  background-color: rgb(245, 178, 53);
+.progress-bar-active {
+  background-color: rgb(228, 168, 4) !important;
 }
 
 .progress-label {
@@ -93,7 +91,7 @@ h5 {
 }
 
 .card {
-  border-color: rgba(133, 133, 133, 0.425)
+  border-color: rgba(133, 133, 133, 0.425);
 }
 
 table button {
@@ -107,4 +105,58 @@ td {
 
 #settings .card {
   margin-bottom: 20px;
+}
+
+.btn:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.btn-primary {
+  color: white !important;
+}
+
+.btn-outline-primary:hover {
+  color: white !important;
+}
+
+.active {
+  color: white !important;
+}
+
+tr th:first-child {
+  width: 275px;
+}
+
+/*Colors*/
+.danger {
+  color: rgb(245, 50, 50);
+}
+
+.happiness {
+  color: rgb(0, 132, 255);
+}
+
+.evil {
+  color: rgb(209, 0, 0);
+}
+
+.time-warping {
+  color: rgb(218, 25, 218);
+}
+
+.copper {
+  color: rgb(179, 124, 73);
+}
+
+.silver {
+  color: rgb(173, 173, 173);
+}
+
+.gold {
+  color: rgb(236, 171, 30);
+}
+
+.platinum {
+  color: rgb(80, 192, 207);
 }
