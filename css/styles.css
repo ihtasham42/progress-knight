@@ -21,20 +21,20 @@
   row-gap: 20px;
 }
 
-.nav-panel {
+#nav-panel {
   display: flex;
   justify-content: space-between;
 }
 
-.nav-panel .btn {
+#nav-panel .btn {
   margin-right: 8px;
   min-width: 100px;
 }
 
-.main-panel {
+#main-panel {
 }
 
-.status-panel {
+#status-panel {
   min-width: 325px;
   max-width: 325px;
 }
@@ -78,11 +78,11 @@
   align-items: flex-start;
 }
 
-tbody tr:not(:last-child) {
+tr:not(:last-child) {
   border-bottom: 0.5px solid rgb(143, 143, 143);
 }
 
-tbody tr {
+tr {
   align-items: center;
 }
 
@@ -104,7 +104,7 @@ td {
 }
 
 #settings .card {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .btn:focus {
@@ -126,6 +126,39 @@ td {
 
 tr th:first-child {
   width: 275px;
+}
+
+th {
+  color: white;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltipText {
+  visibility: hidden;
+  width: 240px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 10px 0;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+  top: -5px;
+  left: 105%;
+
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.tooltip:hover .tooltipText {
+  visibility: visible;
+  opacity: 0.8;
 }
 
 /*Colors*/
