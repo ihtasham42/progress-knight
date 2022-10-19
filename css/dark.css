@@ -3,6 +3,7 @@
   --secondary-dark: rgb(37, 37, 37);
   --border-dark: rgb(255, 255, 255, 0.199);
   --muted-dark: rgba(255, 255, 255, 0.391);
+  --primary-color: #3282eb;
 }
 
 .dark {
@@ -37,6 +38,6 @@
   background-color: var(--primary-dark);
 }
 
-.dark .btn-outline-primary .active {
-  background-color: var(--primary-dark);
+.dark .active {
+  background-color: var(--primary-color) !important;
 }

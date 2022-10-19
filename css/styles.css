@@ -166,6 +166,10 @@ th {
   color: rgb(245, 50, 50);
 }
 
+.positive {
+  color: rgb(11, 168, 11);
+}
+
 .happiness {
   color: rgb(0, 132, 255);
 }
@@ -192,4 +196,8 @@ th {
 
 .platinum {
   color: rgb(80, 192, 207);
+}
+
+.hidden {
+  display: none;
 }

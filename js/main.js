@@ -1,22 +1,20 @@
 const autoPromoteElement = document.getElementById("autoPromote");
 const autoLearnElement = document.getElementById("autoLearn");
 const jobTabButton = document.getElementById("jobTabButton");
+const lightDarkModeButton = document.getElementById("lightDarkModebutton");
+const pauseButton = document.getElementById("pauseButton")
 
 const rowTaskTemplate = document.getElementById("rowTaskTemplate");
 const rowItemTemplate = document.getElementById("rowItemTemplate");
 const headerRowTaskTemplate = document.getElementById("headerRowTaskTemplate");
 const headerRowItemTemplate = document.getElementById("headerRowItemTemplate");
 const requiredRowTemplate = document.getElementById("requiredRowTemplate");
+const coinDisplayTemplate = document.getElementById("coinDisplayTemplate");
 
 const updateSpeed = 20;
 const baseLifespan = 365 * 70;
 const baseGameSpeed = 4;
-const permanentUnlocks = [
-  "Scheduling",
-  "Shop",
-  "Automation",
-  "Quick task display",
-];
+const permanentUnlocks = ["Scheduling", "Shop", "Quick task display"];
 
 const units = ["", "k", "M", "B", "T", "q", "Q", "Sx", "Sp", "Oc", "Nn"];
 
@@ -445,7 +443,7 @@ var rows = {
 };
 
 var skillWithLowestMaxXp = null;
-var debugSpeed = 4;
+var debugSpeed = 1;
 
 function getBaseLog(x, y) {
   return Math.log(y) / Math.log(x);
@@ -616,18 +614,37 @@ function goBankrupt() {
   gameData.currentMisc = [];
 }
 
-function setTab(element, selectedTab) {
-  var tabs = Array.prototype.slice.call(document.getElementsByClassName("tab"));
-  tabs.forEach(function (tab) {
-    tab.style.display = "none";
-  });
-  document.getElementById(selectedTab).style.display = "block";
+function setTab(selectedTab, selectedViewId) {
+  // var tabs = Array.prototype.slice.call(document.getElementsByClassName("tab"));
+  // tabs.forEach(function (tab) {
+  //   tab.style.display = "none";
+  // });
+  // document.getElementById(selectedTab).style.display = "block";
+  // var tabButtons = document.getElementsByClassName("tabButton");
+  // for (tabButton of tabButtons) {
+  //   tabButton.classList.remove("w3-blue-gray");
+  // }
+  // element.classList.add("w3-blue-gray");
 
-  var tabButtons = document.getElementsByClassName("tabButton");
-  for (tabButton of tabButtons) {
-    tabButton.classList.remove("w3-blue-gray");
-  }
-  element.classList.add("w3-blue-gray");
+  const mainPanel = document.getElementById("main-panel");
+  const views = [...mainPanel.children];
+  views.forEach((view) => {
+    if (view.id == selectedViewId) {
+      view.style.display = "block";
+    } else {
+      view.style.display = "none";
+    }
+  });
+
+  const tabElements = document.querySelectorAll("#nav-panel button");
+  const tabs = [...tabElements];
+  tabs.forEach((tab) => {
+    if (tab == selectedTab) {
+      tab.classList.add("active");
+    } else {
+      tab.classList.remove("active");
+    }
+  });
 }
 
 function setPause() {
@@ -713,7 +730,7 @@ function createRow(template, categoryType, categoryName, name, table) {
   row.getElementsByClassName("tooltipText")[0].textContent = tooltips[name];
 
   if (categoryType != itemCategories) {
-    row.getElementsByClassName("progressBar")[0].onclick = function () {
+    row.getElementsByClassName("progress")[0].onclick = function () {
       setTask(name);
     };
   } else {
@@ -913,14 +930,14 @@ function updateItemRows() {
     var button = row.getElementsByClassName("button")[0];
     button.disabled = gameData.coins < item.getExpense();
 
-    var active = row.getElementsByClassName("active")[0];
-    var color = itemCategories["Properties"].includes(item.name)
-      ? headerRowColors["Properties"]
-      : headerRowColors["Misc"];
-    active.style.backgroundColor =
-      gameData.currentMisc.includes(item) || item == gameData.currentProperty
-        ? color
-        : "white";
+    if (
+      gameData.currentMisc.includes(item) ||
+      item == gameData.currentProperty
+    ) {
+      button.classList.add("active");
+    } else {
+      button.classList.add("remove");
+    }
 
     row.getElementsByClassName("effect")[0].textContent =
       item.getEffectDescription();
@@ -954,9 +971,14 @@ function updateText() {
   document.getElementById("lifespanDisplay").textContent = daysToYears(
     getLifespan()
   );
-  document.getElementById("pauseButton").textContent = gameData.paused
-    ? "Play"
-    : "Pause";
+
+  pauseButton.classList.remove("active")
+  if (gameData.paused) {
+    pauseButton.textContent = "Paused"
+    pauseButton.classList.add("active")
+  } else {
+    pauseButton.textContent = "Pause"
+  }
 
   formatCoins(gameData.coins, document.getElementById("coinDisplay"));
   setSignDisplay();
@@ -1183,10 +1205,17 @@ function formatCoins(coins, element) {
 }
 
 function setLightDarkMode() {
-  var body = document.getElementById("body");
-  body.classList.contains("dark")
-    ? body.classList.remove("dark")
-    : body.classList.add("dark");
+  var body = document.querySelector("body");
+
+  if (body.classList.contains("dark")) {
+    body.classList.remove("dark");
+    lightDarkModeButton.textContent = "Enable dark mode";
+    lightDarkModeButton.classList.remove("active");
+  } else {
+    body.classList.add("dark");
+    lightDarkModeButton.textContent = "Disable dark mode";
+    lightDarkModeButton.classList.add("active");
+  }
 }
 
 function rebirthOne() {
@@ -1208,7 +1237,7 @@ function rebirthTwo() {
 }
 
 function rebirthReset() {
-  setTab(jobTabButton, "jobs");
+  setTab(jobTabButton, "jobView");
 
   gameData.coins = 0;
   gameData.days = 365 * 14;
@@ -1391,11 +1420,23 @@ function exportGameData() {
   importExportBox.value = window.btoa(JSON.stringify(gameData));
 }
 
+function createCoinDisplays() {
+  const coinDisplayElements = document.getElementsByClassName("coin-display");
+  const coinDisplays = [...coinDisplayElements];
+
+  coinDisplays.forEach((coinDisplay) => {
+    var template = coinDisplayTemplate.content.cloneNode(true);
+    coinDisplay.appendChild(template);
+  });
+}
+
 //Init
 
 createAllRows(jobCategories, "jobTable");
 createAllRows(skillCategories, "skillTable");
 createAllRows(itemCategories, "itemTable");
+createCoinDisplays();
+setLightDarkMode();
 
 createData(gameData.taskData, jobBaseData);
 createData(gameData.taskData, skillBaseData);
@@ -1450,10 +1491,6 @@ gameData.requirements = {
   "Time warping info": new TaskRequirement(
     [document.getElementById("timeWarping")],
     [{ task: "Mage", requirement: 10 }]
-  ),
-  Automation: new AgeRequirement(
-    [document.getElementById("automation")],
-    [{ requirement: 20 }]
   ),
   "Quick task display": new AgeRequirement(
     [document.getElementById("quickTaskDisplay")],
@@ -1649,15 +1686,15 @@ loadGameData();
 setCustomEffects();
 addMultipliers();
 
-setTab(jobTabButton, "jobs");
+setTab(jobTabButton, "jobsView");
 
 update();
 setInterval(update, 1000 / updateSpeed);
 setInterval(saveGameData, 3000);
 setInterval(setSkillWithLowestMaxXp, 1000);
 
-document.getElementById("debugSlider").oninput = function () {
-  debugSpeed = Math.pow(2, this.value / 12);
-  document.getElementById("debugSpeedDisplay").textContent =
-    debugSpeed.toFixed(1);
-};
+// document.getElementById("debugSlider").oninput = function () {
+//   debugSpeed = Math.pow(2, this.value / 12);
+//   document.getElementById("debugSpeedDisplay").textContent =
+//     debugSpeed.toFixed(1);
+// };

@@ -10,234 +10,204 @@
       integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
       crossorigin="anonymous"
     />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
+    <link rel="stylesheet" type="text/css" href="css/dark.css" />
     <title>Progress Knight</title>
+    <meta name="description" 
+    content="Progress Knight is a life-sim incremental based in a fantasy/medieval setting, 
+    where you must progress through the career ladder and acquire new skills to become the ultimate being.">
   </head>
-  <body class="container">
-    <div class="d-flex align-items-center">
-      <img
-        src="img/progress-knight-logo.png"
-        width="55"
-        height="55"
-        class="me-1"
-      />
-      <h1 class="my-3">Progress Knight</h1>
+  <body class="container ">
+    <div class="d-flex align-items-center my-1" data-aos="fade-right">
+      <img src="img/progress-knight-logo.png" width="30" height="30" />
+      <h4 class="ms-1 mt-2">Progress Knight</h4>
     </div>
 
     <div class="game-content mb-5">
-      <div class="status-panel">
+      <div id="status-panel" data-aos="fade-right">
         <div class="card px-3 py-1">
+          <div class="status-group status-group-time" id="deathText">
+            <div>
+              <h5 class="danger">Age has caught up to you</h5>
+              <div class="text-muted">
+                Your age has met your lifespan, use the amulet to rebirth before
+                you pass away
+              </div>
+            </div>
+          </div>
           <div class="status-group status-group-time">
             <div>
-              <h5>Age 14, Day 64</h5>
-              <div class="text-muted">Lifespan <b>70 years</b></div>
+              <h5>
+                Age <span id="ageDisplay">14</span>, Day
+                <span id="dayDisplay">64</span>
+              </h5>
+              <div class="text-muted">
+                Lifespan <b><span id="lifespanDisplay">70</span> years</b>
+              </div>
             </div>
-            <button class="btn btn-outline-primary">Pause</button>
+            <button
+              class="btn btn-outline-primary"
+              onclick="setPause()"
+              id="pauseButton"
+            >
+              Pause
+            </button>
           </div>
 
           <div class="status-group">
-            <h5 class="mt-2">27g 83s 31c</h5>
+            <h5 class="">
+              <span class="coin-display" id="coinDisplay"></span>
+            </h5>
             <div class="text-muted">Balance (in coins)</div>
             <div class="mt-1">
               <div>
                 <span>Net/day: </span>
-                <span>14c</span>
+                <b id="signDisplay"></b>
+                <span class="coin-display" id="netDisplay"></span>
               </div>
               <ul class="mb-0">
                 <li>
                   <span>Income/day: </span>
-                  <span>14c</span>
+                  <span class="coin-display" id="incomeDisplay"></span>
                 </li>
                 <li>
                   <span>Expense/day: </span>
-                  <span>14c</span>
+                  <span class="coin-display" id="expenseDisplay"></span>
                 </li>
               </ul>
             </div>
           </div>
 
-          <div class="status-group">
+          <div class="status-group" id="quickTaskDisplay">
             <h5 class="mb-2">Current tasks</h5>
             <div>
               <div class="mb-1">
-                <div class="progress">
+                <div class="progress job">
                   <div
-                    class="progress-bar progress-bar-striped progress-bar-animated"
+                    class="progress-bar-active progress-bar-striped progress-bar-animated progressFill"
                     style="width: 25%"
                   ></div>
-                  <h6 class="progress-label">Beggar Lvl 9</h6>
+                  <h6 class="progress-label name">Beggar Lvl 9</h6>
                 </div>
               </div>
               <div class="text-muted">Currently working</div>
               <div class="mt-1 mb-3">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  value=""
-                  id="flexCheckDisabled"
-                />
+                <input class="form-check-input" type="checkbox" id="autoPromote"/>
                 Auto-promote
               </div>
             </div>
             <div class="mt-2">
               <div class="mb-1">
-                <div class="progress">
+                <div class="progress skill">
                   <div
-                    class="progress-bar progress-bar-striped progress-bar-animated"
+                    class="progress-bar-active progress-bar-striped progress-bar-animated progressFill"
                     style="width: 45%"
                   ></div>
-                  <h6 class="progress-label">Concentration Lvl 4</h6>
+                  <h6 class="progress-label name">Concentration Lvl 4</h6>
                 </div>
               </div>
               <div class="text-muted">Currently learning</div>
               <div class="mt-1">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  value=""
-                  id="flexCheckDisabled"
-                />
+                <input class="form-check-input" type="checkbox" id="autoLearn"/>
                 Auto-learn
               </div>
             </div>
           </div>
 
           <div class="status-group">
-            <h5>Happiness <b>5</b></h5>
+            <h5>
+              <span class="happiness">Happiness</span>
+              <b id="happinessDisplay">5</b>
+            </h5>
             <div class="text-muted">Affects all xp gain</div>
           </div>
 
-          <div class="status-group">
-            <h5>Evil <b>14</b></h5>
+          <div class="status-group" id="evilInfo">
+            <h5><span class="evil">Evil</span> <b id="evilDisplay">14</b></h5>
             <div class="text-muted">Affects dark magic xp gain</div>
           </div>
 
-          <div class="status-group">
-            <h5>Time warping <b>x4.09</b></h5>
+          <div class="status-group" id="timeWarping">
+            <h5>
+              <span class="time-warping">Time warping</span>
+              <b id="timeWarpingDisplay">x4.09</b>
+            </h5>
             <div class="text-muted mb-2">Affects game speed</div>
-            <button class="btn btn-primary">Enable</button>
+            <button
+              class="btn btn-outline-primary"
+              id="timeWarpingButton"
+              onclick="setTimeWarping()"
+            >
+              Enable
+            </button>
           </div>
         </div>
       </div>
-      <div class="game-content-right">
-        <div class="nav-panel">
+      <div class="game-content-right" data-aos="fade-left">
+        <div id="nav-panel">
           <div>
-            <button class="btn btn-outline-primary">Jobs</button>
-            <button class="btn btn-outline-primary">Skills</button>
-            <button class="btn btn-outline-primary">Shop</button>
-            <button class="btn btn-outline-primary active">Amulet</button>
+            <button
+              class="btn btn-outline-primary"
+              id="jobTabButton"
+              onclick="setTab(this, 'jobsView')"
+            >
+              Jobs
+            </button>
+            <button
+              class="btn btn-outline-primary"
+              id="skillTabButton"
+              onclick="setTab(this, 'skillsView')"
+            >
+              Skills
+            </button>
+            <button
+              class="btn btn-outline-primary"
+              id="shopTabButton"
+              onclick="setTab(this, 'shopView')"
+            >
+              Shop
+            </button>
+            <button
+              class="btn btn-outline-primary"
+              id="rebirthTabButton"
+              onclick="setTab(this, 'rebirthView')"
+            >
+              Amulet
+            </button>
           </div>
           <div>
-            <button class="btn btn-outline-primary m-0">Settings</button>
+            <button
+              class="btn btn-outline-primary m-0"
+              id="settingTabButton"
+              onclick="setTab(this, 'settingsView')"
+            >
+              Settings
+            </button>
           </div>
         </div>
-        <div class="card p-3">
-          <!-- <div class="table-responsive">
-            <table class="table table-borderless">
-              <thead
-                style="
-                  background-color: rgb(114, 170, 42);
-                  color: rgb(255, 255, 255);
-                  border-radius: 5px;
-                "
-              >
-                <tr>
-                  <th>Common work</th>
-                  <th>Level</th>
-                  <th>Income/day</th>
-                  <th>Xp/day</th>
-                  <th>Xp/left</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <div class="progress">
-                      <div
-                        class="progress-bar progress-bar-striped progress-bar-animated"
-                        style="width: 45%"
-                      />
-                      <h6 class="progress-label">Concentration Lvl 4</h6>
-                    </div>
-                  </td>
-                  <td>43</td>
-                  <td>13c</td>
-                  <td>18</td>
-                  <td>81</td>
-                </tr>
-                
-                <tr>
-                  <td class="text-muted">Required <b>Strength level 0/5</b></td>
-                </tr>
-              </tbody>
+
+        <div class="card p-3" id="main-panel">
+          <div class="table-responsive" id="jobsView">
+            <table class="table table-borderless" id="jobTable">
+
+            </table>
+          </div>
+
+          <div class="table-responsive" id="skillsView" >
+            <table class="table table-borderless" id="skillTable">
               
             </table>
           </div>
-          <div class="table-responsive">
-            <table class="table table-borderless ">
-              <thead
-                style="
-                  background-color: rgb(190, 74, 74);
-                  color: rgb(255, 255, 255);
-                  border-radius: 5px;
-                "
-              >
-                <tr>
-                  <th>Properties</th>
-                  <th>Effect</th>
-                  <th>Expense/day</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <button class="btn btn-outline-primary">
-                      Homeless
-                    </button>
-                  </td>
-                  <td>1.7x happiness</td>
-                  <td>13c</td>
-                </tr>
-                
-                <tr>
-                  <td class="text-muted">Required <b>2g 42s 11c</b></td>
-                </tr>
-              </tbody>
-              
-            </table>
-          </div> -->
 
-          <!-- <div>
-            <div class="settings-group">
-              <h5 class="">Import/Export save</h5>
-              <div class="text-muted mb-2">Import a save string or export your game data into a save string</div>
-              <div class="d-flex col mb-3">
-                <button class="btn btn-primary me-2">
-                  Import
-                </button>
-                <button class="btn btn-primary">
-                  Export
-                </button>
-              </div>
-              <input type="text" class="form-control" placeholder="Save data string" style="max-width: 500px;">
-            </div>
-            <div class="settings-group">
-              <h5 class="">Appearance</h5>
-              <div class="text-muted mb-2">Change the appereance of the game</div>
-              <button class="btn btn-primary">Toggle light/dark mode</button>
-            </div>
-            <div class="settings-group">
-              <h5 class="">Discord</h5>
-              <div class="text-muted mb-2">Join the Discord community!</div>
-              <button class="btn btn-primary">Click to Join!</button>
-            </div>
-            <div class="settings-group">
-              <h5>Reset</h5>
-              <div class="text-muted mb-2">Reset your game data <b>permanently</b></div>
-              <button class="btn btn-danger">Reset game</button>
-            </div>
-          </div> -->
-          <div id="settings">
+          <div class="table-responsive" id="shopView" >
+            <table class="table table-borderless" id="itemTable">
+
+            </table>
+          </div>
+
+          <div id="rebirthView">
             <h5 class="">Amulet</h5>
             <div class="text-muted mb-2">
               This amulet seems to be quite important
@@ -250,13 +220,13 @@
                 feel a weird urge to keep the amulet, so you slip it into your
                 pocket for safekeeping.
               </li>
-              <li class="list-group-item">
+              <li class="list-group-item" id="rebirthNote1">
                 On your 45th birthday, you feel the amulet shiver uncontrollably
                 in your pocket. You take it out and the constant shivering
                 suddenly stops. More to your bizarre surprise, you notice a
                 strange etching on the centre of the amulet.
               </li>
-              <li class="list-group-item">
+              <li class="list-group-item" id="rebirthNote2">
                 <div class="mb-1">
                   On your 65th birthday, you once again encounter the strange,
                   unexplained shivering from your amulet. But this time, a
@@ -267,7 +237,7 @@
                 </div>
 
                 <div class="mb-2">
-                  <i style="color: rgb(226, 74, 74)">
+                  <i class="danger">
                     By touching the eyeball, you will be reborn and have to
                     restart life again, losing all your levels and coins.
                     However, you will gain xp multipliers for your jobs and
@@ -278,11 +248,11 @@
                     living for 2 whole centuries...
                   </i>
                 </div>
-                <button class="btn btn-danger mb-2" onClick="rebirthTwo()">
+                <button class="btn btn-danger mb-2" onClick="rebirthOne()">
                   Touch the eye
                 </button>
               </li>
-              <li class="list-group-item">
+              <li class="list-group-item" id="rebirthNote3">
                 <div class="mb-1">
                   Your gut instinct was right. The moment you hit the grand age
                   of 200, you hear an ominous hum coming from the amulet. A
@@ -291,7 +261,7 @@
                   to embrace evil?"
                 </div>
                 <div class="mb-2">
-                  <i style="color: rgb(196, 7, 7)">
+                  <i class="evil">
                     If you decide to embrace evil, all of your levels, coins and
                     even max levels will be reset. You will be reborn as a fresh
                     slate. However, you will unlock a new line of skills and
@@ -306,8 +276,149 @@
               </li>
             </ul>
           </div>
+
+          <div id="settingsView">
+            <div class="settings-group">
+              <h5 class="">Import/Export save</h5>
+              <div class="text-muted mb-2">
+                Import a save string or export your game data into a save string
+              </div>
+              <div class="d-flex col mb-3">
+                <button class="btn btn-outline-primary me-2" onclick="importGameData()">Import</button>
+                <button class="btn btn-outline-primary" onclick="exportGameData()">Export</button>
+              </div>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Save data string"
+                id="importExportBox"
+                style="max-width: 500px"
+              />
+            </div>
+            <div class="settings-group">
+              <h5 class="">Appearance</h5>
+              <div class="text-muted mb-2">
+                Change the appereance of the game
+              </div>
+              <button class="btn btn-outline-primary" id="lightDarkModebutton" onclick="setLightDarkMode()">
+                Enable dark mode
+              </button>
+            </div>
+            <div class="settings-group">
+              <h5 class="">Discord</h5>
+              <div class="text-muted mb-2">Join the Discord community!</div>
+
+              <a href="https://discord.gg/fTRS4pHGka" target="_blank">
+                <img src="img/discord-logo.png" width="80" height="80"></img>
+              </a>
+            </div>
+            <div class="settings-group">
+              <h5>Reset</h5>
+              <div class="text-muted mb-2">
+                Reset your game data <b>permanently</b>
+              </div>
+              <button class="btn btn-danger" onclick="resetGameData()">
+                Reset game
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+
+    <template id="coinDisplayTemplate">
+      <span class="platinum">12p</span>
+      <span class="gold">63g</span>
+      <span class="silver">34s</span>
+      <span class="copper">79c</span>
+    </template>
+
+    <template id="headerRowTaskTemplate">
+      <tr>
+        <th class="category">Common work</th>
+        <th>Level</th>
+        <th class="valueType">Income/day</th>
+        <th>Xp/day</th>
+        <th>Xp/left</th>
+        <th class="maxLevel">Max level</th>
+        <th class="skipSkill">Skip</th>
+      </tr>
+    </template>
+
+    <template id="headerRowItemTemplate">
+      <tr>
+        <th class="category">Properties</th>
+        <th>Effect</th>
+        <th>Expense/day</th>
+      </tr>
+    </template>
+
+    <template id="rowTaskTemplate">
+      <tr>
+        <td>
+          <div class="progress tooltip">
+            <div
+              class="progress-bar progress-bar-striped progress-bar-animated progressFill"
+              style="width: 45%"
+            />
+            <h6 class="progress-label name">Concentration Lvl 4</h6>
+            <span class="tooltipText"></span>
+          </div>
+        </td>
+        <td class="level">43</td>
+        <td class="value">
+          <span class="effect"></span>
+          <span class="coin-display income"></span>
+        </td>
+        <td class="xpGain">Xp/day</td>
+        <td class="xpLeft">Xp left</td>
+        <td class="maxLevel">Max level</td>
+        <td class="skipSkill">
+            <input class="form-check-input checkbox" type="checkbox"/>
+        </td>
+      </tr>
+    </template>
+
+    <template id="rowItemTemplate">
+      <tr>
+        <td>
+          <button class="btn btn-outline-primary tooltip button">
+            <span class="name"></span> 
+            <span class="tooltipText"></span>
+          </button>
+        </td>
+        <td class="effect">1.0x Happiness</td>
+        <td class="expense coin-display"></td>
+      </tr>
+    </template>
+
+    <template id="requiredRowTemplate">
+      <tr>
+        <td class="text-muted">
+          Required 
+          <b class="value">
+            <span class="value" colspan=5>
+              <span class="levels"></span>
+              <span class="coin-display coins"></span>
+              <span class="evil"></span>
+            </span>
+          </b>
+        </td>
+      </tr>
+    </template>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+      AOS.init({ duration: 800 });
+    </script>
+
+    <script type="text/javascript" src="js/HackTimer.js"></script>
+    <script type="text/javascript" src="js/classes.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
   </body>
 </html>
