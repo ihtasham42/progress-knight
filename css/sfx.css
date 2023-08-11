@@ -1,0 +1,80 @@
+.particle {
+    position: absolute;
+    display: block;
+    background-color: white;
+    pointer-events: none;
+}
+
+.particle.size0 {
+    width: 2px;
+    height: 2px;
+    animation: spin 600ms infinite linear, shoot0 800ms ease-out forwards;
+}
+
+.particle.size1 {
+    width: 4px;
+    height: 4px;
+    animation: spin 600ms infinite linear, shoot1 800ms ease-out forwards;
+}
+
+.particle.size2 {
+    width: 6px;
+    height: 6px;
+    animation: spin 600ms infinite linear, shoot2 800ms ease-out forwards;
+}
+
+.particle.size3 {
+    width: 8px;
+    height: 8px;
+    animation: spin 600ms infinite linear, shoot3 800ms ease-out forwards;
+}
+
+@keyframes spin {
+    from {
+        rotate: 0;
+    }
+    to {
+        rotate: 360deg;
+    }
+}
+
+@keyframes shoot0 {
+    from {
+        translate: 0 0;
+    }
+    to {
+        translate: 50px 0;
+    }
+}
+
+@keyframes shoot1 {
+    from {
+        translate: 0 0;
+    }
+    to {
+        translate: 25px 0;
+    }
+}
+
+@keyframes shoot2 {
+    from {
+        translate: 0 0;
+    }
+    to {
+        translate: 17px 0;
+    }
+}
+
+@keyframes shoot3 {
+    from {
+        translate: 0 0;
+    }
+    to {
+        translate: 12.5px 0;
+    }
+}
+
+.progress-fill {
+    position: relative; /* Contain particles */
+    overflow: hidden;
+}
