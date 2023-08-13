@@ -52,7 +52,7 @@
         translate: 0 0;
     }
     to {
-        translate: 25px 0;
+        translate: 35px 0;
     }
 }
 
@@ -61,7 +61,7 @@
         translate: 0 0;
     }
     to {
-        translate: 17px 0;
+        translate: 20px 0;
     }
 }
 
@@ -77,4 +77,8 @@
 .progress-fill {
     position: relative; /* Contain particles */
     overflow: hidden;
+}
+
+.progress-bar {
+    position: relative; /* Contain particles */
 }

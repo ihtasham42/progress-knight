@@ -28,7 +28,7 @@ const updateSpeed = 20
 
 const baseLifespan = 365 * 70
 
-const baseGameSpeed = 4
+let baseGameSpeed = 4
 
 const permanentUnlocks = ["Scheduling", "Shop", "Automation", "Quick task display"]
 
@@ -78,7 +78,7 @@ const skillBaseData = {
     "Demon training": {name: "Demon training", maxXp: 100, effect: 0.01, description: "All xp"},
     "Blood meditation": {name: "Blood meditation", maxXp: 100, effect: 0.01, description: "Evil gain"},
     "Demon's wealth": {name: "Demon's wealth", maxXp: 100, effect: 0.002, description: "Job pay"},
-    
+
 }
 
 const itemBaseData = {
@@ -202,7 +202,7 @@ const jobTabButton = document.getElementById("jobTabButton")
 function getBaseLog(x, y) {
     return Math.log(y) / Math.log(x);
 }
-  
+
 function getBindedTaskEffect(taskName) {
     var task = gameData.taskData[taskName]
     return task.getEffect.bind(task)
@@ -229,7 +229,7 @@ function addMultipliers() {
             task.incomeMultipliers.push(task.getLevelMultiplier.bind(task))
             task.incomeMultipliers.push(getBindedTaskEffect("Demon's wealth"))
             task.xpMultipliers.push(getBindedTaskEffect("Productivity"))
-            task.xpMultipliers.push(getBindedItemEffect("Personal squire"))    
+            task.xpMultipliers.push(getBindedItemEffect("Personal squire"))
         } else if (task instanceof Skill) {
             task.xpMultipliers.push(getBindedTaskEffect("Concentration"))
             task.xpMultipliers.push(getBindedItemEffect("Book"))
@@ -278,13 +278,13 @@ function setCustomEffects() {
 
     var timeWarping = gameData.taskData["Time warping"]
     timeWarping.getEffect = function() {
-        var multiplier = 1 + getBaseLog(13, timeWarping.level + 1) 
+        var multiplier = 1 + getBaseLog(13, timeWarping.level + 1)
         return multiplier
     }
 
     var immortality = gameData.taskData["Immortality"]
     immortality.getEffect = function() {
-        var multiplier = 1 + getBaseLog(33, immortality.level + 1) 
+        var multiplier = 1 + getBaseLog(33, immortality.level + 1)
         return multiplier
     }
 }
@@ -332,7 +332,7 @@ function getGameSpeed() {
 function applyExpenses() {
     var coins = applySpeed(getExpense())
     gameData.coins -= coins
-    if (gameData.coins < 0) {    
+    if (gameData.coins < 0) {
         goBankrupt()
     }
 }
@@ -431,7 +431,7 @@ function createHeaderRow(templates, categoryType, categoryName) {
     headerRow.style.color = "#ffffff"
     headerRow.classList.add(removeSpaces(categoryName))
     headerRow.classList.add("headerRow")
-    
+
     return headerRow
 }
 
@@ -460,11 +460,11 @@ function createAllRows(categoryType, tableId) {
     for (categoryName in categoryType) {
         var headerRow = createHeaderRow(templates, categoryType, categoryName)
         table.appendChild(headerRow)
-        
+
         var category = categoryType[categoryName]
         category.forEach(function(name) {
             var row = createRow(templates, name, categoryName, categoryType)
-            table.appendChild(row)       
+            table.appendChild(row)
         })
 
         var requiredRow = createRequiredRow(categoryName)
@@ -484,7 +484,7 @@ function updateRequiredRows(data, categoryType) {
     var requiredRows = document.getElementsByClassName("requiredRow")
     for (requiredRow of requiredRows) {
         var nextEntity = null
-        var category = categoryType[requiredRow.id] 
+        var category = categoryType[requiredRow.id]
         if (category == null) {continue}
         for (i = 0; i < category.length; i++) {
             var entityName = category[i]
@@ -505,11 +505,11 @@ function updateRequiredRows(data, categoryType) {
             if (!nextEntityRequirements.isCompleted()) {
                 nextEntity = data[nextEntityName]
                 break
-            }       
+            }
         }
 
         if (nextEntity == null) {
-            requiredRow.classList.add("hiddenTask")           
+            requiredRow.classList.add("hiddenTask")
         } else {
             requiredRow.classList.remove("hiddenTask")
             var requirementObject = gameData.requirements[nextEntity.name]
@@ -543,7 +543,7 @@ function updateRequiredRows(data, categoryType) {
                 coinElement.classList.remove("hiddenTask")
                 formatCoins(requirements[0].requirement, coinElement)
             }
-        }   
+        }
     }
 }
 
@@ -766,7 +766,7 @@ function yearsToDays(years) {
     var days = years * 365
     return days
 }
- 
+
 function getDay() {
     var day = Math.floor(gameData.days - daysToYears(gameData.days) * 365)
     return day
@@ -862,7 +862,7 @@ function rebirthTwo() {
     for (taskName in gameData.taskData) {
         var task = gameData.taskData[taskName]
         task.maxLevel = 0
-    }    
+    }
 }
 
 function rebirthReset() {
@@ -916,11 +916,11 @@ function assignMethods() {
         if (task.baseData.income) {
             task.baseData = jobBaseData[task.name]
             task = Object.assign(new Job(jobBaseData[task.name]), task)
-            
+
         } else {
             task.baseData = skillBaseData[task.name]
             task = Object.assign(new Skill(skillBaseData[task.name]), task)
-        } 
+        }
         gameData.taskData[key] = task
     }
 
@@ -1007,7 +1007,7 @@ function updateUI() {
     updateQuickTaskDisplay("job")
     updateQuickTaskDisplay("skill")
     hideEntities()
-    updateText()  
+    updateText()
 }
 
 function update() {
@@ -1042,11 +1042,11 @@ function exportGameData() {
 
 createAllRows(jobCategories, "jobTable")
 createAllRows(skillCategories, "skillTable")
-createAllRows(itemCategories, "itemTable") 
+createAllRows(itemCategories, "itemTable")
 
 createData(gameData.taskData, jobBaseData)
 createData(gameData.taskData, skillBaseData)
-createData(gameData.itemData, itemBaseData) 
+createData(gameData.itemData, itemBaseData)
 
 gameData.currentJob = gameData.taskData["Beggar"]
 gameData.currentSkill = gameData.taskData["Concentration"]
@@ -1136,7 +1136,7 @@ gameData.requirements = {
     "Butler": new CoinRequirement([getItemElement("Butler")], [{requirement: gameData.itemData["Butler"].getExpense() * 100}]),
     "Sapphire charm": new CoinRequirement([getItemElement("Sapphire charm")], [{requirement: gameData.itemData["Sapphire charm"].getExpense() * 100}]),
     "Study desk": new CoinRequirement([getItemElement("Study desk")], [{requirement: gameData.itemData["Study desk"].getExpense() * 100}]),
-    "Library": new CoinRequirement([getItemElement("Library")], [{requirement: gameData.itemData["Library"].getExpense() * 100}]), 
+    "Library": new CoinRequirement([getItemElement("Library")], [{requirement: gameData.itemData["Library"].getExpense() * 100}]),
 }
 
 tempData["requirements"] = {}
