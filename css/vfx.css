@@ -3,30 +3,31 @@
     display: block;
     background-color: white;
     pointer-events: none;
+    animation: spin 600ms infinite linear, shoot0 800ms cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
 .particle.size0 {
     width: 2px;
     height: 2px;
-    animation: spin 600ms infinite linear, shoot0 800ms ease-out forwards;
+    animation-name: spin, shoot0;
 }
 
 .particle.size1 {
     width: 4px;
     height: 4px;
-    animation: spin 600ms infinite linear, shoot1 800ms ease-out forwards;
+    animation-name: spin, shoot1;
 }
 
 .particle.size2 {
     width: 6px;
     height: 6px;
-    animation: spin 600ms infinite linear, shoot2 800ms ease-out forwards;
+    animation-name: spin, shoot2;
 }
 
 .particle.size3 {
     width: 8px;
     height: 8px;
-    animation: spin 600ms infinite linear, shoot3 800ms ease-out forwards;
+    animation-name: spin, shoot3;
 }
 
 @keyframes spin {

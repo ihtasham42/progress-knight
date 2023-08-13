@@ -15,8 +15,7 @@ function killAfter(element, timeout) {
     }, timeout);
 }
 
-function randomSize() {
-    const factor = 4;
+function randomSize(factor = 4) {
     let rnd = randomInt(1 + factor + factor * factor + factor * factor * factor);
     if (rnd < 1) {
         return 3;
@@ -34,18 +33,24 @@ function randomSize() {
 }
 
 const ParticleSystem = {
+    followMouseInterval: undefined
 };
 
 ParticleSystem.followMouse = function (enabled = true) {
     if (!enabled) {
         clearInterval(ParticleSystem.followMouseInterval);
+        ParticleSystem.followMouseInterval = undefined;
         return;
     }
 
     ParticleSystem.mousePos = {x: 0, y: 0};
 
-    window.addEventListener('mousemove', (event) => {
+    window.addEventListener('mousemove', function (event) {
         ParticleSystem.mousePos = {x: event.clientX, y: event.clientY};
+    });
+
+    window.addEventListener('click', function (event) {
+        onetimeSplash(document.body, 60, function () {return window.innerWidth - event.clientX}, function (){return event.clientY});
     });
 
     ParticleSystem.followMouseInterval = setInterval(function () {
@@ -71,9 +76,9 @@ ParticleSystem.followProgressBars = function (enabled = true) {
         }
 
         document.querySelectorAll('.progressFill.current, #quickTaskDisplay .progressFill').forEach(function (element) {
-            // TODO read element height
+            // TODO higher progress speed = more particles
             let particleElement = htmlToElement(`
-<div style="position: absolute; transform: rotate(${randomInt(360)}deg); top: ${randomInt(30)}px; right: 0;">
+<div style="position: absolute; transform: rotate(${randomInt(360)}deg); top: ${randomInt(element.clientHeight)}px; right: 0;">
 <div class="particle size${randomSize()}" style=""></div>
 </div>`);
             killAfter(particleElement, 800);
@@ -82,16 +87,20 @@ ParticleSystem.followProgressBars = function (enabled = true) {
     }, 30);
 }
 
-ParticleSystem.onetimeSplash = function (element, numberOfParticles) {
+function onetimeSplash(element, numberOfParticles, fnX, fnY) {
     for (let i = 0; i < numberOfParticles; i++) {
-        // TODO read element height
         let particleElement = htmlToElement(`
-<div style="position: absolute; transform: rotate(${randomInt(360)}deg); top: ${gaussianRandomInt(0, 30)}px; right: 0;">
-<div class="particle size${randomSize()}" style=""></div>
+<div style="position: absolute; transform: rotate(${randomInt(360)}deg); top: ${fnY()}px; right: ${fnX()}px;">
+<div class="particle size${randomSize(3)}"></div>
 </div>`);
-        killAfter(particleElement, 800);
+        killAfter(particleElement, 400);
         element.append(particleElement);
     }
+}
+
+ParticleSystem.onetimeSplash = function (element, numberOfParticles) {
+    let height = element.clientHeight;
+    onetimeSplash(element, numberOfParticles, function () {return 0}, function (){return gaussianRandomInt(0, height)});
 }
 
 
@@ -99,8 +108,9 @@ ParticleSystem.onetimeSplash = function (element, numberOfParticles) {
 ParticleSystem.followProgressBars(true);
 
 Events.TaskLevelChanged.subscribe(function (taskInfo) {
-    ParticleSystem.onetimeSplash(getTaskElement(taskInfo.name).querySelector('.progressBar'), 200);
-    ParticleSystem.onetimeSplash(document.querySelector(`#quickTaskDisplay .${taskInfo.type}.progressBar`), 200);
+    let numberOfParticles = 60;
+    ParticleSystem.onetimeSplash(getTaskElement(taskInfo.name).querySelector('.progressBar'), numberOfParticles);
+    ParticleSystem.onetimeSplash(document.querySelector(`#quickTaskDisplay .${taskInfo.type}.progressBar`), numberOfParticles);
 });
 
 // TODO flash into overlay on progress finish
