@@ -1,0 +1,8 @@
+.progress-text {
+    text-shadow: 1px 1px black;
+}
+
+.game-playing .progress-fill.current {
+    /* TODO would be nice to softly fade this in instead of just showing it. */
+    background-image: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.25));
+}

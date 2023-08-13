@@ -9,10 +9,30 @@ function htmlToElement(html) {
     return template.content.firstChild;
 }
 
+/**
+ *
+ * @param {Element} element
+ * @param {number} timeout milliseconds until to remove the element from DOM
+ */
 function killAfter(element, timeout) {
     setTimeout(() => {
         element.remove();
     }, timeout);
+}
+
+/**
+ * @param {Element} element
+ */
+function killAfterAnimation(element, animationCount = 1) {
+    // Little construct to capture `animationsEnded` per instance
+    (function (animationsEnded) {
+        element.addEventListener('animationend', function () {
+            animationsEnded++;
+            if (animationsEnded >= animationCount) {
+                element.remove();
+            }
+        });
+    })(0);
 }
 
 function randomSize(factor = 4) {
@@ -30,6 +50,16 @@ function randomSize(factor = 4) {
     }
 
     return 0;
+}
+
+const VFX = {
+
+}
+
+VFX.flash = function (element, baseColor) {
+    let flashElement = htmlToElement(`<div class="flash" style="color: ${baseColor}"></div>`);
+    killAfterAnimation(flashElement);
+    element.append(flashElement);
 }
 
 const ParticleSystem = {
@@ -50,7 +80,11 @@ ParticleSystem.followMouse = function (enabled = true) {
     });
 
     window.addEventListener('click', function (event) {
-        onetimeSplash(document.body, 60, function () {return window.innerWidth - event.clientX}, function (){return event.clientY});
+        onetimeSplash(document.body, 60, function () {
+            return window.innerWidth - event.clientX
+        }, function () {
+            return event.clientY
+        });
     });
 
     ParticleSystem.followMouseInterval = setInterval(function () {
@@ -59,7 +93,7 @@ ParticleSystem.followMouse = function (enabled = true) {
 <div style="transform: rotate(${randomInt(360)}deg); top: ${mousePos.y}px; left: ${mousePos.x}px; position: absolute">
     <div class="particle size${randomSize()}" style=""></div>
 </div>`);
-        killAfter(particleElement, 800);
+        killAfterAnimation(particleElement);
         document.body.append(particleElement);
     }, 20);
 }
@@ -75,13 +109,13 @@ ParticleSystem.followProgressBars = function (enabled = true) {
             return;
         }
 
-        document.querySelectorAll('.progressFill.current, #quickTaskDisplay .progressFill').forEach(function (element) {
+        document.querySelectorAll('.progressFill.current').forEach(function (element) {
             // TODO higher progress speed = more particles
             let particleElement = htmlToElement(`
 <div style="position: absolute; transform: rotate(${randomInt(360)}deg); top: ${randomInt(element.clientHeight)}px; right: 0;">
 <div class="particle size${randomSize()}" style=""></div>
 </div>`);
-            killAfter(particleElement, 800);
+            killAfterAnimation(particleElement);
             element.append(particleElement);
         });
     }, 30);
@@ -90,17 +124,25 @@ ParticleSystem.followProgressBars = function (enabled = true) {
 function onetimeSplash(element, numberOfParticles, fnX, fnY) {
     for (let i = 0; i < numberOfParticles; i++) {
         let particleElement = htmlToElement(`
-<div style="position: absolute; transform: rotate(${randomInt(360)}deg); top: ${fnY()}px; right: ${fnX()}px;">
-<div class="particle size${randomSize(3)}"></div>
+<div style="position: absolute; transform: rotate(${randomInt(360)}deg); top: ${fnY()}px; right: ${fnX()}px; animation: fade-out 600ms ease-in-out;">
+<div class="particle size${randomSize(3)}" style="animation-duration: 600ms, 600ms; opacity: 0.6;"></div>
 </div>`);
-        killAfter(particleElement, 400);
+        killAfterAnimation(particleElement);
         element.append(particleElement);
     }
 }
 
 ParticleSystem.onetimeSplash = function (element, numberOfParticles) {
     let height = element.clientHeight;
-    onetimeSplash(element, numberOfParticles, function () {return 0}, function (){return gaussianRandomInt(0, height)});
+    onetimeSplash(
+        element,
+        numberOfParticles,
+        function () {
+            return 0
+        },
+        function () {
+            return gaussianRandomInt(0, height)
+        });
 }
 
 
@@ -108,10 +150,23 @@ ParticleSystem.onetimeSplash = function (element, numberOfParticles) {
 ParticleSystem.followProgressBars(true);
 
 Events.TaskLevelChanged.subscribe(function (taskInfo) {
+    // Only show animations if the level went up
+    if (taskInfo.previousLevel >= taskInfo.nextLevel) return;
+
     let numberOfParticles = 60;
-    ParticleSystem.onetimeSplash(getTaskElement(taskInfo.name).querySelector('.progressBar'), numberOfParticles);
-    ParticleSystem.onetimeSplash(document.querySelector(`#quickTaskDisplay .${taskInfo.type}.progressBar`), numberOfParticles);
+    let taskProgressBar = getTaskElement(taskInfo.name).querySelector('.progressBar');
+    ParticleSystem.onetimeSplash(taskProgressBar, numberOfParticles);
+    VFX.flash(taskProgressBar);
+    let quickTaskProgressBar = document.querySelector(`#quickTaskDisplay .${taskInfo.type}.progressBar`);
+    ParticleSystem.onetimeSplash(quickTaskProgressBar, numberOfParticles);
+    VFX.flash(quickTaskProgressBar);
 });
 
+// TODO particle anpassungen ausprobieren
+//      - round particles
+//      - particles mostly in 4 directions (diagonally) instead of all directions
+//      - particles outside instead of inside
+//      - particle opacity variety instead of size variety
+//      - move particles the same range but have them spawn further away
 // TODO flash into overlay on progress finish
 // TODO bump numbers on increase

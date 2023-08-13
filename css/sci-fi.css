@@ -1,0 +1,16 @@
+.sci-fi .progress-fill.current {
+    background-image: repeating-linear-gradient(315deg, transparent, transparent 15px, rgba(0,0,0,1.0) 15px, rgba(0,0,0,1.0) 30px);
+    background-position: left;
+}
+
+.sci-fi .headerRow {
+    clip-path: polygon(
+            0 18px,
+            18px 0,
+            calc(100% - 18px) 0,
+            100% 18px,
+            100% 100%,
+            0% 100%,
+            0 18px
+    )
+}

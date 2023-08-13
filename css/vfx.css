@@ -3,7 +3,7 @@
     display: block;
     background-color: white;
     pointer-events: none;
-    animation: spin 600ms infinite linear, shoot0 800ms cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    animation: spin 600ms infinite linear, shoot0 800ms cubic-bezier(0, 0.55, 0.45, 1) forwards;
 }
 
 .particle.size0 {
@@ -75,6 +75,12 @@
     }
 }
 
+@keyframes fade-out {
+    to {
+        opacity: 0;
+    }
+}
+
 .progress-fill {
     position: relative; /* Contain particles */
     overflow: hidden;
@@ -82,4 +88,26 @@
 
 .progress-bar {
     position: relative; /* Contain particles */
+}
+
+.flash {
+    position: absolute;
+    background-color: currentColor;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    animation: flash 400ms cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes flash {
+    0% {
+        box-shadow: 0 0 0 0 currentColor;
+        opacity: 0.7;
+    }
+
+    to {
+        box-shadow: 0 0 15px 15px currentColor;
+        opacity: 0;
+    }
 }

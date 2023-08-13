@@ -658,6 +658,12 @@ function hideEntities() {
     }
 }
 
+function updateBodyClasses() {
+    var displayAsPaused = gameData.paused || !isAlive();
+    document.getElementById("body").classList.toggle('game-paused', displayAsPaused);
+    document.getElementById("body").classList.toggle('game-playing', !displayAsPaused);
+}
+
 function createItemData(baseData) {
     for (var item of baseData) {
         gameData.itemData[item.name] = "happiness" in item ? new Property(task) : new Misc(task)
@@ -839,7 +845,12 @@ function getElementsByClass(className) {
 
 function setLightDarkMode() {
     var body = document.getElementById("body")
-    body.classList.contains("dark") ? body.classList.remove("dark") : body.classList.add("dark")
+    body.classList.toggle("dark")
+}
+
+function setSciFiMode() {
+    var body = document.getElementById("body")
+    body.classList.toggle("sci-fi")
 }
 
 function removeSpaces(string) {
@@ -1008,6 +1019,7 @@ function updateUI() {
     updateQuickTaskDisplay("skill")
     hideEntities()
     updateText()
+    updateBodyClasses()
 }
 
 function update() {

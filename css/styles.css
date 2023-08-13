@@ -12,10 +12,6 @@ td {
     vertical-align: middle !important;
 }
 
-.current {
-    background-color: orange !important;
-}
-
 .progress-text {
     position: absolute;
     top: 0px;
@@ -34,6 +30,10 @@ td {
 .progress-fill {
     height: 30px;
     background-color: rgb(46, 148, 231)
+}
+
+.progress-fill.current {
+    background-color: orange;
 }
 
 .hidden {
