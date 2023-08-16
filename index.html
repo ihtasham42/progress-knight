@@ -8,11 +8,11 @@
     <link rel="stylesheet" type="text/css" href="css/adjustments.css">
     <link rel="stylesheet" type="text/css" href="css/vfx.css">
     <link rel="stylesheet" type="text/css" href="css/sci-fi.css">
-    <title>Progress Knight</title>
+    <title>Progress Station</title>
 </head>
 <body id="body" class="dark">
     <div class="w3-margin"> 
-        <h1>Progress Knight</h1>
+        <h1>Progress Station</h1>
         <div style="width: 1220px; height: 600px"> 
             <div class="panel w3-padding" style="width: 300px; height: auto; float: left">
                 <span id="deathText">
@@ -20,8 +20,9 @@
                     <div class="sidebar-element" style="color: gray">Your age has met your lifespan, use the amulet to rebirth before you pass away</div>
                 </span>
 
-                <div class="" style="font-size: large">Age <span id="ageDisplay">14</span> Day <span id="dayDisplay">0</span></div>
-                <div class="sidebar-element" style="color: gray">Lifespan: <span id="lifespanDisplay">70</span> years</div>
+                <div class="" style="font-size: large">Intergalactic cycles: <span id="ageDisplay">14</span> <span id="dayDisplay">0</span></div>
+                <div class="" style="font-size: large">Danger <span id="danger" style="color: orange">54.2%</span></div>
+                <div class="sidebar-element" style="color: gray">Station age: <span id="lifespanDisplay">70</span> years</div>
                 
                 <button id="pauseButton" class="w3-button button sidebar-element" onClick="setPause()">Pause</button>
 
@@ -43,22 +44,22 @@
                     <span></span>
                     <span></span>
                 </div>
-                <div style="color: gray">Balance (in coins)</div>
+                <div style="color: gray">Balance (in watts)</div>
 
                 <ul class="sidebar-element" style="padding-left: 20px;">
-                    <li><span style="color: rgb(9, 160, 230)">Net/day: </span ><b id="signDisplay"></b><span id="netDisplay">
+                    <li><span style="color: rgb(9, 160, 230)">Net: </span ><b id="signDisplay"></b><span id="netDisplay">
                         <span></span>
                         <span></span>
                         <span></span>
                         <span></span>
                     </span></li>
-                    <li><span style="color: green">Income/day: </span><span id="incomeDisplay">
+                    <li><span style="color: green">Generated: </span><span id="incomeDisplay">
                         <span></span>
                         <span></span>
                         <span></span>
                         <span></span>
                     </span></li>
-                    <li><span style="color: red">Expense/day: </span><span id="expenseDisplay">
+                    <li><span style="color: red">Usage: </span><span id="expenseDisplay">
                         <span></span>
                         <span></span>
                         <span></span>
@@ -71,17 +72,17 @@
                         <div class="progress-fill progressFill current"></div>
                         <div class="progress-text name">Task</div>
                     </div>
-                    <div class="sidebar-element" style="color: gray">Current job</div>
+                    <div class="sidebar-element" style="color: gray">Current module</div>
 
                     <div style="width: 230px" class="small-margin skill progress-bar progressBar">
                         <div class="progress-fill progressFill current"></div>
                         <div class="progress-text name">Task</div>              
                     </div>
-                    <div class="sidebar-element" style="color: gray">Current skill</div>
+                    <div class="sidebar-element" style="color: gray">Current research</div>
                 </span>
 
-                <div style="font-size: large"><span style="color: rgb(15, 105, 207)">Happiness: </span><span id="happinessDisplay"></span></div>
-                <div style="color: gray" class="sidebar-element">Affects all xp gain</div>
+                <div style="font-size: large"><span style="color: rgb(15, 105, 207)">Population: </span><span id="happinessDisplay"></span></div>
+                <div style="color: gray" class="sidebar-element">Affects all work speed</div>
 
                 <span id="evilInfo">
                     <div style="font-size: large"><span style="color: rgb(200, 0, 0)">Evil: </span><span id="evilDisplay"></span></div>
@@ -108,10 +109,10 @@
             </div>
 
             <div class="panel w3-margin-left" style="width: 900px; height: 40px; float: left">
-                <div class="w3-button w3-bar-item tabButton" id="jobTabButton" onClick="setTab(this, 'jobs')">Jobs</div>
-                <div class="w3-button w3-bar-item tabButton" onClick="setTab(this, 'skills')">Skills</div>
-                <div class="w3-button w3-bar-item tabButton" id="shopTabButton" onClick="setTab(this, 'shop')">Shop</div>
-                <div class="w3-button w3-bar-item tabButton" id="rebirthTabButton" onClick="setTab(this, 'rebirth')">Amulet</div>
+                <div class="w3-button w3-bar-item tabButton" id="jobTabButton" onClick="setTab(this, 'jobs')">Modules</div>
+                <div class="w3-button w3-bar-item tabButton" onClick="setTab(this, 'skills')">Research</div>
+                <div class="w3-button w3-bar-item tabButton" id="shopTabButton" onClick="setTab(this, 'shop')">Sectors</div>
+                <div class="w3-button w3-bar-item tabButton" id="rebirthTabButton" onClick="setTab(this, 'rebirth')">Captain's Log</div>
                 <div class="w3-button w3-bar-item tabButton" onClick="setTab(this, 'settings')" style="float: right">Settings</div>
             </div>
 
