@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * @param {String} html representing a single element
  * @return {Element}
@@ -6,7 +8,30 @@ function htmlToElement(html) {
     let template = document.createElement('template');
     html = html.trim(); // Never return a text node of whitespace as the result
     template.innerHTML = html;
+    // noinspection JSValidateTypes
     return template.content.firstChild;
+}
+
+/**
+ * Note: `visibility: hidden` is considered visible for this function as its still part of the dom & layout.
+ *
+ * @param {HTMLElement} element
+ * @return {boolean}
+ * @
+ */
+function isVisible(element) {
+    // Glorious stolen jQuery logic
+    return !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length);
+}
+
+/**
+ * Note: `visibility: hidden` is considered visible for this function as its still part of the dom & layout.
+ *
+ * @param {HTMLElement} element
+ * @return {boolean}
+ */
+function isHidden(element) {
+    return !isVisible(element);
 }
 
 /**
@@ -22,6 +47,7 @@ function killAfter(element, timeout) {
 
 /**
  * @param {Element} element
+ * @param {number} animationCount how many animations need to end before the element is removed?
  */
 function killAfterAnimation(element, animationCount = 1) {
     // Little construct to capture `animationsEnded` per instance
@@ -52,15 +78,13 @@ function randomSize(factor = 4) {
     return 0;
 }
 
-const VFX = {
-
-}
+const VFX = {};
 
 VFX.flash = function (element, baseColor) {
     let flashElement = htmlToElement(`<div class="flash" style="color: ${baseColor}"></div>`);
     killAfterAnimation(flashElement);
     element.append(flashElement);
-}
+};
 
 const ParticleSystem = {
     followMouseInterval: undefined
@@ -81,9 +105,9 @@ ParticleSystem.followMouse = function (enabled = true) {
 
     window.addEventListener('click', function (event) {
         onetimeSplash(document.body, 60, function () {
-            return window.innerWidth - event.clientX
+            return window.innerWidth - event.clientX;
         }, function () {
-            return event.clientY
+            return event.clientY;
         });
     });
 
@@ -96,7 +120,7 @@ ParticleSystem.followMouse = function (enabled = true) {
         killAfterAnimation(particleElement);
         document.body.append(particleElement);
     }, 20);
-}
+};
 
 ParticleSystem.followProgressBars = function (enabled = true) {
     if (!enabled) {
@@ -110,6 +134,9 @@ ParticleSystem.followProgressBars = function (enabled = true) {
         }
 
         document.querySelectorAll('.progressFill.current').forEach(function (element) {
+            // Don't spawn particles on elements that are invisible
+            if (isHidden(element)) return;
+
             // TODO higher progress speed = more particles
             let particleElement = htmlToElement(`
 <div style="position: absolute; transform: rotate(${randomInt(360)}deg); top: ${randomInt(element.clientHeight)}px; right: 0;">
@@ -119,7 +146,7 @@ ParticleSystem.followProgressBars = function (enabled = true) {
             element.append(particleElement);
         });
     }, 30);
-}
+};
 
 function onetimeSplash(element, numberOfParticles, fnX, fnY) {
     for (let i = 0; i < numberOfParticles; i++) {
@@ -138,12 +165,12 @@ ParticleSystem.onetimeSplash = function (element, numberOfParticles) {
         element,
         numberOfParticles,
         function () {
-            return 0
+            return 0;
         },
         function () {
-            return gaussianRandomInt(0, height)
+            return gaussianRandomInt(0, height);
         });
-}
+};
 
 
 // ParticleSystem.followMouse(true);
@@ -155,8 +182,11 @@ Events.TaskLevelChanged.subscribe(function (taskInfo) {
 
     let numberOfParticles = 60;
     let taskProgressBar = getTaskElement(taskInfo.name).querySelector('.progressBar');
-    ParticleSystem.onetimeSplash(taskProgressBar, numberOfParticles);
-    VFX.flash(taskProgressBar);
+    if (isVisible(taskProgressBar)) {
+        // Don't spawn particles on elements that are invisible
+        ParticleSystem.onetimeSplash(taskProgressBar, numberOfParticles);
+        VFX.flash(taskProgressBar);
+    }
     let quickTaskProgressBar = document.querySelector(`#quickTaskDisplay .${taskInfo.type}.progressBar`);
     ParticleSystem.onetimeSplash(quickTaskProgressBar, numberOfParticles);
     VFX.flash(quickTaskProgressBar);

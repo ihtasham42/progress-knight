@@ -1,41 +1,40 @@
+'use strict';
+
 class Task {
     constructor(baseData) {
-        this.baseData = baseData
-        this.name = baseData.name
-        this.level = 0
-        this.maxLevel = 0 
-        this.xp = 0
+        this.baseData = baseData;
+        this.name = baseData.name;
+        this.level = 0;
+        this.maxLevel = 0;
+        this.xp = 0;
 
-        this.xpMultipliers = [
-        ]
+        this.xpMultipliers = [];
     }
 
     getMaxXp() {
-        var maxXp = Math.round(this.baseData.maxXp * (this.level + 1) * Math.pow(1.01, this.level))
-        return maxXp
+        return Math.round(this.baseData.maxXp * (this.level + 1) * Math.pow(1.01, this.level));
     }
 
     getXpLeft() {
-        return Math.round(this.getMaxXp() - this.xp)
+        return Math.round(this.getMaxXp() - this.xp);
     }
 
     getMaxLevelMultiplier() {
-        var maxLevelMultiplier = 1 + this.maxLevel / 10
-        return maxLevelMultiplier
+        return 1 + this.maxLevel / 10;
     }
 
     getXpGain() {
-        return applyMultipliers(10, this.xpMultipliers)
+        return applyMultipliers(10, this.xpMultipliers);
     }
 
     increaseXp() {
-        this.xp += applySpeed(this.getXpGain())
+        this.xp += applySpeed(this.getXpGain());
         if (this.xp >= this.getMaxXp()) {
-            var excess = this.xp - this.getMaxXp()
-            var previousLevel = this.level;
+            let excess = this.xp - this.getMaxXp();
+            const previousLevel = this.level;
             while (excess >= 0) {
-                this.level += 1
-                excess -= this.getMaxXp()
+                this.level += 1;
+                excess -= this.getMaxXp();
             }
             if (this.level > previousLevel) {
                 Events.TaskLevelChanged.trigger({
@@ -45,131 +44,126 @@ class Task {
                     nextLevel: this.level,
                 });
             }
-            this.xp = this.getMaxXp() + excess
+            this.xp = this.getMaxXp() + excess;
         }
     }
 }
 
 class Job extends Task {
     constructor(baseData) {
-        super(baseData)   
-        this.incomeMultipliers = [
-        ]
+        super(baseData);
+        this.incomeMultipliers = [];
     }
 
     getLevelMultiplier() {
-        var levelMultiplier = 1 + Math.log10(this.level + 1)
-        return levelMultiplier
+        return 1 + Math.log10(this.level + 1);
     }
-    
+
     getIncome() {
-        return applyMultipliers(this.baseData.income, this.incomeMultipliers) 
+        return applyMultipliers(this.baseData.income, this.incomeMultipliers);
     }
 }
 
 class Skill extends Task {
     constructor(baseData) {
-        super(baseData)
+        super(baseData);
     }
 
     getEffect() {
-        var effect = 1 + this.baseData.effect * this.level
-        return effect
+        return 1 + this.baseData.effect * this.level;
     }
 
     getEffectDescription() {
-        var description = this.baseData.description
-        var text = "x" + String(this.getEffect().toFixed(2)) + " " + description
-        return text
+        const description = this.baseData.description;
+        return 'x' + this.getEffect().toFixed(2) + ' ' + description;
     }
 }
 
 class Item {
-    constructor(baseData) {  
-        this.baseData = baseData
-        this.name = baseData.name
-        this.expenseMultipliers = [
-         
-        ]
+    constructor(baseData) {
+        this.baseData = baseData;
+        this.name = baseData.name;
+        this.expenseMultipliers = [];
     }
 
     getEffect() {
-        if (gameData.currentProperty != this && !gameData.currentMisc.includes(this)) return 1
-        var effect = this.baseData.effect
-        return effect
+        if (gameData.currentProperty !== this && !gameData.currentMisc.includes(this)) return 1;
+        return this.baseData.effect;
     }
 
     getEffectDescription() {
-        var description = this.baseData.description
-        if (itemCategories["Properties"].includes(this.name)) description = "Happiness"
-        var text = "x" + this.baseData.effect.toFixed(1) + " " + description
-        return text
+        let description = this.baseData.description;
+        if (itemCategories['Properties'].includes(this.name)) {
+            description = 'Population';
+        }
+        return 'x' + this.baseData.effect.toFixed(1) + ' ' + description;
     }
 
     getExpense() {
-        return applyMultipliers(this.baseData.expense, this.expenseMultipliers)
+        return applyMultipliers(this.baseData.expense, this.expenseMultipliers);
     }
 }
 
 class Requirement {
-    constructor(elements, requirements) {
-        this.elements = elements
-        this.requirements = requirements
-        this.completed = false
+    constructor(type, elements, requirements) {
+        this.type = type;
+        this.elements = elements;
+        this.requirements = requirements;
+        this.completed = false;
     }
 
     isCompleted() {
-        if (this.completed) {return true}
-        for (var requirement of this.requirements) {
+        if (this.completed) return true;
+        for (const requirement of this.requirements) {
             if (!this.getCondition(requirement)) {
-                return false
+                return false;
             }
         }
-        this.completed = true
-        return true
+        this.completed = true;
+        return true;
+    }
+
+    getCondition(requirement) {
+        throw new TypeError('getCondition not implemented.');
     }
 }
 
 class TaskRequirement extends Requirement {
     constructor(elements, requirements) {
-        super(elements, requirements)
-        this.type = "task"
+        super('task', elements, requirements);
     }
 
     getCondition(requirement) {
-        return gameData.taskData[requirement.task].level >= requirement.requirement
+        return gameData.taskData[requirement.task].level >= requirement.requirement;
     }
 }
 
 class CoinRequirement extends Requirement {
     constructor(elements, requirements) {
-        super(elements, requirements)
-        this.type = "coins"
+        super('coins', elements, requirements);
     }
 
     getCondition(requirement) {
-        return gameData.coins >= requirement.requirement
+        return gameData.coins >= requirement.requirement;
     }
 }
 
 class AgeRequirement extends Requirement {
     constructor(elements, requirements) {
-        super(elements, requirements)
-        this.type = "age"
+        super('age', elements, requirements);
     }
 
     getCondition(requirement) {
-        return daysToYears(gameData.days) >= requirement.requirement
+        return daysToYears(gameData.days) >= requirement.requirement;
     }
 }
 
 class EvilRequirement extends Requirement {
     constructor(elements, requirements) {
-        super(elements, requirements)
-        this.type = "evil"
+        super('evil', elements, requirements);
     }
 
     getCondition(requirement) {
-        return gameData.evil >= requirement.requirement
-    }    
+        return gameData.evil >= requirement.requirement;
+    }
 }

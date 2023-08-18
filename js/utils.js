@@ -1,3 +1,5 @@
+'use strict';
+
 function isDefined(variable) {
     return !isUndefined(variable);
 }
@@ -57,3 +59,31 @@ function gaussianRandom(min = 0, max = 1, skew = 1) {
 function gaussianRandomInt(min = 0, max = 1, skew = 1) {
     return Math.round(gaussianRandom(min, max, skew));
 }
+
+class DomGetter {
+    /**
+     *
+     * @private {Document|Node}
+     */
+    _parent;
+
+    constructor(parent) {
+        this._parent = parent;
+    }
+
+    byId(id) {
+        return this._parent.getElementById(id);
+    }
+
+    byClass(className) {
+        return this.allByClass(className).item(0);
+    }
+
+    allByClass(className) {
+        return this._parent.getElementsByClassName(className);
+    }
+}
+
+const Dom = {
+    get: new DomGetter(document)
+};

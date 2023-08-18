@@ -1,3 +1,4 @@
+'use strict';
 
 class Event {
     static _warnedEvents = [];
@@ -68,7 +69,7 @@ class Event {
 
         if (this._listeners.length === 0) {
             if (this._requiresListeners) {
-                this._warnEmptyListeners(this.constructor.name)
+                this._warnEmptyListeners(this.constructor.name);
             }
 
             return;
@@ -133,4 +134,4 @@ const Events = {
         previousLevel: 'number',
         nextLevel: 'number'
     }),
-}
+};

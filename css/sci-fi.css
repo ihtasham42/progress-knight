@@ -14,3 +14,14 @@
             0 18px
     )
 }
+
+.sci-fi .progress-fill.current {
+    clip-path: polygon(
+            0 0,
+            calc(100% - 15px) 0,
+            100% 15px,
+            calc(100% - 15px) 100%,
+            0 100%,
+            0 0
+    )
+}

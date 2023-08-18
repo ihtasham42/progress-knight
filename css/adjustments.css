@@ -2,7 +2,29 @@
     text-shadow: 1px 1px black;
 }
 
+.progress-fill {
+    /* Smooth out progress bar filling */
+    transition: width 50ms linear;
+}
+
 .game-playing .progress-fill.current {
     /* TODO would be nice to softly fade this in instead of just showing it. */
     background-image: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.25));
+}
+
+.w3-bar-item {
+    width: auto;
+    min-width: 100px;
+}
+
+.radio {
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    padding: 7px;
+}
+
+.radio > div {
+    width: 24px;
+    height: 24px;
 }
