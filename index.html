@@ -21,6 +21,7 @@
                     <div class="sidebar-element" style="color: gray">Your age has met your lifespan, use the amulet to rebirth before you pass away</div>
                 </span>
 
+                <div id="name-display" style="font-size: large">USS Progress</div>
                 <div class="" style="font-size: large">Intergalactic cycles: <span id="ageDisplay">14</span> <span id="dayDisplay">0</span></div>
                 <div class="" style="font-size: large">Danger <span id="danger" style="color: orange">54.2%</span></div>
                 <div class="sidebar-element" style="color: gray">Station age: <span id="lifespanDisplay">70</span> years</div>
@@ -271,6 +272,12 @@
 
                 <div class="tab" id="settings">
                     <ul>
+                        <li>
+                            <h2><label for="stationNameInput">Station Name</label></h2>
+                            <form style="margin-top: 16px">
+                                <input type="text" id="stationNameInput" style="width:100%" maxlength="20" placeholder=""/>
+                            </form>
+                        </li>
                         <li>
                             <h2>Import/export save</h2>
                             <button class="w3-button button" onClick="importGameData()">Import</button>

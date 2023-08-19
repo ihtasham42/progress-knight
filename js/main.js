@@ -20,6 +20,8 @@ let gameData = {
     currentSkill: null,
     currentProperty: null,
     currentMisc: null,
+
+    stationName: defaultStationName,
 };
 
 const tempData = {};
@@ -816,7 +818,23 @@ function exportGameData() {
     importExportBox.value = window.btoa(JSON.stringify(gameData));
 }
 
-//Init
+function initStationName() {
+    let stationNameDisplayElement = document.getElementById('name-display');
+    stationNameDisplayElement.textContent = gameData.stationName;
+    let stationNameInput = document.getElementById('stationNameInput');
+    stationNameInput.value = gameData.stationName;
+    stationNameInput.placeholder = emptyStationName;
+
+    stationNameInput.addEventListener('input', function () {
+        if (stationNameInput.value) {
+            gameData.stationName = stationNameInput.value;
+        } else {
+            gameData.stationName = stationNameInput.placeholder;
+        }
+        stationNameDisplayElement.textContent = gameData.stationName;
+    });
+}
+
 function init() {
     createAllRows(jobCategories, 'jobTable');
     createAllRows(skillCategories, 'skillTable');
@@ -846,6 +864,7 @@ function init() {
     setTab(jobTabButton, 'jobs');
     autoLearnElement.checked = gameData.autoLearnEnabled;
     autoPromoteElement.checked = gameData.autoPromoteEnabled;
+    initStationName();
 
     update();
     setInterval(update, 1000 / updateSpeed);

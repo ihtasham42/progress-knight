@@ -5,6 +5,9 @@ const updateSpeed = 20;
 
 const baseLifespan = 365 * 70;
 
+const defaultStationName = 'USS Progressor';
+const emptyStationName = 'Unknown Station';
+
 // Not const to allow easy game speed increase
 // TODO change before release
 let baseGameSpeed = 4;
