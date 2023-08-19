@@ -129,7 +129,7 @@ ParticleSystem.followProgressBars = function (enabled = true) {
     }
 
     ParticleSystem.followProgressBarsInterval = setInterval(() => {
-        if (gameData.paused) {
+        if (gameData.paused || !isAlive()) {
             return;
         }
 
