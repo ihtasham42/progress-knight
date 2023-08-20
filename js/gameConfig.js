@@ -7,6 +7,9 @@ const baseLifespan = 365 * 70;
 
 const defaultStationName = 'USS Progressor';
 const emptyStationName = 'Unknown Station';
+const GameOverMessageWin = 'Congratulations! \n You managed to blast through the Destroyer\'s near endless defenses. Your world is safe.';
+const GameOverMessageLose = 'The Destroyer\'s power is overwhelming. Your only hope is to engage the Temporus artifact and attempt a time jump. You will lose all of your Modules and Exploration progress, but will progress much faster the next time around.';
+
 
 // Not const to allow easy game speed increase
 // TODO change before release
@@ -20,6 +23,10 @@ const coinColors = {
     'g': '#E5C100',
     's': '#a8a8a8',
     'c': '#a15c2f'
+};
+
+const BattleData = {
+    'Destroyer': {name: 'Destroyer', maxXp: 50, income: 5},
 };
 
 const jobBaseData = {
@@ -187,6 +194,17 @@ const tooltips = {
     'Library': 'Stores a collection of books, each containing vast amounts of information from basic life skills to complex magic spells.',
 };
 
+const layerData = {
+    0: new LayerData('#ffe119'),
+    1: new LayerData('#f58231'),
+    2: new LayerData('#e6194B'),
+    3: new LayerData('#911eb4'),
+    4: new LayerData('#4363d8'),
+    5: new LayerData('#47ff00'),
+}
+const layerCount = Object.keys(layerData).length;
+const lastLayerData= new LayerData('#000000');
+
 function createRequirements(getElementsByClass, getTaskElement, getItemElement) {
     return {
         //Other
@@ -197,6 +215,7 @@ function createRequirements(getElementsByClass, getTaskElement, getItemElement) 
         'Rebirth note 1': new AgeRequirement([Dom.get.byId('rebirthNote1')], [{requirement: 45}]),
         'Rebirth note 2': new AgeRequirement([Dom.get.byId('rebirthNote2')], [{requirement: 65}]),
         'Rebirth note 3': new AgeRequirement([Dom.get.byId('rebirthNote3')], [{requirement: 200}]),
+        'Battle tab': new AgeRequirement([Dom.get.byId('battleTabButton')], [{requirement: 0}]),
         'Evil info': new EvilRequirement([Dom.get.byId('evilInfo')], [{requirement: 1}]),
         'Time warping info': new TaskRequirement([Dom.get.byId('timeWarping')], [{task: 'Mage', requirement: 10}]),
         'Automation': new AgeRequirement([Dom.get.byId('automation')], [{requirement: 20}]),

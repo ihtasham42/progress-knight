@@ -115,6 +115,7 @@
                 <div class="w3-button w3-bar-item tabButton" onClick="setTab(this, 'skills')">Research</div>
                 <div class="w3-button w3-bar-item tabButton" id="shopTabButton" onClick="setTab(this, 'shop')">Sectors</div>
                 <div class="w3-button w3-bar-item tabButton" id="rebirthTabButton" onClick="setTab(this, 'rebirth')">Captain's Log</div>
+                <div class="w3-button w3-bar-item tabButton" id="battleTabButton" onClick="setTab(this, 'battleTab')">Boss Battle</div>
                 <div class="w3-button w3-bar-item tabButton" onClick="setTab(this, 'settings')" style="float: right">Settings</div>
             </div>
 
@@ -270,6 +271,20 @@
                     </ul>
                 </div>
 
+                <div class="tab" id="battleTab">
+                    <div style="color: gray">Encounter</div>
+                    <h2 id="battleName">Boss</h2>
+                    <br />
+                    <div id="battleProgressBar" class="small-margin skill progress-bar progressBar">
+                        <div class="progress-fill progressFill battle current"></div>
+                        <div class="progress-text name">Task</div>
+                    </div>
+                    <br />
+                    <div id="gameOverDiv">
+                        <h2 id="gameOverMessage">Boss Defeated! You Win!</h2>
+                    </div>
+                </div>
+
                 <div class="tab" id="settings">
                     <ul>
                         <li>
@@ -316,6 +331,7 @@
     <script type="text/javascript" src="js/utils.js"></script>
     <script type="text/javascript" src="js/events.js"></script>
     <script type="text/javascript" src="js/classes.js"></script>
+    <script type="text/javascript" src="js/battle.js"></script>
     <script type="text/javascript" src="js/gameConfig.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
     <script type="text/javascript" src="js/vfx.js"></script>

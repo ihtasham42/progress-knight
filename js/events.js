@@ -134,4 +134,7 @@ const Events = {
         previousLevel: 'number',
         nextLevel: 'number'
     }),
+    GameOver: new Event({
+        bossDefeated: 'boolean',
+    }),
 };

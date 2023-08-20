@@ -151,3 +151,8 @@ button:focus {
 .small-margin  {
     margin-bottom: 2px;
 }
+
+.center {
+    margin: auto;
+    width: 50%;
+}

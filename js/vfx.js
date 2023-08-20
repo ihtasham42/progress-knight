@@ -151,8 +151,8 @@ ParticleSystem.followProgressBars = function (enabled = true) {
 function onetimeSplash(element, numberOfParticles, fnX, fnY) {
     for (let i = 0; i < numberOfParticles; i++) {
         let particleElement = htmlToElement(`
-<div style="position: absolute; transform: rotate(${randomInt(360)}deg); top: ${fnY()}px; right: ${fnX()}px; animation: fade-out 600ms ease-in-out;">
-<div class="particle size${randomSize(3)}" style="animation-duration: 600ms, 600ms; opacity: 0.6;"></div>
+<div style="position: absolute; transform: rotate(${-60 + randomInt(120)}deg); top: ${fnY()}px; right: ${fnX()}px; animation: fade-out 600ms ease-in-out;">
+<div class="particle size${randomSize(3)}" style="animation-duration: 600ms, 600ms; opacity: 0.6; scale: 0.5"></div>
 </div>`);
         killAfterAnimation(particleElement);
         element.append(particleElement);
@@ -160,6 +160,7 @@ function onetimeSplash(element, numberOfParticles, fnX, fnY) {
 }
 
 ParticleSystem.onetimeSplash = function (element, numberOfParticles) {
+    if (!element) return;
     let height = element.clientHeight;
     onetimeSplash(
         element,
@@ -180,14 +181,15 @@ Events.TaskLevelChanged.subscribe(function (taskInfo) {
     // Only show animations if the level went up
     if (taskInfo.previousLevel >= taskInfo.nextLevel) return;
 
-    let numberOfParticles = 60;
-    let taskProgressBar = getTaskElement(taskInfo.name).querySelector('.progressBar');
-    if (isVisible(taskProgressBar)) {
+    let numberOfParticles = 10;
+    let taskProgressBar = getTaskElement(taskInfo.name)?.querySelector('.progressBar');
+    if (taskProgressBar != null && isVisible(taskProgressBar)) {
         // Don't spawn particles on elements that are invisible
         ParticleSystem.onetimeSplash(taskProgressBar, numberOfParticles);
         VFX.flash(taskProgressBar);
     }
     let quickTaskProgressBar = document.querySelector(`#quickTaskDisplay .${taskInfo.type}.progressBar`);
+    if (!quickTaskProgressBar) return;
     ParticleSystem.onetimeSplash(quickTaskProgressBar, numberOfParticles);
     VFX.flash(quickTaskProgressBar);
 });

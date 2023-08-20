@@ -30,22 +30,26 @@ class Task {
     increaseXp() {
         this.xp += applySpeed(this.getXpGain());
         if (this.xp >= this.getMaxXp()) {
-            let excess = this.xp - this.getMaxXp();
-            const previousLevel = this.level;
-            while (excess >= 0) {
-                this.level += 1;
-                excess -= this.getMaxXp();
-            }
-            if (this.level > previousLevel) {
-                Events.TaskLevelChanged.trigger({
-                    type: this.constructor.name,
-                    name: this.baseData.name,
-                    previousLevel: previousLevel,
-                    nextLevel: this.level,
-                });
-            }
-            this.xp = this.getMaxXp() + excess;
+            this.levelUp();
         }
+    }
+
+    levelUp() {
+        let excess = this.xp - this.getMaxXp();
+        const previousLevel = this.level;
+        while (excess >= 0) {
+            this.level += 1;
+            excess -= this.getMaxXp();
+        }
+        if (this.level > previousLevel) {
+            Events.TaskLevelChanged.trigger({
+                type: this.constructor.name,
+                name: this.baseData.name,
+                previousLevel: previousLevel,
+                nextLevel: this.level,
+            });
+        }
+        this.xp = this.getMaxXp() + excess;
     }
 }
 
