@@ -156,3 +156,5 @@ To verify the fixes work in practice:
 6. Verify the spinner disappears and reward summary appears
 7. Verify rewards provide substantial XP gains (multiple level-ups)
 8. Verify the game resumes normally after adventure completion
+
+

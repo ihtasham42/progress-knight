@@ -898,6 +898,11 @@ function rebirthReset() {
         task.level = 0
         task.xp = 0
     }
+    
+    // Reset adventure tracking for new life
+    if (typeof window.resetAdventureTracking === 'function') {
+        window.resetAdventureTracking();
+    }
 
     for (key in gameData.requirements) {
         var requirement = gameData.requirements[key]
@@ -1028,7 +1033,10 @@ function updateUI() {
 }
 
 function update() {
-    // Skip all game updates if paused (including during adventures)
+    // Always update UI, even when paused (for adventures and manual pause)
+    updateUI();
+    
+    // Skip game logic updates if paused (including during adventures)
     if (gameData.paused) {
         return;
     }
@@ -1039,7 +1047,6 @@ function update() {
     doCurrentTask(gameData.currentJob)
     doCurrentTask(gameData.currentSkill)
     applyExpenses()
-    updateUI()
 }
 
 function resetGameData() {

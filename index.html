@@ -325,37 +325,49 @@
             </div>
         </div>
     </div>
+    
+    <!-- Adventure Container Overlay -->
+    <div id="adventureContainer" class="adventure-overlay" style="display: none;">
+        <div class="adventure-overlay-content">
+            <button class="adventure-close-btn" onclick="window.adventureSystem?.endCareerBasedAdventure(); document.getElementById('adventureContainer').style.display='none';">✕</button>
+            <!-- Adventure content will be dynamically inserted here -->
+        </div>
+    </div>
 </body>
 
 <script type="text/javascript" src="node_modules/loglevel/dist/loglevel.min.js"></script>
 <script type="text/javascript" src="js/HackTimer.js"></script>
 <script type="text/javascript" src="js/classes.js"></script>
-<script type="text/javascript" src="js/main.js"></script>
+<script type="text/javascript" src="js/main.js?v=3"></script>
 
-<!-- LLM Integration -->
-<script type="text/javascript" src="src/llm/CharacterEncoder.js"></script>
-<script type="text/javascript" src="src/llm/PromptGenerator.js"></script>
-<script type="text/javascript" src="src/llm/MistralAPI.js"></script>
-<script type="text/javascript" src="src/llm/StoryManager.js"></script>
-<script type="text/javascript" src="src/llm/StoryPromptGenerator.js"></script>
-<script type="text/javascript" src="src/llm/StoryAdventureManager.js"></script>
-<script type="text/javascript" src="src/ui/StoryAdventureUI.js"></script>
-<script type="text/javascript" src="js/llm-integration.js"></script>
+<!-- LLM Integration (organized by function) -->
+<!-- Core: API & State Management -->
+<script type="text/javascript" src="llm/core/MistralAPI.js"></script>
+<script type="text/javascript" src="llm/core/StateEncoder.js"></script>
+<script type="text/javascript" src="llm/core/StateValidator.js"></script>
+<script type="text/javascript" src="llm/core/StateDiff.js"></script>
 
-    <!-- Career-Based Adventure Integration -->
-    <script type="text/javascript" src="src/llm/CareerWeights.js?v=3"></script>
-    <script type="text/javascript" src="src/llm/CareerAnalyzer.js?v=3"></script>
-<script type="text/javascript" src="src/llm/StoryTreeData.js?v=2"></script>
-<script type="text/javascript" src="src/llm/StoryTreeManager.js?v=2"></script>
-<script type="text/javascript" src="src/llm/StoryTreeBuilder.js?v=2"></script>
-<script type="text/javascript" src="src/llm/ProbabilityCalculator.js?v=2"></script>
-<script type="text/javascript" src="src/llm/StoryPersistenceManager.js?v=2"></script>
-<script type="text/javascript" src="src/llm/CareerBasedPromptGenerator.js?v=2"></script>
-<script type="text/javascript" src="src/llm/CareerBasedAdventureIntegration.js?v=2"></script>
-<script type="text/javascript" src="src/ui/CareerBasedStoryAdventureUI.js?v=2"></script>
+<!-- Utils: Supporting helpers -->
+<script type="text/javascript" src="llm/utils/CharacterEncoder.js"></script>
+<script type="text/javascript" src="llm/utils/WorldRules.js"></script>
+<script type="text/javascript" src="llm/utils/TransitionClassifier.js"></script>
+<script type="text/javascript" src="llm/utils/PowerLevelCalculator.js"></script>
+
+<!-- Narrative: Story generation -->
+<script type="text/javascript" src="llm/narrative/PromptGenerator.js"></script>
+<script type="text/javascript" src="llm/narrative/StoryPromptGenerator.js"></script>
+<script type="text/javascript" src="llm/narrative/StoryManager.js"></script>
+
+<!-- Features: User-facing functionality -->
+<script type="text/javascript" src="llm/features/story-data.js?v=3"></script>
+<script type="text/javascript" src="llm/features/career-analysis.js?v=3"></script>
+<script type="text/javascript" src="llm/features/adventure-system.js?v=8"></script>
+
+<!-- Integration layer -->
+<script type="text/javascript" src="js/llm-integration.js?v=3"></script>
 <script type="text/javascript" src="js/career-based-adventure-integration.js?v=2"></script>
 
     <!-- Amulet Adventure Integration -->
-    <script type="text/javascript" src="js/amulet-adventure-integration.js?v=2"></script>
+    <script type="text/javascript" src="js/amulet-adventure-integration.js?v=8"></script>
 
 </html>

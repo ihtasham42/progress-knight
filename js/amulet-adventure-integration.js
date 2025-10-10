@@ -1,254 +1,209 @@
 /**
- * Amulet Adventure Integration
- * Integrates the story adventure system with the amulet system
+ * Amulet Adventure Integration - Simplified
+ * Uses the unified AdventureSystem
  */
 
-// Global variables for amulet adventure integration
-let amuletAdventureIntegration;
-let amuletStoryAdventureUI;
+// Global adventure system instance
+let adventureSystem = null;
 
-// Initialize amulet adventure integration
+// Track which adventures have been used in the current life
+// Resets on rebirth, prevents using same adventure twice per life
+let currentLifeAdventures = {
+    age25: false,
+    age45: false,
+    age65: false,
+    age200: false
+};
+
+// Reset adventure tracking (call on rebirth)
+function resetAdventureTracking() {
+    currentLifeAdventures = {
+        age25: false,
+        age45: false,
+        age65: false,
+        age200: false
+    };
+    updateAmuletAdventureAvailability();
+}
+
+// Initialize when page loads
 function initializeAmuletAdventureIntegration() {
-    // Check if required classes are loaded
-    if (typeof CareerBasedAdventureIntegration === 'undefined' || 
-        typeof CareerBasedStoryAdventureUI === 'undefined') {
-        console.warn('Amulet adventure classes not available - skipping initialization');
+    console.log('🌟 Initializing amulet adventures...');
+    
+    // Wait for required classes
+    if (typeof AdventureSystem === 'undefined') {
+        console.log('⏳ Waiting for AdventureSystem...');
+        setTimeout(initializeAmuletAdventureIntegration, 100);
+        return;
+    }
+    
+    if (typeof gameData === 'undefined') {
+        console.log('⏳ Waiting for gameData...');
+        setTimeout(initializeAmuletAdventureIntegration, 100);
+        return;
+    }
+    
+    // Wait for LLM integration to initialize mistralAPI and storyManager
+    if (typeof window.mistralAPI === 'undefined' || typeof window.storyManager === 'undefined') {
+        console.log('⏳ Waiting for LLM integration (mistralAPI and storyManager)...');
+        setTimeout(initializeAmuletAdventureIntegration, 100);
         return;
     }
     
     try {
-        // Check if CareerBasedAdventureIntegration is available
-        if (typeof CareerBasedAdventureIntegration === 'undefined') {
-            console.warn('CareerBasedAdventureIntegration not available - skipping amulet adventure integration');
-            return;
-        }
+        // Create the unified adventure system WITH LLM integration
+        adventureSystem = new AdventureSystem(gameData, window.mistralAPI, window.storyManager);
+        window.adventureSystem = adventureSystem;
         
-        // Create integration instance
-        amuletAdventureIntegration = new CareerBasedAdventureIntegration();
-        
-        // Create UI instance - use the same pattern as the career-based system
-        amuletStoryAdventureUI = new CareerBasedStoryAdventureUI(
-            gameData,
-            amuletAdventureIntegration
-        );
-        
-        // Make it available globally
-        window.amuletStoryAdventureUI = amuletStoryAdventureUI;
-        
-        console.log('Amulet adventure integration initialized successfully');
-        
-        // Initialize the adventure availability check
+        console.log('✅ Amulet adventures initialized with LLM support!');
         updateAmuletAdventureAvailability();
     } catch (error) {
-        console.error('Failed to initialize amulet adventure integration:', error);
+        console.error('❌ Failed to initialize:', error);
     }
+}
+
+// Check if API key is configured
+function hasAPIKey() {
+    return window.mistralAPI && window.mistralAPI.apiKey && window.mistralAPI.apiKey.trim().length > 0;
 }
 
 // Start amulet adventure
 async function startAmuletAdventure(amuletPrompt) {
     console.log(`🌟 Starting amulet adventure: ${amuletPrompt}`);
     
+    if (!adventureSystem) {
+        console.error('Adventure system not initialized');
+        return;
+    }
+    
+    if (!hasAPIKey()) {
+        alert('Please enter your Mistral API key in the configuration section below before starting an adventure.');
+        return;
+    }
+    
+    // Check if already used this life
+    if (currentLifeAdventures[amuletPrompt]) {
+        alert(`You've already experienced the ${amuletPrompt} adventure in this life. You must be reborn to experience it again.`);
+        return;
+    }
+    
     try {
-        // Check if adventure is available
-        const currentAge = Math.floor(gameData.days / 365);
-        
-        // Simple age-based check instead of relying on integration
-        const ageRequirements = {
-            'age25': 25,
-            'age45': 45,
-            'age65': 65,
-            'age200': 200
-        };
-        
-        const requiredAge = ageRequirements[amuletPrompt];
-        if (!requiredAge || currentAge < requiredAge) {
-            console.warn(`Adventure not available: You must be at least ${requiredAge} years old. Current age: ${currentAge}`);
-            return;
-        }
-        
-        // Start the adventure using the existing career-based system
-        const result = await amuletStoryAdventureUI.startCareerBasedAdventure(amuletPrompt);
+        const result = await adventureSystem.startCareerBasedAdventure(amuletPrompt);
         
         if (result.success) {
-            console.log('Amulet adventure started successfully');
-            updateAmuletAdventureUI(amuletPrompt);
-            
-            // Show the adventure content in the story adventure section
-            const adventureContent = document.getElementById('adventureContent');
-            if (adventureContent && result.adventure) {
-                adventureContent.innerHTML = `
-                    <div style="text-align: center;">
-                        <h3 style="color: #4CAF50;">🌟 Adventure Active</h3>
-                        <p><strong>${result.adventure.title}</strong></p>
-                        <p>${result.adventure.description}</p>
-                        <div style="margin-top: 15px;">
-                            ${result.adventure.choices.map((choice, index) => `
-                                <button class="w3-button button" style="margin: 5px;" onclick="makeAdventureChoice(${index})">
-                                    ${choice}
-                                </button>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            }
+            console.log('Adventure started successfully!');
+            // Mark this adventure as used for this life
+            currentLifeAdventures[amuletPrompt] = true;
+            hideAdventureButtons();
         } else {
-            console.error('Failed to start amulet adventure:', result.message);
-            console.warn(`Adventure start failed: ${result.message}`);
+            console.error('Failed to start adventure:', result.error);
         }
-        
     } catch (error) {
-        console.error('Error starting amulet adventure:', error);
-        console.warn(`Adventure error: ${error.message}`);
+        console.error('Error starting adventure:', error);
     }
 }
 
-// Update amulet adventure UI
-function updateAmuletAdventureUI(amuletPrompt) {
-    // Hide all adventure buttons
-    const adventureButtons = ['adventureButton25', 'adventureButton45', 'adventureButton65', 'adventureButton200'];
-    adventureButtons.forEach(buttonId => {
-        const button = document.getElementById(buttonId);
-        if (button) {
-            button.style.display = 'none';
-        }
+// Hide adventure buttons
+function hideAdventureButtons() {
+    const buttons = ['adventureButton25', 'adventureButton45', 'adventureButton65', 'adventureButton200'];
+    buttons.forEach(id => {
+        const button = document.getElementById(id);
+        if (button) button.style.display = 'none';
     });
-    
-    // Show adventure content
-    const adventureContent = document.getElementById('adventureContent');
-    if (adventureContent) {
-        adventureContent.innerHTML = `
-            <div style="text-align: center;">
-                <h3 style="color: #4CAF50;">🌟 Adventure in Progress</h3>
-                <p>Amulet Prompt: <strong>${amuletPrompt}</strong></p>
-                <p style="color: #666;">Your adventure is currently active. Check the adventure content below.</p>
-            </div>
-        `;
-    }
 }
 
-// Throttle button visibility updates to prevent console spam
-let lastButtonUpdate = 0;
-const BUTTON_UPDATE_THROTTLE = 5000; // Only update every 5 seconds
-
-// Check and update amulet adventure availability
+// Update adventure availability
 function updateAmuletAdventureAvailability() {
-    const now = Date.now();
-    if (now - lastButtonUpdate < BUTTON_UPDATE_THROTTLE) {
-        return; // Skip update if too soon
-    }
-    lastButtonUpdate = now;
-    
     const currentAge = Math.floor(gameData.days / 365);
+    const apiKeyAvailable = hasAPIKey();
     
-    // Hide all adventure buttons first
-    const adventureButtons = [
+    const buttons = [
         { id: 'adventureButton25', prompt: 'age25', minAge: 25 },
         { id: 'adventureButton45', prompt: 'age45', minAge: 45 },
         { id: 'adventureButton65', prompt: 'age65', minAge: 65 },
         { id: 'adventureButton200', prompt: 'age200', minAge: 200 }
     ];
     
-    let availablePrompt = null;
-    let buttonsChanged = false;
-    
-    adventureButtons.forEach(({ id, prompt, minAge }) => {
-        const button = document.getElementById(id);
-        if (button) {
-            const shouldShow = currentAge >= minAge;
-            const isCurrentlyShown = button.style.display === 'block';
+    buttons.forEach(({ id, prompt, minAge }) => {
+        const container = document.getElementById(id);
+        if (container) {
+            const ageRequirementMet = currentAge >= minAge;
+            const alreadyUsed = currentLifeAdventures[prompt];
             
-            if (shouldShow && !isCurrentlyShown) {
-                button.style.display = 'block';
-                availablePrompt = prompt;
-                buttonsChanged = true;
-            } else if (!shouldShow && isCurrentlyShown) {
-                button.style.display = 'none';
-                buttonsChanged = true;
+            // Show container if age requirement met
+            container.style.display = ageRequirementMet ? 'block' : 'none';
+            
+            // Disable button if no API key OR already used this life
+            const button = container.querySelector('button');
+            if (button) {
+                const shouldDisable = !apiKeyAvailable || alreadyUsed;
+                button.disabled = shouldDisable;
+                button.style.opacity = shouldDisable ? '0.5' : '1';
+                button.style.cursor = shouldDisable ? 'not-allowed' : 'pointer';
+                
+                // Set appropriate tooltip
+                if (alreadyUsed) {
+                    button.title = 'Already completed this adventure in this life. Rebirth to experience it again.';
+                } else if (!apiKeyAvailable) {
+                    button.title = 'Please configure Mistral API key first';
+                } else {
+                    button.title = '';
+                }
             }
         }
     });
-    
-    // Only log when buttons actually change
-    if (buttonsChanged) {
-        console.log(`Adventure buttons updated for age ${currentAge}`);
-    }
-    
-    // Update adventure content
-    const adventureContent = document.getElementById('adventureContent');
-    if (adventureContent) {
-        if (availablePrompt) {
-            adventureContent.innerHTML = `
-                <div style="text-align: center;">
-                    <h3 style="color: #4CAF50;">🌟 Adventure Available!</h3>
-                    <p>You have reached the <strong>${availablePrompt}</strong> milestone.</p>
-                    <p style="color: #666;">Click the "Start Adventure" button above to begin your story.</p>
-                </div>
-            `;
-        } else {
-            adventureContent.innerHTML = `
-                <p style="color: #666; font-style: italic;">Adventures are only available when you reach the amulet milestones at ages 25, 45, 65, and 200.</p>
-            `;
-        }
-    }
 }
 
-// Initialize when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize after a short delay to ensure other systems are loaded
+// Initialize on DOM load
+document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initializeAmuletAdventureIntegration, 500);
     
-    // Also try to show buttons immediately if age is appropriate
+    // Listen for API key changes to update button availability
     setTimeout(() => {
-        const currentAge = Math.floor(gameData.days / 365);
-        if (currentAge >= 25) {
-            console.log('Player is age', currentAge, '- showing adventure buttons');
-            updateAmuletAdventureAvailability();
+        const apiKeyInput = document.getElementById('mistralApiKey');
+        if (apiKeyInput) {
+            apiKeyInput.addEventListener('input', () => {
+                setTimeout(updateAmuletAdventureAvailability, 100);
+            });
         }
     }, 1000);
     
-    // Fallback: Always try to show buttons after a longer delay
+    // REMOVED: Periodic check anti-pattern (was: setInterval(updateAmuletAdventureAvailability, 5000))
+    // Now using event-driven updates instead:
+    // - After adventure ends (in AdventureSystem.endAdventure)
+    // - After adventure ends manually (in endCareerBasedAdventure)
+    // - On tab switch (below)
+    // - On API key change (above)
+    
+    // Listen for tab switches to Amulet tab (proper selector, no jQuery)
     setTimeout(() => {
-        console.log('Fallback: Checking adventure button visibility');
-        updateAmuletAdventureAvailability();
-    }, 2000);
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            if (tab.textContent && tab.textContent.trim() === 'Amulet') {
+                tab.addEventListener('click', () => {
+                    setTimeout(updateAmuletAdventureAvailability, 100);
+                });
+            }
+        });
+    }, 1000);
 });
 
-// Handle adventure choice
-function makeAdventureChoice(choiceIndex) {
-    if (!amuletStoryAdventureUI) {
-        console.error('Amulet story adventure UI not initialized');
-        return;
-    }
-    
-    try {
-        // Make the choice using the existing system
-        amuletStoryAdventureUI.makeChoice(choiceIndex);
-        
-        // Update the UI to show the result
-        updateAmuletAdventureUI();
-        
-    } catch (error) {
-        console.error('Error making adventure choice:', error);
-        console.warn(`Choice error: ${error.message}`);
-    }
-}
+// Expose adventure tracking reset for rebirth
+window.resetAdventureTracking = resetAdventureTracking;
 
-// Update availability when game updates
-if (typeof window !== 'undefined') {
-    // Override the existing update function to include amulet adventure updates
-    const originalUpdate = window.update;
-    if (originalUpdate) {
-        window.update = function() {
-            originalUpdate();
-            updateAmuletAdventureAvailability();
-        };
-    } else {
-        // If no existing update function, create one
-        window.update = function() {
-            updateAmuletAdventureAvailability();
-        };
+// Debug helpers
+window.clearAdventureData = function() {
+    localStorage.removeItem('storyTrees');
+    localStorage.removeItem('usedAdventures');
+    console.log('✅ Adventure data cleared');
+    resetAdventureTracking();
+};
+
+window.forceCloseAdventure = function() {
+    if (adventureSystem) {
+        adventureSystem.endAdventure();
     }
-    
-    // Also expose the function globally for manual testing
-    window.updateAmuletAdventureAvailability = updateAmuletAdventureAvailability;
-}
+    const container = document.getElementById('adventureContainer');
+    if (container) container.innerHTML = '';
+    console.log('✅ Adventure closed');
+};

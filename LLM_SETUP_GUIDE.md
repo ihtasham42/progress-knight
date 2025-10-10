@@ -78,3 +78,5 @@ The foundation is ready for:
 **Ready to explore?** Get your API key and start your first adventure! 🎮✨
 
 
+
+

@@ -22,19 +22,15 @@ logger.setLevel('warn'); // Only show warnings and errors in production
 
 // Global variables for LLM integration
 let mistralAPI;
-let worldExplorationUI;
 let storyManager;
 let storyAdventureUI;
 let storyAdventureManager;
-let worldTabManager;
 
 // Initialize LLM integration
 function initializeLLMIntegration() {
     // Wait for classes to be loaded
-    if (typeof MistralAPI === 'undefined' || typeof WorldExplorationUI === 'undefined' || 
-        typeof CharacterEncoder === 'undefined' || typeof StoryManager === 'undefined' || 
-        typeof StoryAdventureUI === 'undefined' || typeof StoryAdventureManager === 'undefined' ||
-        typeof WorldTabManager === 'undefined') {
+    if (typeof MistralAPI === 'undefined' || typeof CharacterEncoder === 'undefined' || 
+        typeof StoryManager === 'undefined' || typeof AdventureSystem === 'undefined') {
         logger.debug('LLM classes not loaded yet, retrying...');
         setTimeout(initializeLLMIntegration, 100);
         return;
@@ -56,24 +52,12 @@ function initializeLLMIntegration() {
     // Create story manager
     storyManager = new StoryManager();
     
-    // Create adventure manager
-    storyAdventureManager = new StoryAdventureManager(gameData, storyManager);
-    
-    // Debug: Verify gameData has setPaused method
-    logger.debug('gameData.setPaused exists:', typeof gameData.setPaused);
-    logger.debug('gameData.paused:', gameData.paused);
-    
-    // Create UI instances
-    worldExplorationUI = new WorldExplorationUI(gameData, mistralAPI);
-    storyAdventureUI = new StoryAdventureUI(gameData, mistralAPI, storyManager, storyAdventureManager);
-    worldTabManager = new WorldTabManager(gameData, mistralAPI, storyManager, storyAdventureManager);
+    // Note: AdventureSystem is now initialized in amulet-adventure-integration.js
+    // This keeps the old system compatible while the new system handles adventures
     
     // Make them globally available
-    window.worldExplorationUI = worldExplorationUI;
-    window.storyAdventureUI = storyAdventureUI;
     window.storyManager = storyManager;
-    window.storyAdventureManager = storyAdventureManager;
-    window.worldTabManager = worldTabManager;
+    window.mistralAPI = mistralAPI;
     
     logger.info('LLM integration initialized successfully');
 }

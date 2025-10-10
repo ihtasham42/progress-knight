@@ -22,6 +22,7 @@
     ],
     "collectCoverageFrom": [
       "js/**/*.js",
+      "llm/**/*.js",
       "!js/HackTimer.js"
     ],
     "setupFilesAfterEnv": [
