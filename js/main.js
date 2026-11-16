@@ -17,6 +17,13 @@ const gameData = {
     currentSkill: null,
     currentProperty: null,
     currentMisc: null,
+
+    // Not saved yet
+    automation: {
+        autoPromote: false,
+        autoLearn: false,
+        skippedSkills: new Set(), // skill ids
+    },
 }
 
 let skillWithLowestMaxXp = null
@@ -209,6 +216,19 @@ function setTimeWarping() {
     gameData.timeWarpingEnabled = !gameData.timeWarpingEnabled
 }
 
+function setAutoPromote(enabled) {
+    gameData.automation.autoPromote = enabled
+}
+
+function setAutoLearn(enabled) {
+    gameData.automation.autoLearn = enabled
+}
+
+function setSkillSkipped(skillName, skipped) {
+    const id = idsByName[skillName]
+    skipped ? gameData.automation.skippedSkills.add(id) : gameData.automation.skippedSkills.delete(id)
+}
+
 function setTask(taskName) {
     const task = gameData.taskData[taskName]
     task instanceof Job ? gameData.currentJob = task : gameData.currentSkill = task
@@ -278,6 +298,10 @@ function createRow(templates, name, categoryName, categoryType) {
         row.getElementsByClassName("progressBar")[0].onclick = function() {setTask(name)}
     } else {
         row.getElementsByClassName("button")[0].onclick = categoryName == "Properties" ? function() {setProperty(name)} : function() {setMisc(name)}
+    }
+    if (categoryType == skillCategories) {
+        const skipCheckbox = row.getElementsByClassName("checkbox")[0]
+        skipCheckbox.onchange = function() {setSkillSkipped(name, skipCheckbox.checked)}
     }
 
     return row
@@ -402,7 +426,7 @@ function updateTaskRows() {
         valueElement.getElementsByClassName("effect")[0].style.display = task instanceof Skill
 
         const skipSkillElement = row.getElementsByClassName("skipSkill")[0]
-        skipSkillElement.style.display = task instanceof Skill && autoLearnElement.checked ? "block" : "none"
+        skipSkillElement.style.display = task instanceof Skill && gameData.automation.autoLearn ? "block" : "none"
 
         if (task instanceof Job) {
             formatCoins(task.getIncome(), valueElement.getElementsByClassName("income")[0])
@@ -433,7 +457,7 @@ function updateHeaderRows(categories) {
         const maxLevelElement = headerRow.getElementsByClassName("maxLevel")[0]
         gameData.rebirthOneCount > 0 ? maxLevelElement.classList.remove("hidden") : maxLevelElement.classList.add("hidden")
         const skipSkillElement = headerRow.getElementsByClassName("skipSkill")[0]
-        skipSkillElement.style.display = categories == skillCategories && autoLearnElement.checked ? "block" : "none"
+        skipSkillElement.style.display = categories == skillCategories && gameData.automation.autoLearn ? "block" : "none"
     }
 }
 
@@ -534,7 +558,7 @@ function getNextEntity(data, categoryType, entityName) {
 }
 
 function autoPromote() {
-    if (!autoPromoteElement.checked) return
+    if (!gameData.automation.autoPromote) return
     const nextEntity = getNextEntity(gameData.taskData, jobCategories, gameData.currentJob.name)
     if (nextEntity == null) return
     const requirement = gameData.requirements[nextEntity.name]
@@ -542,9 +566,7 @@ function autoPromote() {
 }
 
 function checkSkillSkipped(skill) {
-    const row = document.getElementById("row " + skill.name)
-    const isSkillSkipped = row.getElementsByClassName("checkbox")[0].checked
-    return isSkillSkipped
+    return gameData.automation.skippedSkills.has(skill.baseData.id)
 }
 
 function setSkillWithLowestMaxXp() {
@@ -585,7 +607,7 @@ function getKeyOfLowestValueFromDict(dict) {
 }
 
 function autoLearn() {
-    if (!autoLearnElement.checked || !skillWithLowestMaxXp) return
+    if (!gameData.automation.autoLearn || !skillWithLowestMaxXp) return
     gameData.currentSkill = skillWithLowestMaxXp
 }
 
@@ -707,6 +729,15 @@ function getElementsByClass(className) {
     return elements
 }
 
+// Browsers can restore ticked checkboxes when the page is reloaded, so start
+// from whatever the checkboxes show.
+function setUpAutomationControls() {
+    setAutoPromote(autoPromoteElement.checked)
+    setAutoLearn(autoLearnElement.checked)
+    autoPromoteElement.onchange = function() {setAutoPromote(autoPromoteElement.checked)}
+    autoLearnElement.onchange = function() {setAutoLearn(autoLearnElement.checked)}
+}
+
 function setLightDarkMode() {
     const body = document.getElementById("body")
     body.classList.contains("dark") ? body.classList.remove("dark") : body.classList.add("dark")
@@ -804,6 +835,7 @@ function update() {
 createAllRows(jobCategories, "jobTable")
 createAllRows(skillCategories, "skillTable")
 createAllRows(itemCategories, "itemTable") 
+setUpAutomationControls()
 
 createData(gameData.taskData, jobBaseData)
 createData(gameData.taskData, skillBaseData)
