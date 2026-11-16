@@ -102,3 +102,41 @@ test("rendering again with nothing changed doesn't touch the page", () => {
     assert.ok(observer.takeRecords().length > 0, "values that changed are still written")
     observer.disconnect()
 })
+
+function gameState(game) {
+    return game.run(`JSON.stringify({
+        save: serializeGameData(),
+        requirements: Object.keys(gameData.requirements).filter(key => gameData.requirements[key].completed),
+        automation: [gameData.automation.autoPromote, gameData.automation.autoLearn, [...gameData.automation.skippedSkills]],
+        currentMisc: gameData.currentMisc.map(item => item.name),
+        skillWithLowestMaxXp: skillWithLowestMaxXp && skillWithLowestMaxXp.name,
+        unsteppedTime,
+    })`)
+}
+
+test("rendering never changes the game state", () => {
+    const game = loadGame()
+    const renderTwice = () => {
+        const before = gameState(game)
+        game.run("updateUI(); updateUI()")
+        assert.equal(gameState(game), before)
+    }
+
+    renderTwice()
+    game.ticks(50)
+    renderTwice()
+
+    // Unlock conditions met but not yet recorded by a game step
+    game.run("gameData.coins = 1e9; gameData.evil = 100; gameData.days = 365 * 30")
+    game.task("Concentration").level = 300
+    game.task("Meditation").level = 300
+    renderTwice()
+
+    game.run("setAutoLearn(true); setSkillSkipped('Strength', true); setSkillWithLowestMaxXp()")
+    game.run("rebirthOne()")
+    game.run("gameData.rebirthTwoCount = 3")
+    renderTwice()
+
+    game.run("gameData.days = getLifespan() + 1000")
+    renderTwice()
+})
