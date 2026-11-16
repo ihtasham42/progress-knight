@@ -132,3 +132,14 @@ test("dark magic skill xp is multiplied by evil", () => {
     assert.equal(game.task("Dark influence").getXpGain(), 50)
     assert.equal(game.task("Concentration").getXpGain(), 10)
 })
+
+test("automation and the quick task display also stay unlocked after a rebirth", () => {
+    const game = loadGame()
+    game.run("gameData.days = 365 * 20")
+    assert.equal(isUnlocked(game, "Automation"), true)
+    assert.equal(isUnlocked(game, "Quick task display"), true)
+    assert.equal(isUnlocked(game, "Rebirth tab"), false)
+    game.run("rebirthOne()")
+    assert.equal(isUnlocked(game, "Automation"), true)
+    assert.equal(isUnlocked(game, "Quick task display"), true)
+})

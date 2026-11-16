@@ -30,7 +30,8 @@ const baseLifespan = 365 * 70
 
 const baseGameSpeed = 4
 
-const permanentUnlocks = ["Scheduling", "Shop", "Automation", "Quick task display"]
+// Unlocks that stay unlocked through rebirths
+const permanentUnlocks = unlocks.filter(unlock => unlock.permanent).map(unlock => unlock.name)
 
 const units = ["", "k", "M", "B", "T", "q", "Q", "Sx", "Sp", "Oc"];
 
