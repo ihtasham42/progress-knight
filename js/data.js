@@ -3,6 +3,14 @@
 // Static game data. Each job, skill and item is defined once, with a stable
 // id that saves can refer to even if its display name changes.
 //
+// requires: what must be reached before it is shown and can be used. Task
+//   requirements refer to other jobs/skills by id.
+// boosts: what a skill or item multiplies by its effect.
+//   stat: "xp", "income", "expense", "happiness", "lifespan", "gameSpeed"
+//     or "evilGain"
+//   of: which tasks or items it applies to (xp, income and expense only):
+//     "all", "jobs", "skills", "items", a category name, or a task id
+//
 // The older lookup tables the rest of the game uses (jobBaseData,
 // jobCategories, tooltips, ...) are derived from these definitions.
 
@@ -72,83 +80,83 @@ const jobs = [
 
 const skills = [
     // Fundamentals
-    {id: "concentration", name: "Concentration", category: "Fundamentals", maxXp: 100, effect: 0.01, description: "Skill xp", requires: [],
+    {id: "concentration", name: "Concentration", category: "Fundamentals", maxXp: 100, effect: 0.01, description: "Skill xp", boosts: [{stat: "xp", of: "skills"}], requires: [],
         tooltip: "Improve your learning speed through practising intense concentration activities."},
-    {id: "productivity", name: "Productivity", category: "Fundamentals", maxXp: 100, effect: 0.01, description: "Job xp", requires: [{task: "concentration", level: 5}],
+    {id: "productivity", name: "Productivity", category: "Fundamentals", maxXp: 100, effect: 0.01, description: "Job xp", boosts: [{stat: "xp", of: "jobs"}], requires: [{task: "concentration", level: 5}],
         tooltip: "Learn to procrastinate less at work and receive more job experience per day."},
-    {id: "bargaining", name: "Bargaining", category: "Fundamentals", maxXp: 100, effect: -0.01, description: "Expenses", requires: [{task: "concentration", level: 20}],
+    {id: "bargaining", name: "Bargaining", category: "Fundamentals", maxXp: 100, effect: -0.01, description: "Expenses", boosts: [{stat: "expense", of: "items"}], requires: [{task: "concentration", level: 20}],
         tooltip: "Study the tricks of the trade and persuasive skills to lower any type of expense."},
-    {id: "meditation", name: "Meditation", category: "Fundamentals", maxXp: 100, effect: 0.01, description: "Happiness", requires: [{task: "concentration", level: 30}, {task: "productivity", level: 20}],
+    {id: "meditation", name: "Meditation", category: "Fundamentals", maxXp: 100, effect: 0.01, description: "Happiness", boosts: [{stat: "happiness"}], requires: [{task: "concentration", level: 30}, {task: "productivity", level: 20}],
         tooltip: "Fill your mind with peace and tranquility to tap into greater happiness from within."},
 
     // Combat
-    {id: "strength", name: "Strength", category: "Combat", maxXp: 100, effect: 0.01, description: "Military pay", requires: [],
+    {id: "strength", name: "Strength", category: "Combat", maxXp: 100, effect: 0.01, description: "Military pay", boosts: [{stat: "income", of: "Military"}], requires: [],
         tooltip: "Condition your body and strength through harsh training. Stronger individuals are paid more in the military."},
-    {id: "battle_tactics", name: "Battle tactics", category: "Combat", maxXp: 100, effect: 0.01, description: "Military xp", requires: [{task: "concentration", level: 20}],
+    {id: "battle_tactics", name: "Battle tactics", category: "Combat", maxXp: 100, effect: 0.01, description: "Military xp", boosts: [{stat: "xp", of: "Military"}], requires: [{task: "concentration", level: 20}],
         tooltip: "Create and revise battle strategies, improving experience gained in the military."},
-    {id: "muscle_memory", name: "Muscle memory", category: "Combat", maxXp: 100, effect: 0.01, description: "Strength xp", requires: [{task: "concentration", level: 30}, {task: "strength", level: 30}],
+    {id: "muscle_memory", name: "Muscle memory", category: "Combat", maxXp: 100, effect: 0.01, description: "Strength xp", boosts: [{stat: "xp", of: "strength"}], requires: [{task: "concentration", level: 30}, {task: "strength", level: 30}],
         tooltip: "Strengthen your neurons through habit and repetition, improving strength gains throughout the body."},
 
     // Magic
-    {id: "mana_control", name: "Mana control", category: "Magic", maxXp: 100, effect: 0.01, description: "T.A.A. xp", requires: [{task: "concentration", level: 200}, {task: "meditation", level: 200}],
+    {id: "mana_control", name: "Mana control", category: "Magic", maxXp: 100, effect: 0.01, description: "T.A.A. xp", boosts: [{stat: "xp", of: "The Arcane Association"}], requires: [{task: "concentration", level: 200}, {task: "meditation", level: 200}],
         tooltip: "Strengthen your mana channels throughout your body, aiding you in becoming a more powerful magical user."},
-    {id: "immortality", name: "Immortality", category: "Magic", maxXp: 100, effect: 0.01, description: "Longer lifespan", requires: [{task: "apprentice_mage", level: 10}],
+    {id: "immortality", name: "Immortality", category: "Magic", maxXp: 100, effect: 0.01, description: "Longer lifespan", boosts: [{stat: "lifespan"}], requires: [{task: "apprentice_mage", level: 10}],
         tooltip: "Lengthen your lifespan through the means of magic. However, is this truly the immortality you have tried seeking for...?"},
-    {id: "time_warping", name: "Time warping", category: "Magic", maxXp: 100, effect: 0.01, description: "Gamespeed", requires: [{task: "mage", level: 10}],
+    {id: "time_warping", name: "Time warping", category: "Magic", maxXp: 100, effect: 0.01, description: "Gamespeed", boosts: [{stat: "gameSpeed"}], requires: [{task: "mage", level: 10}],
         tooltip: "Bend space and time through forbidden techniques, resulting in a faster gamespeed."},
-    {id: "super_immortality", name: "Super immortality", category: "Magic", maxXp: 100, effect: 0.01, description: "Longer lifespan", requires: [{task: "chairman", level: 1000}],
+    {id: "super_immortality", name: "Super immortality", category: "Magic", maxXp: 100, effect: 0.01, description: "Longer lifespan", boosts: [{stat: "lifespan"}], requires: [{task: "chairman", level: 1000}],
         tooltip: "Through harnessing ancient, forbidden techniques, lengthen your lifespan drastically beyond comprehension."},
 
     // Dark magic
-    {id: "dark_influence", name: "Dark influence", category: "Dark magic", maxXp: 100, effect: 0.01, description: "All xp", requires: [{evil: 1}],
+    {id: "dark_influence", name: "Dark influence", category: "Dark magic", maxXp: 100, effect: 0.01, description: "All xp", boosts: [{stat: "xp", of: "all"}], requires: [{evil: 1}],
         tooltip: "Encompass yourself with formidable power bestowed upon you by evil, allowing you to pick up and absorb any job or skill with ease."},
-    {id: "evil_control", name: "Evil control", category: "Dark magic", maxXp: 100, effect: 0.01, description: "Evil gain", requires: [{evil: 1}],
+    {id: "evil_control", name: "Evil control", category: "Dark magic", maxXp: 100, effect: 0.01, description: "Evil gain", boosts: [{stat: "evilGain"}], requires: [{evil: 1}],
         tooltip: "Tame the raging and growing evil within you, improving evil gain in-between rebirths."},
-    {id: "intimidation", name: "Intimidation", category: "Dark magic", maxXp: 100, effect: -0.01, description: "Expenses", requires: [{evil: 1}],
+    {id: "intimidation", name: "Intimidation", category: "Dark magic", maxXp: 100, effect: -0.01, description: "Expenses", boosts: [{stat: "expense", of: "items"}], requires: [{evil: 1}],
         tooltip: "Learn to emit a devilish aura which strikes extreme fear into other merchants, forcing them to give you heavy discounts."},
-    {id: "demon_training", name: "Demon training", category: "Dark magic", maxXp: 100, effect: 0.01, description: "All xp", requires: [{evil: 25}],
+    {id: "demon_training", name: "Demon training", category: "Dark magic", maxXp: 100, effect: 0.01, description: "All xp", boosts: [{stat: "xp", of: "all"}], requires: [{evil: 25}],
         tooltip: "A mere human body is too feeble and weak to withstand evil. Train with forbidden methods to slowly manifest into a demon, capable of absorbing knowledge rapidly."},
-    {id: "blood_meditation", name: "Blood meditation", category: "Dark magic", maxXp: 100, effect: 0.01, description: "Evil gain", requires: [{evil: 75}],
+    {id: "blood_meditation", name: "Blood meditation", category: "Dark magic", maxXp: 100, effect: 0.01, description: "Evil gain", boosts: [{stat: "evilGain"}], requires: [{evil: 75}],
         tooltip: "Grow and culture the evil within you through the sacrifice of other living beings, drastically increasing evil gain."},
-    {id: "demons_wealth", name: "Demon's wealth", category: "Dark magic", maxXp: 100, effect: 0.002, description: "Job pay", requires: [{evil: 500}],
+    {id: "demons_wealth", name: "Demon's wealth", category: "Dark magic", maxXp: 100, effect: 0.002, description: "Job pay", boosts: [{stat: "income", of: "jobs"}], requires: [{evil: 500}],
         tooltip: "Through the means of dark magic, multiply the raw matter of the coins you receive from your job."},
 ]
 
 const items = [
     // Properties
-    {id: "homeless", name: "Homeless", category: "Properties", expense: 0, effect: 1, requires: [{coins: 0}],
+    {id: "homeless", name: "Homeless", category: "Properties", expense: 0, effect: 1, boosts: [{stat: "happiness"}], requires: [{coins: 0}],
         tooltip: "Sleep on the uncomfortable, filthy streets while almost freezing to death every night. It cannot get any worse than this."},
-    {id: "tent", name: "Tent", category: "Properties", expense: 15, effect: 1.4, requires: [{coins: 0}],
+    {id: "tent", name: "Tent", category: "Properties", expense: 15, effect: 1.4, boosts: [{stat: "happiness"}], requires: [{coins: 0}],
         tooltip: "A thin sheet of tattered cloth held up by a couple of feeble, wooden sticks. Horrible living conditions but at least you have a roof over your head."},
-    {id: "wooden_hut", name: "Wooden hut", category: "Properties", expense: 100, effect: 2, requires: [{coins: 10000}],
+    {id: "wooden_hut", name: "Wooden hut", category: "Properties", expense: 100, effect: 2, boosts: [{stat: "happiness"}], requires: [{coins: 10000}],
         tooltip: "Shabby logs and dirty hay glued together with horse manure. Much more sturdy than a tent, however, the stench isn't very pleasant."},
-    {id: "cottage", name: "Cottage", category: "Properties", expense: 750, effect: 3.5, requires: [{coins: 75000}],
+    {id: "cottage", name: "Cottage", category: "Properties", expense: 750, effect: 3.5, boosts: [{stat: "happiness"}], requires: [{coins: 75000}],
         tooltip: "Structured with a timber frame and a thatched roof. Provides decent living conditions for a fair price."},
-    {id: "house", name: "House", category: "Properties", expense: 3000, effect: 6, requires: [{coins: 300000}],
+    {id: "house", name: "House", category: "Properties", expense: 3000, effect: 6, boosts: [{stat: "happiness"}], requires: [{coins: 300000}],
         tooltip: "A building formed from stone bricks and sturdy timber, which contains a few rooms. Although quite expensive, it is a comfortable abode."},
-    {id: "large_house", name: "Large house", category: "Properties", expense: 25000, effect: 12, requires: [{coins: 2500000}],
+    {id: "large_house", name: "Large house", category: "Properties", expense: 25000, effect: 12, boosts: [{stat: "happiness"}], requires: [{coins: 2500000}],
         tooltip: "Much larger than a regular house, which boasts even more rooms and multiple floors. The building is quite spacious but comes with a hefty price tag."},
-    {id: "small_palace", name: "Small palace", category: "Properties", expense: 300000, effect: 25, requires: [{coins: 30000000}],
+    {id: "small_palace", name: "Small palace", category: "Properties", expense: 300000, effect: 25, boosts: [{stat: "happiness"}], requires: [{coins: 30000000}],
         tooltip: "A very rich and meticulously built structure rimmed with fine metals such as silver. Extremely high expenses to maintain for a lavish lifestyle."},
-    {id: "grand_palace", name: "Grand palace", category: "Properties", expense: 5000000, effect: 60, requires: [{coins: 500000000}],
+    {id: "grand_palace", name: "Grand palace", category: "Properties", expense: 5000000, effect: 60, boosts: [{stat: "happiness"}], requires: [{coins: 500000000}],
         tooltip: "A grand residence completely composed of gold and silver. Provides the utmost luxurious and comfortable living conditions possible for a ludicrous price."},
 
     // Misc
-    {id: "book", name: "Book", category: "Misc", expense: 10, effect: 1.5, description: "Skill xp", requires: [{coins: 0}],
+    {id: "book", name: "Book", category: "Misc", expense: 10, effect: 1.5, description: "Skill xp", boosts: [{stat: "xp", of: "skills"}], requires: [{coins: 0}],
         tooltip: "A place to write down all your thoughts and discoveries, allowing you to learn a lot more quickly."},
-    {id: "dumbbells", name: "Dumbbells", category: "Misc", expense: 50, effect: 1.5, description: "Strength xp", requires: [{coins: 5000}],
+    {id: "dumbbells", name: "Dumbbells", category: "Misc", expense: 50, effect: 1.5, description: "Strength xp", boosts: [{stat: "xp", of: "strength"}], requires: [{coins: 5000}],
         tooltip: "Heavy tools used in strenuous exercise to toughen up and accumulate strength even faster than before. "},
-    {id: "personal_squire", name: "Personal squire", category: "Misc", expense: 200, effect: 2, description: "Job xp", requires: [{coins: 20000}],
+    {id: "personal_squire", name: "Personal squire", category: "Misc", expense: 200, effect: 2, description: "Job xp", boosts: [{stat: "xp", of: "jobs"}], requires: [{coins: 20000}],
         tooltip: "Assists you in completing day to day activities, giving you more time to be productive at work."},
-    {id: "steel_longsword", name: "Steel longsword", category: "Misc", expense: 1000, effect: 2, description: "Military xp", requires: [{coins: 100000}],
+    {id: "steel_longsword", name: "Steel longsword", category: "Misc", expense: 1000, effect: 2, description: "Military xp", boosts: [{stat: "xp", of: "Military"}], requires: [{coins: 100000}],
         tooltip: "A fine blade used to slay enemies even quicker in combat and therefore gain more experience."},
-    {id: "butler", name: "Butler", category: "Misc", expense: 7500, effect: 1.5, description: "Happiness", requires: [{coins: 750000}],
+    {id: "butler", name: "Butler", category: "Misc", expense: 7500, effect: 1.5, description: "Happiness", boosts: [{stat: "happiness"}], requires: [{coins: 750000}],
         tooltip: "Keeps your household clean at all times and also prepares three delicious meals per day, leaving you in a happier, stress-free mood."},
-    {id: "sapphire_charm", name: "Sapphire charm", category: "Misc", expense: 50000, effect: 3, description: "Magic xp", requires: [{coins: 5000000}],
+    {id: "sapphire_charm", name: "Sapphire charm", category: "Misc", expense: 50000, effect: 3, description: "Magic xp", boosts: [{stat: "xp", of: "Magic"}], requires: [{coins: 5000000}],
         tooltip: "Embedded with a rare sapphire, this charm activates more mana channels within your body, providing a much easier time learning magic."},
-    {id: "study_desk", name: "Study desk", category: "Misc", expense: 1000000, effect: 2, description: "Skill xp", requires: [{coins: 100000000}],
+    {id: "study_desk", name: "Study desk", category: "Misc", expense: 1000000, effect: 2, description: "Skill xp", boosts: [{stat: "xp", of: "skills"}], requires: [{coins: 100000000}],
         tooltip: "A dedicated area which provides many fine stationery and equipment designed for furthering your progress in research."},
-    {id: "library", name: "Library", category: "Misc", expense: 10000000, effect: 1.5, description: "Skill xp", requires: [{coins: 1000000000}],
+    {id: "library", name: "Library", category: "Misc", expense: 10000000, effect: 1.5, description: "Skill xp", boosts: [{stat: "xp", of: "skills"}], requires: [{coins: 1000000000}],
         tooltip: "Stores a collection of books, each containing vast amounts of information from basic life skills to complex magic spells."},
 ]
 

@@ -45,3 +45,18 @@ test("unlocks reveal something that exists on the page", () => {
         else assert.ok(game.window.document.getElementById(unlock.elementId), unlock.name)
     }
 })
+
+test("boosts use known stats and only target things that exist", () => {
+    const stats = new Set(["xp", "income", "expense", "happiness", "lifespan", "gameSpeed", "evilGain"])
+    const targets = new Set(["all", "jobs", "skills", "items",
+        ...[...jobs, ...skills, ...items].map(definition => definition.category),
+        ...[...jobs, ...skills].map(definition => definition.id)])
+    for (const definition of [...skills, ...items]) {
+        for (const boost of definition.boosts || []) {
+            assert.ok(stats.has(boost.stat), `${definition.name} boosts unknown stat ${boost.stat}`)
+            const needsTarget = ["xp", "income", "expense"].includes(boost.stat)
+            assert.equal("of" in boost, needsTarget, `${definition.name} ${boost.stat} target`)
+            if (needsTarget) assert.ok(targets.has(boost.of), `${definition.name} boosts unknown target ${boost.of}`)
+        }
+    }
+})
