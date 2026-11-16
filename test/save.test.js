@@ -6,6 +6,9 @@
 // (ihtasham42/progress-knight) after an evil rebirth, a normal rebirth and
 // buying a Tent and a Book. It was saved while paused, so the tick the game
 // runs on load doesn't change anything.
+//
+// fixtures/v2-save.json is the same game state saved in version 2 of this
+// fork's format, which referred to everything by display name.
 
 const test = require("node:test")
 const assert = require("node:assert/strict")
@@ -15,6 +18,7 @@ const { loadGame } = require("./helpers/game")
 
 const legacyRaw = fs.readFileSync(path.join(__dirname, "fixtures", "legacy-save.json"), "utf8")
 const legacy = JSON.parse(legacyRaw)
+const v2Raw = fs.readFileSync(path.join(__dirname, "fixtures", "v2-save.json"), "utf8")
 
 function savedState(game) {
     return JSON.parse(game.run("JSON.stringify(serializeGameData())"))
@@ -61,7 +65,7 @@ test("loading an old save keeps an untouched backup and re-saves in the new form
 
     game.run("saveGameData()")
     const saved = JSON.parse(game.window.localStorage.getItem("gameDataSave"))
-    assert.equal(saved.version, 2)
+    assert.equal(saved.version, game.run("SAVE_VERSION"))
     assert.ok(JSON.stringify(saved).length < legacyRaw.length / 5, "new saves are much smaller")
 
     const reloaded = loadGame({ localStorage: { ...game.window.localStorage } })
@@ -94,7 +98,7 @@ test("export then import round-trips", () => {
     const game = loadGame({ localStorage: { gameDataSave: legacyRaw } })
     game.run("exportGameData()")
     const exportString = game.window.document.getElementById("importExportBox").value
-    assert.equal(JSON.parse(Buffer.from(exportString, "base64").toString()).version, 2)
+    assert.equal(JSON.parse(Buffer.from(exportString, "base64").toString()).version, game.run("SAVE_VERSION"))
 
     const other = loadGame()
     assert.equal(importText(other, exportString), null)
@@ -111,7 +115,7 @@ test("bad imports show a message and leave the current save alone", () => {
     assert.match(importText(game, "not a save!!"), /doesn't look like a Progress Knight save/)
     assert.match(importText(game, Buffer.from("hello").toString("base64")), /doesn't look like a Progress Knight save/)
     assert.match(importText(game, encode({ coins: 5 })), /couldn't be loaded: Legacy save has no task data/)
-    assert.match(importText(game, encode({ version: 3, coins: 1, days: 1, tasks: {} })), /newer version of the game/)
+    assert.match(importText(game, encode({ version: 99, coins: 1, days: 1, tasks: {} })), /newer version of the game/)
     assert.equal(game.window.localStorage.getItem("gameDataSave"), current)
 
     game.run("exportGameData()")
@@ -161,4 +165,40 @@ test("an unreadable save is kept aside and the game starts fresh", () => {
     assert.equal(game.window.localStorage.getItem("gameDataSave_unreadable"), "{not json")
     assert.equal(game.gameData.currentJob.name, "Beggar")
     assert.match(game.errors.join("\n"), /Could not load save/)
+})
+
+test("a version 2 save (by name) loads to the same state as the original save", () => {
+    const fromLegacy = loadGame({ localStorage: { gameDataSave: legacyRaw } })
+    const fromV2 = loadGame({ localStorage: { gameDataSave: v2Raw } })
+    assert.deepEqual(savedState(fromV2), savedState(fromLegacy))
+    assert.equal(fromV2.window.localStorage.getItem("gameDataSave_legacyBackup"), null, "only legacy saves are backed up")
+})
+
+test("saves refer to jobs, skills, items and unlocks by id", () => {
+    const game = loadGame({ localStorage: { gameDataSave: legacyRaw } })
+    const saved = savedState(game)
+    assert.equal(saved.version, 3)
+    assert.equal(saved.currentJob, "fisherman")
+    assert.equal(saved.currentSkill, "concentration")
+    assert.equal(saved.currentProperty, "tent")
+    assert.deepEqual(saved.currentMisc, ["book"])
+    assert.deepEqual(saved.tasks.dark_influence, legacy.taskData["Dark influence"] && {
+        level: legacy.taskData["Dark influence"].level,
+        maxLevel: legacy.taskData["Dark influence"].maxLevel,
+        xp: legacy.taskData["Dark influence"].xp,
+    })
+    assert.ok(saved.completedRequirements.includes("dark_magic"))
+    assert.ok(saved.completedRequirements.includes("shop"))
+})
+
+test("ids that look like object properties don't break loading", () => {
+    const save = { version: 3, coins: 1, days: 6000, currentJob: "constructor", currentSkill: "__proto__",
+        currentProperty: "toString", currentMisc: ["hasOwnProperty"], tasks: { constructor: { level: 5 } },
+        completedRequirements: ["valueOf"] }
+    const game = loadGame({ localStorage: { gameDataSave: JSON.stringify(save) } })
+    assert.equal(game.gameData.currentJob.name, "Beggar")
+    assert.equal(game.gameData.currentSkill.name, "Concentration")
+    assert.equal(game.gameData.currentProperty.name, "Homeless")
+    assert.equal(game.gameData.currentMisc.length, 0)
+    assert.equal(game.errors.length, 0, game.errors.join("\n"))
 })

@@ -186,10 +186,13 @@ const unlocks = [
 // What a new life starts with (ids)
 const startingItems = {job: "beggar", skill: "concentration", property: "homeless"}
 
-// Id -> display name for every job, skill, item and unlock
-const namesById = {}
+// Id <-> display name for every job, skill, item and unlock. Prototype-free
+// so lookups of untrusted keys (e.g. from a save) can't hit Object methods.
+const namesById = Object.create(null)
+const idsByName = Object.create(null)
 for (const definition of [...jobs, ...skills, ...items, ...unlocks]) {
     namesById[definition.id] = definition.name
+    idsByName[definition.name] = definition.id
 }
 
 const jobBaseData = definitionsByName(jobs)
