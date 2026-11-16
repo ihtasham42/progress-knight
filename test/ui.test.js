@@ -53,3 +53,15 @@ test("rendering without a rebirth leaves the chosen tab alone", () => {
     game.ticks(3)
     assert.equal(document.getElementById("rebirth").style.display, "block")
 })
+
+test("unlocks are recorded by the game step, not by rendering", () => {
+    const game = loadGame()
+    game.run("gameData.coins = 750")
+    game.run("updateUI()")
+    assert.equal(game.run("gameData.requirements['Shop'].completed"), false)
+
+    game.fastTicks(1)
+    assert.equal(game.run("gameData.requirements['Shop'].completed"), true)
+    game.run("updateUI()")
+    assert.ok(!game.window.document.getElementById("shopTabButton").classList.contains("hidden"))
+})

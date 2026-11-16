@@ -360,7 +360,7 @@ function updateRequiredRows(data, categoryType) {
             if (i >= category.length - 1) break
             const requirements = gameData.requirements[entityName]
             if (requirements && i == 0) {
-                if (!requirements.isCompleted()) {
+                if (!requirements.completed) {
                     nextEntity = data[entityName]
                     break
                 }
@@ -371,7 +371,7 @@ function updateRequiredRows(data, categoryType) {
             const nextEntityName = category[nextIndex]
             const nextEntityRequirements = gameData.requirements[nextEntityName]
 
-            if (!nextEntityRequirements.isCompleted()) {
+            if (!nextEntityRequirements.completed) {
                 nextEntity = data[nextEntityName]
                 break
             }       
@@ -519,7 +519,7 @@ function getNet() {
 function hideEntities() {
     for (const key in gameData.requirements) {
         const requirement = gameData.requirements[key]
-        const completed = requirement.isCompleted()
+        const completed = requirement.completed
         for (const element of requirement.elements) {
             if (completed) {
                 element.classList.remove("hidden")
@@ -527,6 +527,14 @@ function hideEntities() {
                 element.classList.add("hidden")
             }
         }
+    }
+}
+
+// Once reached, an unlock stays unlocked for the rest of the life (or for
+// good, for permanent unlocks), so every requirement is checked each step.
+function updateRequirements() {
+    for (const key in gameData.requirements) {
+        gameData.requirements[key].isCompleted()
     }
 }
 
@@ -841,6 +849,7 @@ function update() {
     doCurrentTask(gameData.currentJob)
     doCurrentTask(gameData.currentSkill)
     applyExpenses()
+    updateRequirements()
     updateUI()
 }
 
