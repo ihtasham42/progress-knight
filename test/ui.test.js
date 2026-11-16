@@ -88,3 +88,17 @@ test("a game step doesn't render; rendering is separate", () => {
     game.run("updateUI()")
     assert.notEqual(coinDisplay.textContent, shown)
 })
+
+test("rendering again with nothing changed doesn't touch the page", () => {
+    const game = loadGame()
+    game.ticks(5)
+    const observer = new game.window.MutationObserver(() => {})
+    observer.observe(game.window.document.body, { subtree: true, childList: true, attributes: true, characterData: true })
+    game.run("updateUI()")
+    assert.equal(observer.takeRecords().length, 0)
+
+    game.fastTicks(1)
+    game.run("updateUI()")
+    assert.ok(observer.takeRecords().length > 0, "values that changed are still written")
+    observer.disconnect()
+})

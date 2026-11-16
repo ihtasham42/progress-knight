@@ -67,6 +67,39 @@ function findQuickTaskElements() {
     return elements
 }
 
+// Rendering runs about 10 times a second, but most values change far less
+// often, so the page is only written to when a value has changed. Each
+// element remembers what was last written to it.
+const shownValues = new WeakMap()
+
+function hasChanged(element, key, value) {
+    let shown = shownValues.get(element)
+    if (shown === undefined) {
+        shown = {}
+        shownValues.set(element, shown)
+    }
+    if (key in shown && shown[key] === value) return false
+    shown[key] = value
+    return true
+}
+
+function setText(element, text) {
+    text = String(text)
+    if (hasChanged(element, "text", text)) element.textContent = text
+}
+
+function setStyle(element, property, value) {
+    if (hasChanged(element, "style " + property, value)) element.style[property] = value
+}
+
+function setClass(element, className, on) {
+    if (hasChanged(element, "class " + className, on)) element.classList.toggle(className, on)
+}
+
+function setDisabled(element, disabled) {
+    if (hasChanged(element, "disabled", disabled)) element.disabled = disabled
+}
+
 function createRequiredRow(categoryName) {
     const requiredRow = document.getElementsByClassName("requiredRowTemplate")[0].content.firstElementChild.cloneNode(true)
     requiredRow.classList.add("requiredRow")
@@ -167,8 +200,8 @@ function createAllRows(categoryType, tableId) {
 function updateQuickTaskDisplay(taskType) {
     const currentTask = taskType == "job" ? gameData.currentJob : gameData.currentSkill
     const elements = quickTaskElements[taskType]
-    elements.name.textContent = currentTask.name + " lvl " + currentTask.level
-    elements.progressFill.style.width = currentTask.xp / currentTask.getMaxXp() * 100 + "%"
+    setText(elements.name, currentTask.name + " lvl " + currentTask.level)
+    setStyle(elements.progressFill, "width", currentTask.xp / currentTask.getMaxXp() * 100 + "%")
 }
 
 function updateRequiredRows(data, categoryType) {
@@ -198,42 +231,38 @@ function updateRequiredRows(data, categoryType) {
             }       
         }
 
-        if (nextEntity == null) {
-            requiredRow.classList.add("hiddenTask")           
-        } else {
-            requiredRow.classList.remove("hiddenTask")
-            const requirementObject = gameData.requirements[nextEntity.name]
-            const requirements = requirementObject.requirements
+        setClass(requiredRow, "hiddenTask", nextEntity == null)
+        if (nextEntity == null) continue
 
-            const coinElement = requiredRowElements[categoryName].coins
-            const levelElement = requiredRowElements[categoryName].levels
-            const evilElement = requiredRowElements[categoryName].evil
+        const requirementObject = gameData.requirements[nextEntity.name]
+        const requirements = requirementObject.requirements
 
-            coinElement.classList.add("hiddenTask")
-            levelElement.classList.add("hiddenTask")
-            evilElement.classList.add("hiddenTask")
+        const coinElement = requiredRowElements[categoryName].coins
+        const levelElement = requiredRowElements[categoryName].levels
+        const evilElement = requiredRowElements[categoryName].evil
 
+        const showEvil = data == gameData.taskData && requirementObject instanceof EvilRequirement
+        const showLevels = data == gameData.taskData && !showEvil
+        const showCoins = data == gameData.itemData
+        setClass(coinElement, "hiddenTask", !showCoins)
+        setClass(levelElement, "hiddenTask", !showLevels)
+        setClass(evilElement, "hiddenTask", !showEvil)
+
+        if (showEvil) {
+            setText(evilElement, format(requirements[0].requirement) + " evil")
+        } else if (showLevels) {
             let finalText = ""
-            if (data == gameData.taskData) {
-                if (requirementObject instanceof EvilRequirement) {
-                    evilElement.classList.remove("hiddenTask")
-                    evilElement.textContent = format(requirements[0].requirement) + " evil"
-                } else {
-                    levelElement.classList.remove("hiddenTask")
-                    for (const requirement of requirements) {
-                        const task = gameData.taskData[requirement.task]
-                        if (task.level >= requirement.requirement) continue
-                        const text = " " + requirement.task + " level " + format(task.level) + "/" + format(requirement.requirement) + ","
-                        finalText += text
-                    }
-                    finalText = finalText.substring(0, finalText.length - 1)
-                    levelElement.textContent = finalText
-                }
-            } else if (data == gameData.itemData) {
-                coinElement.classList.remove("hiddenTask")
-                formatCoins(requirements[0].requirement, coinElement)
+            for (const requirement of requirements) {
+                const task = gameData.taskData[requirement.task]
+                if (task.level >= requirement.requirement) continue
+                const text = " " + requirement.task + " level " + format(task.level) + "/" + format(requirement.requirement) + ","
+                finalText += text
             }
-        }   
+            finalText = finalText.substring(0, finalText.length - 1)
+            setText(levelElement, finalText)
+        } else if (showCoins) {
+            formatCoins(requirements[0].requirement, coinElement)
+        }
     }
 }
 
@@ -241,28 +270,22 @@ function updateTaskRows() {
     for (const key in gameData.taskData) {
         const task = gameData.taskData[key]
         const row = taskRowElements[task.name]
-        row.level.textContent = task.level
-        row.xpGain.textContent = format(task.getXpGain())
-        row.xpLeft.textContent = format(task.getXpLeft())
+        setText(row.level, task.level)
+        setText(row.xpGain, format(task.getXpGain()))
+        setText(row.xpLeft, format(task.getXpLeft()))
 
-        const maxLevel = row.maxLevel
-        maxLevel.textContent = task.maxLevel
-        gameData.rebirthOneCount > 0 ? maxLevel.classList.remove("hidden") : maxLevel.classList.add("hidden")
+        setText(row.maxLevel, task.maxLevel)
+        setClass(row.maxLevel, "hidden", !(gameData.rebirthOneCount > 0))
 
-        const progressFill = row.progressFill
-        progressFill.style.width = task.xp / task.getMaxXp() * 100 + "%"
-        task == gameData.currentJob || task == gameData.currentSkill ? progressFill.classList.add("current") : progressFill.classList.remove("current")
+        setStyle(row.progressFill, "width", task.xp / task.getMaxXp() * 100 + "%")
+        setClass(row.progressFill, "current", task == gameData.currentJob || task == gameData.currentSkill)
 
-        row.income.style.display = task instanceof Job
-        row.effect.style.display = task instanceof Skill
-
-        const skipSkillElement = row.skipSkill
-        skipSkillElement.style.display = task instanceof Skill && gameData.automation.autoLearn ? "block" : "none"
+        setStyle(row.skipSkill, "display", task instanceof Skill && gameData.automation.autoLearn ? "block" : "none")
 
         if (task instanceof Job) {
             formatCoins(task.getIncome(), row.income)
         } else {
-            row.effect.textContent = task.getEffectDescription()
+            setText(row.effect, task.getEffectDescription())
         }
     }
 }
@@ -271,12 +294,10 @@ function updateItemRows() {
     for (const key in gameData.itemData) {
         const item = gameData.itemData[key]
         const row = itemRowElements[item.name]
-        const button = row.button
-        button.disabled = gameData.coins < item.getExpense()
-        const active = row.active
+        setDisabled(row.button, gameData.coins < item.getExpense())
         const color = itemCategories["Properties"].includes(item.name) ? headerRowColors["Properties"] : headerRowColors["Misc"]
-        active.style.backgroundColor = gameData.currentMisc.includes(item) || item == gameData.currentProperty ? color : "white"
-        row.effect.textContent = item.getEffectDescription()
+        setStyle(row.active, "backgroundColor", gameData.currentMisc.includes(item) || item == gameData.currentProperty ? color : "white")
+        setText(row.effect, item.getEffectDescription())
         formatCoins(item.getExpense(), row.expense)
     }
 }
@@ -284,20 +305,18 @@ function updateItemRows() {
 function updateHeaderRows(categories) {
     for (const categoryName in categories) {
         const headerRow = headerRowElements[categoryName]
-        const maxLevelElement = headerRow.maxLevel
-        gameData.rebirthOneCount > 0 ? maxLevelElement.classList.remove("hidden") : maxLevelElement.classList.add("hidden")
-        const skipSkillElement = headerRow.skipSkill
-        skipSkillElement.style.display = categories == skillCategories && gameData.automation.autoLearn ? "block" : "none"
+        setClass(headerRow.maxLevel, "hidden", !(gameData.rebirthOneCount > 0))
+        setStyle(headerRow.skipSkill, "display", categories == skillCategories && gameData.automation.autoLearn ? "block" : "none")
     }
 }
 
 function updateText() {
     //Sidebar
     const sidebar = sidebarElements
-    sidebar.ageDisplay.textContent = daysToYears(gameData.days)
-    sidebar.dayDisplay.textContent = getDay()
-    sidebar.lifespanDisplay.textContent = daysToYears(getLifespan())
-    sidebar.pauseButton.textContent = gameData.paused ? "Play" : "Pause"
+    setText(sidebar.ageDisplay, daysToYears(gameData.days))
+    setText(sidebar.dayDisplay, getDay())
+    setText(sidebar.lifespanDisplay, daysToYears(getLifespan()))
+    setText(sidebar.pauseButton, gameData.paused ? "Play" : "Pause")
 
     formatCoins(gameData.coins, sidebar.coinDisplay)
     setSignDisplay()
@@ -305,29 +324,28 @@ function updateText() {
     formatCoins(getIncome(), sidebar.incomeDisplay)
     formatCoins(getExpense(), sidebar.expenseDisplay)
 
-    sidebar.happinessDisplay.textContent = getHappiness().toFixed(1)
+    setText(sidebar.happinessDisplay, getHappiness().toFixed(1))
 
-    sidebar.evilDisplay.textContent = gameData.evil.toFixed(1)
-    sidebar.evilGainDisplay.textContent = getEvilGain().toFixed(1)
+    setText(sidebar.evilDisplay, gameData.evil.toFixed(1))
+    setText(sidebar.evilGainDisplay, getEvilGain().toFixed(1))
 
-    sidebar.timeWarpingDisplay.textContent = "x" + getTaskById("time_warping").getEffect().toFixed(2)
-    sidebar.timeWarpingButton.textContent = gameData.timeWarpingEnabled ? "Disable warp" : "Enable warp"
+    setText(sidebar.timeWarpingDisplay, "x" + getTaskById("time_warping").getEffect().toFixed(2))
+    setText(sidebar.timeWarpingButton, gameData.timeWarpingEnabled ? "Disable warp" : "Enable warp")
 
-    const deathText = sidebar.deathText
-    isLifeOver() ? deathText.classList.remove("hidden") : deathText.classList.add("hidden")
+    setClass(sidebar.deathText, "hidden", !isLifeOver())
 }
 
 function setSignDisplay() {
     const signDisplay = sidebarElements.signDisplay
     if (getIncome() > getExpense()) {
-        signDisplay.textContent = "+"
-        signDisplay.style.color = "green"
+        setText(signDisplay, "+")
+        setStyle(signDisplay, "color", "green")
     } else if (getExpense() > getIncome()) {
-        signDisplay.textContent = "-"
-        signDisplay.style.color = "red"
+        setText(signDisplay, "-")
+        setStyle(signDisplay, "color", "red")
     } else {
-        signDisplay.textContent = ""
-        signDisplay.style.color = "gray"
+        setText(signDisplay, "")
+        setStyle(signDisplay, "color", "gray")
     }
 }
 
@@ -335,11 +353,7 @@ function hideEntities() {
     for (const key in requirementElements) {
         const completed = gameData.requirements[key].completed
         for (const element of requirementElements[key]) {
-            if (completed) {
-                element.classList.remove("hidden")
-            } else {
-                element.classList.add("hidden")
-            }
+            setClass(element, "hidden", !completed)
         }
     }
 }
@@ -385,14 +399,14 @@ function formatCoins(coins, element) {
         const x = Math.floor(leftOver / Math.pow(10, (tiers.length - i) * 2))
         leftOver = Math.floor(leftOver - x * Math.pow(10, (tiers.length - i) * 2))
         const text = format(String(x)) + tier + " "
-        element.children[i].textContent = x > 0 ? text : ""
-        element.children[i].style.color = colors[tier]
+        setText(element.children[i], x > 0 ? text : "")
+        setStyle(element.children[i], "color", colors[tier])
         i += 1
     }
-    if (leftOver == 0 && coins > 0) {element.children[3].textContent = ""; return}
+    if (leftOver == 0 && coins > 0) {setText(element.children[3], ""); return}
     const copperText = String(Math.floor(leftOver)) + "c"
-    element.children[3].textContent = copperText
-    element.children[3].style.color = colors["c"]
+    setText(element.children[3], copperText)
+    setStyle(element.children[3], "color", colors["c"])
 }
 
 // Requirement key -> the page elements shown once it is completed
