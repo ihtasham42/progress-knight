@@ -11,12 +11,23 @@ function loadGameData() {
     if (rawSave === null) return
 
     try {
-        applySaveData(migrateSave(JSON.parse(rawSave)))
+        const parsedSave = JSON.parse(rawSave)
+        backUpLegacySave(parsedSave, rawSave)
+        applySaveData(migrateSave(parsedSave))
     } catch (error) {
         // Keep the unreadable save so progress isn't silently lost when the
         // autosave overwrites it with a fresh game.
         console.error("Could not load save:", error)
         localStorage.setItem("gameDataSave_unreadable", rawSave)
+    }
+}
+
+// The first time a pre-version-2 save is loaded, keep an untouched copy so
+// the player can go back to the original game if they want to.
+function backUpLegacySave(parsedSave, rawSave) {
+    const isLegacy = parsedSave !== null && typeof parsedSave === "object" && parsedSave.version === undefined
+    if (isLegacy && localStorage.getItem("gameDataSave_legacyBackup") === null) {
+        localStorage.setItem("gameDataSave_legacyBackup", rawSave)
     }
 }
 
