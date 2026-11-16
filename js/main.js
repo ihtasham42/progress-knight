@@ -274,7 +274,6 @@ function createEntity(data, entity) {
     if ("income" in entity) {data[entity.name] = new Job(entity)}
     else if ("maxXp" in entity) {data[entity.name] = new Skill(entity)}
     else {data[entity.name] = new Item(entity)}
-    data[entity.name].id = "row " + entity.name
 }
 
 function createRequiredRow(categoryName) {
@@ -744,15 +743,11 @@ function createRequirementElements() {
 }
 
 function getTaskElement(taskName) {
-    const task = gameData.taskData[taskName]
-    const element = document.getElementById(task.id)
-    return element
+    return document.getElementById("row " + taskName)
 }
 
 function getItemElement(itemName) {
-    const item = gameData.itemData[itemName]
-    const element = document.getElementById(item.id)
-    return element
+    return document.getElementById("row " + itemName)
 }
 
 function getElementsByClass(className) {
@@ -776,6 +771,32 @@ function setLightDarkMode() {
 
 function removeSpaces(string) {
     return string.replace(/ /g, "")
+}
+
+// Builds the game state for a new game, before any save is applied
+function initGameData() {
+    createData(gameData.taskData, jobBaseData)
+    createData(gameData.taskData, skillBaseData)
+    createData(gameData.itemData, itemBaseData) 
+
+    gameData.currentJob = getTaskById(startingItems.job)
+    gameData.currentSkill = getTaskById(startingItems.skill)
+    gameData.currentProperty = getItemById(startingItems.property)
+    gameData.currentMisc = []
+
+    gameData.requirements = createRequirements()
+
+    addMultipliers()
+}
+
+// Builds the page
+function initUI() {
+    createAllRows(jobCategories, "jobTable")
+    createAllRows(skillCategories, "skillTable")
+    createAllRows(itemCategories, "itemTable") 
+    setUpAutomationControls()
+    requirementElements = createRequirementElements()
+    setTab(jobTabButton, "jobs")
 }
 
 function rebirthOne() {
@@ -875,28 +896,9 @@ function renderFrame(now) {
 
 //Init
 
-createAllRows(jobCategories, "jobTable")
-createAllRows(skillCategories, "skillTable")
-createAllRows(itemCategories, "itemTable") 
-setUpAutomationControls()
-
-createData(gameData.taskData, jobBaseData)
-createData(gameData.taskData, skillBaseData)
-createData(gameData.itemData, itemBaseData) 
-
-gameData.currentJob = getTaskById(startingItems.job)
-gameData.currentSkill = getTaskById(startingItems.skill)
-gameData.currentProperty = getItemById(startingItems.property)
-gameData.currentMisc = []
-
-gameData.requirements = createRequirements()
-requirementElements = createRequirementElements()
-
+initUI()
+initGameData()
 loadGameData()
-
-addMultipliers()
-
-setTab(jobTabButton, "jobs")
 
 update()
 updateUI()
