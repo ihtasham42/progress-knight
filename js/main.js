@@ -208,6 +208,17 @@ function setTab(element, selectedTab) {
     element.classList.add("w3-blue-gray")
 }
 
+// Rebirths seen by the page so far, so it can go back to the jobs tab after one
+let shownRebirthCount = null
+
+function updateTabAfterRebirth() {
+    const rebirthCount = gameData.rebirthOneCount + gameData.rebirthTwoCount
+    if (shownRebirthCount !== null && rebirthCount != shownRebirthCount) {
+        setTab(jobTabButton, "jobs")
+    }
+    shownRebirthCount = rebirthCount
+}
+
 function setPause() {
     gameData.paused = !gameData.paused
 }
@@ -769,8 +780,6 @@ function rebirthTwo() {
 }
 
 function rebirthReset() {
-    setTab(jobTabButton, "jobs")
-
     gameData.coins = 0
     gameData.days = 365 * 14
     gameData.currentJob = getTaskById(startingItems.job)
@@ -822,6 +831,7 @@ function updateUI() {
     updateQuickTaskDisplay("skill")
     hideEntities()
     updateText()  
+    updateTabAfterRebirth()
 }
 
 function update() {

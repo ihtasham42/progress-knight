@@ -29,3 +29,27 @@ test("checking whether the game is alive doesn't touch the page", () => {
     assert.ok(deathText.classList.contains("hidden"))
     assert.equal(game.run("gameData.days"), game.run("getLifespan()"), "the age still stops at the lifespan")
 })
+
+for (const rebirth of ["rebirthOne", "rebirthTwo"]) {
+    test(`the page goes back to the jobs tab after ${rebirth}()`, () => {
+        const game = loadGame()
+        const document = game.window.document
+        game.run(`setTab(document.getElementById("rebirthTabButton"), "rebirth")`)
+        assert.equal(document.getElementById("jobs").style.display, "none")
+
+        game.run(`${rebirth}()`)
+        assert.equal(document.getElementById("rebirth").style.display, "block", "the game logic doesn't switch tabs")
+        game.run("updateUI()")
+        assert.equal(document.getElementById("jobs").style.display, "block")
+        assert.equal(document.getElementById("rebirth").style.display, "none")
+        assert.ok(document.getElementById("jobTabButton").classList.contains("w3-blue-gray"))
+    })
+}
+
+test("rendering without a rebirth leaves the chosen tab alone", () => {
+    const game = loadGame()
+    const document = game.window.document
+    game.run(`setTab(document.getElementById("rebirthTabButton"), "rebirth")`)
+    game.ticks(3)
+    assert.equal(document.getElementById("rebirth").style.display, "block")
+})
