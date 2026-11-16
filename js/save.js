@@ -96,13 +96,46 @@ function resetGameData() {
 
 function importGameData() {
     const importExportBox = document.getElementById("importExportBox")
-    const data = JSON.parse(window.atob(importExportBox.value))
+    let data
+    try {
+        data = JSON.parse(window.atob(importExportBox.value.trim()))
+    } catch (error) {
+        showImportError("That doesn't look like a Progress Knight save. Paste the full text from Export.")
+        return
+    }
+
+    if (!isValidSave(data)) {
+        showImportError("That save is missing data the game needs, so it wasn't loaded.")
+        return
+    }
+
     gameData = data
     saveGameData()
     location.reload()
 }
 
+function isValidSave(data) {
+    if (data === null || typeof data !== "object") return false
+    if (typeof data.taskData !== "object" || typeof data.itemData !== "object") return false
+    if (typeof data.coins !== "number" || typeof data.days !== "number") return false
+    for (const key of ["currentJob", "currentSkill", "currentProperty"]) {
+        if (!data[key] || typeof data[key].name !== "string") return false
+    }
+    return Array.isArray(data.currentMisc)
+}
+
+function showImportError(message) {
+    const importError = document.getElementById("importError")
+    importError.textContent = message
+    importError.classList.remove("hidden")
+}
+
+function hideImportError() {
+    document.getElementById("importError").classList.add("hidden")
+}
+
 function exportGameData() {
+    hideImportError()
     const importExportBox = document.getElementById("importExportBox")
     importExportBox.value = window.btoa(JSON.stringify(gameData))
 }
