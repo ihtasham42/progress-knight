@@ -60,3 +60,12 @@ test("boosts use known stats and only target things that exist", () => {
         }
     }
 })
+
+test("effect curves are complete", () => {
+    for (const skill of skills.filter(definition => definition.effectCurve)) {
+        const curve = skill.effectCurve
+        assert.ok(["log", "logReduction"].includes(curve.type), skill.name)
+        assert.ok(curve.base > 1, skill.name + " base")
+        if (curve.type == "logReduction") assert.ok(curve.divisor > 0 && curve.minimum > 0, skill.name)
+    }
+})

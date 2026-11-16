@@ -110,34 +110,6 @@ function getSourceEffect(source) {
     return source.name in gameData.taskData ? getBindedTaskEffect(source.name) : getBindedItemEffect(source.name)
 }
 
-function setCustomEffects() {
-    const bargaining = gameData.taskData["Bargaining"]
-    bargaining.getEffect = function() {
-        let multiplier = 1 - getBaseLog(7, bargaining.level + 1) / 10
-        if (multiplier < 0.1) {multiplier = 0.1}
-        return multiplier
-    }
-
-    const intimidation = gameData.taskData["Intimidation"]
-    intimidation.getEffect = function() {
-        let multiplier = 1 - getBaseLog(7, intimidation.level + 1) / 10
-        if (multiplier < 0.1) {multiplier = 0.1}
-        return multiplier
-    }
-
-    const timeWarping = gameData.taskData["Time warping"]
-    timeWarping.getEffect = function() {
-        const multiplier = 1 + getBaseLog(13, timeWarping.level + 1) 
-        return multiplier
-    }
-
-    const immortality = gameData.taskData["Immortality"]
-    immortality.getEffect = function() {
-        const multiplier = 1 + getBaseLog(33, immortality.level + 1) 
-        return multiplier
-    }
-}
-
 // A property's effect is always happiness, applied after other boosts
 function getHappiness() {
     return applyStatBoosts("happiness", 1) * gameData.currentProperty.getEffect()
@@ -840,7 +812,6 @@ gameData.requirements = createRequirements()
 
 loadGameData()
 
-setCustomEffects()
 addMultipliers()
 
 setTab(jobTabButton, "jobs")

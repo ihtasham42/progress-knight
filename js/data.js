@@ -5,6 +5,11 @@
 //
 // requires: what must be reached before it is shown and can be used. Task
 //   requirements refer to other jobs/skills by id.
+// effectCurve (skills, optional): replaces the default effect of
+//   1 + effect * level.
+//   {type: "log", base}: 1 + log_base(level + 1)
+//   {type: "logReduction", base, divisor, minimum}:
+//     1 - log_base(level + 1) / divisor, but never below minimum
 // boosts: what a skill or item multiplies by its effect. (A property's effect
 //   is always happiness, so properties don't list boosts.)
 //   stat: "xp", "income", "expense", "happiness", "lifespan", "gameSpeed"
@@ -85,7 +90,7 @@ const skills = [
         tooltip: "Improve your learning speed through practising intense concentration activities."},
     {id: "productivity", name: "Productivity", category: "Fundamentals", maxXp: 100, effect: 0.01, description: "Job xp", boosts: [{stat: "xp", of: "jobs"}], requires: [{task: "concentration", level: 5}],
         tooltip: "Learn to procrastinate less at work and receive more job experience per day."},
-    {id: "bargaining", name: "Bargaining", category: "Fundamentals", maxXp: 100, effect: -0.01, description: "Expenses", boosts: [{stat: "expense", of: "items"}], requires: [{task: "concentration", level: 20}],
+    {id: "bargaining", name: "Bargaining", category: "Fundamentals", maxXp: 100, effect: -0.01, description: "Expenses", effectCurve: {type: "logReduction", base: 7, divisor: 10, minimum: 0.1}, boosts: [{stat: "expense", of: "items"}], requires: [{task: "concentration", level: 20}],
         tooltip: "Study the tricks of the trade and persuasive skills to lower any type of expense."},
     {id: "meditation", name: "Meditation", category: "Fundamentals", maxXp: 100, effect: 0.01, description: "Happiness", boosts: [{stat: "happiness"}], requires: [{task: "concentration", level: 30}, {task: "productivity", level: 20}],
         tooltip: "Fill your mind with peace and tranquility to tap into greater happiness from within."},
@@ -101,9 +106,9 @@ const skills = [
     // Magic
     {id: "mana_control", name: "Mana control", category: "Magic", maxXp: 100, effect: 0.01, description: "T.A.A. xp", boosts: [{stat: "xp", of: "The Arcane Association"}], requires: [{task: "concentration", level: 200}, {task: "meditation", level: 200}],
         tooltip: "Strengthen your mana channels throughout your body, aiding you in becoming a more powerful magical user."},
-    {id: "immortality", name: "Immortality", category: "Magic", maxXp: 100, effect: 0.01, description: "Longer lifespan", boosts: [{stat: "lifespan"}], requires: [{task: "apprentice_mage", level: 10}],
+    {id: "immortality", name: "Immortality", category: "Magic", maxXp: 100, effect: 0.01, description: "Longer lifespan", effectCurve: {type: "log", base: 33}, boosts: [{stat: "lifespan"}], requires: [{task: "apprentice_mage", level: 10}],
         tooltip: "Lengthen your lifespan through the means of magic. However, is this truly the immortality you have tried seeking for...?"},
-    {id: "time_warping", name: "Time warping", category: "Magic", maxXp: 100, effect: 0.01, description: "Gamespeed", boosts: [{stat: "gameSpeed"}], requires: [{task: "mage", level: 10}],
+    {id: "time_warping", name: "Time warping", category: "Magic", maxXp: 100, effect: 0.01, description: "Gamespeed", effectCurve: {type: "log", base: 13}, boosts: [{stat: "gameSpeed"}], requires: [{task: "mage", level: 10}],
         tooltip: "Bend space and time through forbidden techniques, resulting in a faster gamespeed."},
     {id: "super_immortality", name: "Super immortality", category: "Magic", maxXp: 100, effect: 0.01, description: "Longer lifespan", boosts: [{stat: "lifespan"}], requires: [{task: "chairman", level: 1000}],
         tooltip: "Through harnessing ancient, forbidden techniques, lengthen your lifespan drastically beyond comprehension."},
@@ -113,7 +118,7 @@ const skills = [
         tooltip: "Encompass yourself with formidable power bestowed upon you by evil, allowing you to pick up and absorb any job or skill with ease."},
     {id: "evil_control", name: "Evil control", category: "Dark magic", maxXp: 100, effect: 0.01, description: "Evil gain", boosts: [{stat: "evilGain"}], requires: [{evil: 1}],
         tooltip: "Tame the raging and growing evil within you, improving evil gain in-between rebirths."},
-    {id: "intimidation", name: "Intimidation", category: "Dark magic", maxXp: 100, effect: -0.01, description: "Expenses", boosts: [{stat: "expense", of: "items"}], requires: [{evil: 1}],
+    {id: "intimidation", name: "Intimidation", category: "Dark magic", maxXp: 100, effect: -0.01, description: "Expenses", effectCurve: {type: "logReduction", base: 7, divisor: 10, minimum: 0.1}, boosts: [{stat: "expense", of: "items"}], requires: [{evil: 1}],
         tooltip: "Learn to emit a devilish aura which strikes extreme fear into other merchants, forcing them to give you heavy discounts."},
     {id: "demon_training", name: "Demon training", category: "Dark magic", maxXp: 100, effect: 0.01, description: "All xp", boosts: [{stat: "xp", of: "all"}], requires: [{evil: 25}],
         tooltip: "A mere human body is too feeble and weak to withstand evil. Train with forbidden methods to slowly manifest into a demon, capable of absorbing knowledge rapidly."},
