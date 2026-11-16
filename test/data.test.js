@@ -69,3 +69,10 @@ test("effect curves are complete", () => {
         if (curve.type == "logReduction") assert.ok(curve.divisor > 0 && curve.minimum > 0, skill.name)
     }
 })
+
+test("a new life starts with a job, a skill and a property that exist", () => {
+    const starting = game.run("startingItems")
+    assert.ok(jobs.some(definition => definition.id == starting.job))
+    assert.ok(skills.some(definition => definition.id == starting.skill))
+    assert.ok(items.some(definition => definition.id == starting.property && definition.category == "Properties"))
+})

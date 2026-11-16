@@ -41,6 +41,14 @@ function getBaseLog(x, y) {
     return Math.log(y) / Math.log(x);
 }
   
+function getTaskById(id) {
+    return gameData.taskData[namesById[id]]
+}
+
+function getItemById(id) {
+    return gameData.itemData[namesById[id]]
+}
+
 function getBindedTaskEffect(taskName) {
     const task = gameData.taskData[taskName]
     return task.getEffect.bind(task)
@@ -174,7 +182,7 @@ function getExpense() {
 
 function goBankrupt() {
     gameData.coins = 0
-    gameData.currentProperty = gameData.itemData["Homeless"]
+    gameData.currentProperty = getItemById(startingItems.property)
     gameData.currentMisc = []
 }
 
@@ -447,7 +455,7 @@ function updateText() {
     document.getElementById("evilDisplay").textContent = gameData.evil.toFixed(1)
     document.getElementById("evilGainDisplay").textContent = getEvilGain().toFixed(1)
 
-    document.getElementById("timeWarpingDisplay").textContent = "x" + gameData.taskData["Time warping"].getEffect().toFixed(2)
+    document.getElementById("timeWarpingDisplay").textContent = "x" + getTaskById("time_warping").getEffect().toFixed(2)
     document.getElementById("timeWarpingButton").textContent = gameData.timeWarpingEnabled ? "Disable warp" : "Enable warp"
 }
 
@@ -551,7 +559,7 @@ function setSkillWithLowestMaxXp() {
     }
 
     if (Object.keys(xpDict).length == 0) {
-        skillWithLowestMaxXp = gameData.taskData["Concentration"]
+        skillWithLowestMaxXp = getTaskById(startingItems.skill)
         return
     }
 
@@ -651,32 +659,29 @@ function formatCoins(coins, element) {
 // Requirements are keyed by display name; specs in the data refer to
 // other entities by id.
 function createRequirements() {
-    const nameById = {}
-    for (const definition of [...jobs, ...skills, ...items]) nameById[definition.id] = definition.name
-
     const requirements = {}
     for (const unlock of unlocks) {
         const elements = unlock.category ? getElementsByClass(unlock.category) : [document.getElementById(unlock.elementId)]
-        requirements[unlock.name] = createRequirement(unlock, elements, nameById)
+        requirements[unlock.name] = createRequirement(unlock, elements)
     }
     for (const definition of [...jobs, ...skills]) {
-        requirements[definition.name] = createRequirement(definition, [getTaskElement(definition.name)], nameById)
+        requirements[definition.name] = createRequirement(definition, [getTaskElement(definition.name)])
     }
     for (const definition of items) {
-        requirements[definition.name] = createRequirement(definition, [getItemElement(definition.name)], nameById)
+        requirements[definition.name] = createRequirement(definition, [getItemElement(definition.name)])
     }
     return requirements
 }
 
-function createRequirement(definition, elements, nameById) {
+function createRequirement(definition, elements) {
     const specs = definition.requires
     const types = new Set(specs.map(spec => Object.keys(spec).find(key => key != "level")))
     if (types.size > 1) throw new Error(definition.name + " mixes different kinds of requirement")
 
     if (specs.length == 0 || types.has("task")) {
         return new TaskRequirement(elements, specs.map(function(spec) {
-            if (!(spec.task in nameById)) throw new Error(definition.name + " requires unknown task " + spec.task)
-            return {task: nameById[spec.task], requirement: spec.level}
+            if (!(spec.task in namesById)) throw new Error(definition.name + " requires unknown task " + spec.task)
+            return {task: namesById[spec.task], requirement: spec.level}
         }))
     }
     if (types.has("coins")) return new CoinRequirement(elements, specs.map(spec => ({requirement: spec.coins})))
@@ -734,9 +739,9 @@ function rebirthReset() {
 
     gameData.coins = 0
     gameData.days = 365 * 14
-    gameData.currentJob = gameData.taskData["Beggar"]
-    gameData.currentSkill = gameData.taskData["Concentration"]
-    gameData.currentProperty = gameData.itemData["Homeless"]
+    gameData.currentJob = getTaskById(startingItems.job)
+    gameData.currentSkill = getTaskById(startingItems.skill)
+    gameData.currentProperty = getItemById(startingItems.property)
     gameData.currentMisc = []
 
     for (const taskName in gameData.taskData) {
@@ -804,9 +809,9 @@ createData(gameData.taskData, jobBaseData)
 createData(gameData.taskData, skillBaseData)
 createData(gameData.itemData, itemBaseData) 
 
-gameData.currentJob = gameData.taskData["Beggar"]
-gameData.currentSkill = gameData.taskData["Concentration"]
-gameData.currentProperty = gameData.itemData["Homeless"]
+gameData.currentJob = getTaskById(startingItems.job)
+gameData.currentSkill = getTaskById(startingItems.skill)
+gameData.currentProperty = getItemById(startingItems.property)
 gameData.currentMisc = []
 
 gameData.requirements = createRequirements()

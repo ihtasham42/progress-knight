@@ -183,6 +183,15 @@ const unlocks = [
     {id: "quick_task_display", name: "Quick task display", elementId: "quickTaskDisplay", permanent: true, requires: [{age: 20}]},
 ]
 
+// What a new life starts with (ids)
+const startingItems = {job: "beggar", skill: "concentration", property: "homeless"}
+
+// Id -> display name for every job, skill, item and unlock
+const namesById = {}
+for (const definition of [...jobs, ...skills, ...items, ...unlocks]) {
+    namesById[definition.id] = definition.name
+}
+
 const jobBaseData = definitionsByName(jobs)
 const jobCategories = namesByCategory(jobs)
 
