@@ -1,4 +1,6 @@
-var gameData = {
+"use strict"
+
+let gameData = {
     taskData: {},
     itemData: {},
 
@@ -17,9 +19,9 @@ var gameData = {
     currentMisc: null,
 }
 
-var tempData = {}
+const tempData = {}
 
-var skillWithLowestMaxXp = null
+let skillWithLowestMaxXp = null
 
 const autoPromoteElement = document.getElementById("autoPromote")
 const autoLearnElement = document.getElementById("autoLearn")
@@ -143,7 +145,7 @@ const tooltips = {
     "Footman": "Put down your life to battle with enemy soldiers. A courageous, respectable job but you are still worthless in the grand scheme of things.",
     "Veteran footman": "More experienced and useful than the average footman, take out the enemy forces in battle with your might. The pay is not that bad.",
     "Knight": "Slash and pierce through enemy soldiers with ease, while covered in steel from head to toe. A decently paying and very respectable job.",
-    "Veteran knight": "Utilising your unmatched combat ability, slaugher enemies effortlessly. Most footmen in the military would never be able to acquire such a well paying job like this.",
+    "Veteran knight": "Utilising your unmatched combat ability, slaughter enemies effortlessly. Most footmen in the military would never be able to acquire such a well paying job like this.",
     "Elite knight": "Obliterate squadrons of enemy soldiers in one go with extraordinary proficiency, while equipped with the finest gear. Such a feared unit on the battlefield is paid extremely well.",
     "Holy knight": "Collapse entire armies in mere seconds with your magically imbued blade. The handful of elite knights who attain this level of power are showered with coins.",
     "Legendary knight": "Feared worldwide, obliterate entire nations in a blink of an eye. Roughly every century, only one holy knight is worthy of receiving such an esteemed title.",
@@ -173,7 +175,7 @@ const tooltips = {
     "Evil control": "Tame the raging and growing evil within you, improving evil gain in-between rebirths.",
     "Intimidation": "Learn to emit a devilish aura which strikes extreme fear into other merchants, forcing them to give you heavy discounts.",
     "Demon training": "A mere human body is too feeble and weak to withstand evil. Train with forbidden methods to slowly manifest into a demon, capable of absorbing knowledge rapidly.",
-    "Blood meditation": "Grow and culture the evil within you through the sacrifise of other living beings, drastically increasing evil gain.",
+    "Blood meditation": "Grow and culture the evil within you through the sacrifice of other living beings, drastically increasing evil gain.",
     "Demon's wealth": "Through the means of dark magic, multiply the raw matter of the coins you receive from your job.",
 
     "Homeless": "Sleep on the uncomfortable, filthy streets while almost freezing to death every night. It cannot get any worse than this.",
@@ -191,7 +193,7 @@ const tooltips = {
     "Steel longsword": "A fine blade used to slay enemies even quicker in combat and therefore gain more experience.",
     "Butler": "Keeps your household clean at all times and also prepares three delicious meals per day, leaving you in a happier, stress-free mood.",
     "Sapphire charm": "Embedded with a rare sapphire, this charm activates more mana channels within your body, providing a much easier time learning magic.",
-    "Study desk": "A dedicated area which provides many fine stationary and equipment designed for furthering your progress in research.",
+    "Study desk": "A dedicated area which provides many fine stationery and equipment designed for furthering your progress in research.",
     "Library": "Stores a collection of books, each containing vast amounts of information from basic life skills to complex magic spells.",
 }
 
@@ -204,18 +206,18 @@ function getBaseLog(x, y) {
 }
   
 function getBindedTaskEffect(taskName) {
-    var task = gameData.taskData[taskName]
+    const task = gameData.taskData[taskName]
     return task.getEffect.bind(task)
 }
 
 function getBindedItemEffect(itemName) {
-    var item = gameData.itemData[itemName]
+    const item = gameData.itemData[itemName]
     return item.getEffect.bind(item)
 }
 
 function addMultipliers() {
-    for (taskName in gameData.taskData) {
-        var task = gameData.taskData[taskName]
+    for (const taskName in gameData.taskData) {
+        const task = gameData.taskData[taskName]
 
         task.xpMultipliers = []
         if (task instanceof Job) task.incomeMultipliers = []
@@ -253,8 +255,8 @@ function addMultipliers() {
         }
     }
 
-    for (itemName in gameData.itemData) {
-        var item = gameData.itemData[itemName]
+    for (const itemName in gameData.itemData) {
+        const item = gameData.itemData[itemName]
         item.expenseMultipliers = []
         item.expenseMultipliers.push(getBindedTaskEffect("Bargaining"))
         item.expenseMultipliers.push(getBindedTaskEffect("Intimidation"))
@@ -262,37 +264,37 @@ function addMultipliers() {
 }
 
 function setCustomEffects() {
-    var bargaining = gameData.taskData["Bargaining"]
+    const bargaining = gameData.taskData["Bargaining"]
     bargaining.getEffect = function() {
-        var multiplier = 1 - getBaseLog(7, bargaining.level + 1) / 10
+        let multiplier = 1 - getBaseLog(7, bargaining.level + 1) / 10
         if (multiplier < 0.1) {multiplier = 0.1}
         return multiplier
     }
 
-    var intimidation = gameData.taskData["Intimidation"]
+    const intimidation = gameData.taskData["Intimidation"]
     intimidation.getEffect = function() {
-        var multiplier = 1 - getBaseLog(7, intimidation.level + 1) / 10
+        let multiplier = 1 - getBaseLog(7, intimidation.level + 1) / 10
         if (multiplier < 0.1) {multiplier = 0.1}
         return multiplier
     }
 
-    var timeWarping = gameData.taskData["Time warping"]
+    const timeWarping = gameData.taskData["Time warping"]
     timeWarping.getEffect = function() {
-        var multiplier = 1 + getBaseLog(13, timeWarping.level + 1) 
+        const multiplier = 1 + getBaseLog(13, timeWarping.level + 1) 
         return multiplier
     }
 
-    var immortality = gameData.taskData["Immortality"]
+    const immortality = gameData.taskData["Immortality"]
     immortality.getEffect = function() {
-        var multiplier = 1 + getBaseLog(33, immortality.level + 1) 
+        const multiplier = 1 + getBaseLog(33, immortality.level + 1) 
         return multiplier
     }
 }
 
 function getHappiness() {
-    var meditationEffect = getBindedTaskEffect("Meditation")
-    var butlerEffect = getBindedItemEffect("Butler")
-    var happiness = meditationEffect() * butlerEffect() * gameData.currentProperty.getEffect()
+    const meditationEffect = getBindedTaskEffect("Meditation")
+    const butlerEffect = getBindedItemEffect("Butler")
+    const happiness = meditationEffect() * butlerEffect() * gameData.currentProperty.getEffect()
     return happiness
 }
 
@@ -301,36 +303,35 @@ function getEvil() {
 }
 
 function applyMultipliers(value, multipliers) {
-    var finalMultiplier = 1
+    let finalMultiplier = 1
     multipliers.forEach(function(multiplierFunction) {
-        var multiplier = multiplierFunction()
+        const multiplier = multiplierFunction()
         finalMultiplier *= multiplier
     })
-    var finalValue = Math.round(value * finalMultiplier)
+    const finalValue = Math.round(value * finalMultiplier)
     return finalValue
 }
 
 function applySpeed(value) {
-    finalValue = value * getGameSpeed() / updateSpeed
-    return finalValue
+    return value * getGameSpeed() / updateSpeed
 }
 
 function getEvilGain() {
-    var evilControl = gameData.taskData["Evil control"]
-    var bloodMeditation = gameData.taskData["Blood meditation"]
-    var evil = evilControl.getEffect() * bloodMeditation.getEffect()
+    const evilControl = gameData.taskData["Evil control"]
+    const bloodMeditation = gameData.taskData["Blood meditation"]
+    const evil = evilControl.getEffect() * bloodMeditation.getEffect()
     return evil
 }
 
 function getGameSpeed() {
-    var timeWarping = gameData.taskData["Time warping"]
-    var timeWarpingSpeed = gameData.timeWarpingEnabled ? timeWarping.getEffect() : 1
-    var gameSpeed = baseGameSpeed * +!gameData.paused * +isAlive() * timeWarpingSpeed
+    const timeWarping = gameData.taskData["Time warping"]
+    const timeWarpingSpeed = gameData.timeWarpingEnabled ? timeWarping.getEffect() : 1
+    const gameSpeed = baseGameSpeed * +!gameData.paused * +isAlive() * timeWarpingSpeed
     return gameSpeed
 }
 
 function applyExpenses() {
-    var coins = applySpeed(getExpense())
+    const coins = applySpeed(getExpense())
     gameData.coins -= coins
     if (gameData.coins < 0) {    
         goBankrupt()
@@ -338,9 +339,9 @@ function applyExpenses() {
 }
 
 function getExpense() {
-    var expense = 0
+    let expense = 0
     expense += gameData.currentProperty.getExpense()
-    for (misc of gameData.currentMisc) {
+    for (const misc of gameData.currentMisc) {
         expense += misc.getExpense()
     }
     return expense
@@ -354,14 +355,14 @@ function goBankrupt() {
 
 function setTab(element, selectedTab) {
 
-    var tabs = Array.prototype.slice.call(document.getElementsByClassName("tab"))
+    const tabs = Array.prototype.slice.call(document.getElementsByClassName("tab"))
     tabs.forEach(function(tab) {
         tab.style.display = "none"
     })
     document.getElementById(selectedTab).style.display = "block"
 
-    var tabButtons = document.getElementsByClassName("tabButton")
-    for (tabButton of tabButtons) {
+    const tabButtons = document.getElementsByClassName("tabButton")
+    for (const tabButton of tabButtons) {
         tabButton.classList.remove("w3-blue-gray")
     }
     element.classList.add("w3-blue-gray")
@@ -376,19 +377,19 @@ function setTimeWarping() {
 }
 
 function setTask(taskName) {
-    var task = gameData.taskData[taskName]
+    const task = gameData.taskData[taskName]
     task instanceof Job ? gameData.currentJob = task : gameData.currentSkill = task
 }
 
 function setProperty(propertyName) {
-    var property = gameData.itemData[propertyName]
+    const property = gameData.itemData[propertyName]
     gameData.currentProperty = property
 }
 
 function setMisc(miscName) {
-    var misc = gameData.itemData[miscName]
+    const misc = gameData.itemData[miscName]
     if (gameData.currentMisc.includes(misc)) {
-        for (i = 0; i < gameData.currentMisc.length; i++) {
+        for (let i = 0; i < gameData.currentMisc.length; i++) {
             if (gameData.currentMisc[i] == misc) {
                 gameData.currentMisc.splice(i, 1)
             }
@@ -399,8 +400,8 @@ function setMisc(miscName) {
 }
 
 function createData(data, baseData) {
-    for (key in baseData) {
-        var entity = baseData[key]
+    for (const key in baseData) {
+        const entity = baseData[key]
         createEntity(data, entity)
     }
 }
@@ -413,7 +414,7 @@ function createEntity(data, entity) {
 }
 
 function createRequiredRow(categoryName) {
-    var requiredRow = document.getElementsByClassName("requiredRowTemplate")[0].content.firstElementChild.cloneNode(true)
+    const requiredRow = document.getElementsByClassName("requiredRowTemplate")[0].content.firstElementChild.cloneNode(true)
     requiredRow.classList.add("requiredRow")
     requiredRow.classList.add(removeSpaces(categoryName))
     requiredRow.id = categoryName
@@ -421,7 +422,7 @@ function createRequiredRow(categoryName) {
 }
 
 function createHeaderRow(templates, categoryType, categoryName) {
-    var headerRow = templates.headerRow.content.firstElementChild.cloneNode(true)
+    const headerRow = templates.headerRow.content.firstElementChild.cloneNode(true)
     headerRow.getElementsByClassName("category")[0].textContent = categoryName
     if (categoryType != itemCategories) {
         headerRow.getElementsByClassName("valueType")[0].textContent = categoryType == jobCategories ? "Income/day" : "Effect"
@@ -436,7 +437,7 @@ function createHeaderRow(templates, categoryType, categoryName) {
 }
 
 function createRow(templates, name, categoryName, categoryType) {
-    var row = templates.row.content.firstElementChild.cloneNode(true)
+    const row = templates.row.content.firstElementChild.cloneNode(true)
     row.getElementsByClassName("name")[0].textContent = name
     row.getElementsByClassName("tooltipText")[0].textContent = tooltips[name]
     row.id = "row " + name
@@ -450,46 +451,46 @@ function createRow(templates, name, categoryName, categoryType) {
 }
 
 function createAllRows(categoryType, tableId) {
-    var templates = {
+    const templates = {
         headerRow: document.getElementsByClassName(categoryType == itemCategories ? "headerRowItemTemplate" : "headerRowTaskTemplate")[0],
         row: document.getElementsByClassName(categoryType == itemCategories ? "rowItemTemplate" : "rowTaskTemplate")[0],
     }
 
-    var table = document.getElementById(tableId)
+    const table = document.getElementById(tableId)
 
-    for (categoryName in categoryType) {
-        var headerRow = createHeaderRow(templates, categoryType, categoryName)
+    for (const categoryName in categoryType) {
+        const headerRow = createHeaderRow(templates, categoryType, categoryName)
         table.appendChild(headerRow)
         
-        var category = categoryType[categoryName]
+        const category = categoryType[categoryName]
         category.forEach(function(name) {
-            var row = createRow(templates, name, categoryName, categoryType)
+            const row = createRow(templates, name, categoryName, categoryType)
             table.appendChild(row)       
         })
 
-        var requiredRow = createRequiredRow(categoryName)
+        const requiredRow = createRequiredRow(categoryName)
         table.append(requiredRow)
     }
 }
 
 function updateQuickTaskDisplay(taskType) {
-    var currentTask = taskType == "job" ? gameData.currentJob : gameData.currentSkill
-    var quickTaskDisplayElement = document.getElementById("quickTaskDisplay")
-    var progressBar = quickTaskDisplayElement.getElementsByClassName(taskType)[0]
+    const currentTask = taskType == "job" ? gameData.currentJob : gameData.currentSkill
+    const quickTaskDisplayElement = document.getElementById("quickTaskDisplay")
+    const progressBar = quickTaskDisplayElement.getElementsByClassName(taskType)[0]
     progressBar.getElementsByClassName("name")[0].textContent = currentTask.name + " lvl " + currentTask.level
     progressBar.getElementsByClassName("progressFill")[0].style.width = currentTask.xp / currentTask.getMaxXp() * 100 + "%"
 }
 
 function updateRequiredRows(data, categoryType) {
-    var requiredRows = document.getElementsByClassName("requiredRow")
-    for (requiredRow of requiredRows) {
-        var nextEntity = null
-        var category = categoryType[requiredRow.id] 
+    const requiredRows = document.getElementsByClassName("requiredRow")
+    for (const requiredRow of requiredRows) {
+        let nextEntity = null
+        const category = categoryType[requiredRow.id] 
         if (category == null) {continue}
-        for (i = 0; i < category.length; i++) {
-            var entityName = category[i]
+        for (let i = 0; i < category.length; i++) {
+            const entityName = category[i]
             if (i >= category.length - 1) break
-            var requirements = gameData.requirements[entityName]
+            const requirements = gameData.requirements[entityName]
             if (requirements && i == 0) {
                 if (!requirements.isCompleted()) {
                     nextEntity = data[entityName]
@@ -497,10 +498,10 @@ function updateRequiredRows(data, categoryType) {
                 }
             }
 
-            var nextIndex = i + 1
+            const nextIndex = i + 1
             if (nextIndex >= category.length) {break}
-            var nextEntityName = category[nextIndex]
-            nextEntityRequirements = gameData.requirements[nextEntityName]
+            const nextEntityName = category[nextIndex]
+            const nextEntityRequirements = gameData.requirements[nextEntityName]
 
             if (!nextEntityRequirements.isCompleted()) {
                 nextEntity = data[nextEntityName]
@@ -512,28 +513,28 @@ function updateRequiredRows(data, categoryType) {
             requiredRow.classList.add("hiddenTask")           
         } else {
             requiredRow.classList.remove("hiddenTask")
-            var requirementObject = gameData.requirements[nextEntity.name]
-            var requirements = requirementObject.requirements
+            const requirementObject = gameData.requirements[nextEntity.name]
+            const requirements = requirementObject.requirements
 
-            var coinElement = requiredRow.getElementsByClassName("coins")[0]
-            var levelElement = requiredRow.getElementsByClassName("levels")[0]
-            var evilElement = requiredRow.getElementsByClassName("evil")[0]
+            const coinElement = requiredRow.getElementsByClassName("coins")[0]
+            const levelElement = requiredRow.getElementsByClassName("levels")[0]
+            const evilElement = requiredRow.getElementsByClassName("evil")[0]
 
             coinElement.classList.add("hiddenTask")
             levelElement.classList.add("hiddenTask")
             evilElement.classList.add("hiddenTask")
 
-            var finalText = ""
+            let finalText = ""
             if (data == gameData.taskData) {
                 if (requirementObject instanceof EvilRequirement) {
                     evilElement.classList.remove("hiddenTask")
                     evilElement.textContent = format(requirements[0].requirement) + " evil"
                 } else {
                     levelElement.classList.remove("hiddenTask")
-                    for (requirement of requirements) {
-                        var task = gameData.taskData[requirement.task]
+                    for (const requirement of requirements) {
+                        const task = gameData.taskData[requirement.task]
                         if (task.level >= requirement.requirement) continue
-                        var text = " " + requirement.task + " level " + format(task.level) + "/" + format(requirement.requirement) + ","
+                        const text = " " + requirement.task + " level " + format(task.level) + "/" + format(requirement.requirement) + ","
                         finalText += text
                     }
                     finalText = finalText.substring(0, finalText.length - 1)
@@ -548,26 +549,26 @@ function updateRequiredRows(data, categoryType) {
 }
 
 function updateTaskRows() {
-    for (key in gameData.taskData) {
-        var task = gameData.taskData[key]
-        var row = document.getElementById("row " + task.name)
+    for (const key in gameData.taskData) {
+        const task = gameData.taskData[key]
+        const row = document.getElementById("row " + task.name)
         row.getElementsByClassName("level")[0].textContent = task.level
         row.getElementsByClassName("xpGain")[0].textContent = format(task.getXpGain())
         row.getElementsByClassName("xpLeft")[0].textContent = format(task.getXpLeft())
 
-        var maxLevel = row.getElementsByClassName("maxLevel")[0]
+        const maxLevel = row.getElementsByClassName("maxLevel")[0]
         maxLevel.textContent = task.maxLevel
         gameData.rebirthOneCount > 0 ? maxLevel.classList.remove("hidden") : maxLevel.classList.add("hidden")
 
-        var progressFill = row.getElementsByClassName("progressFill")[0]
+        const progressFill = row.getElementsByClassName("progressFill")[0]
         progressFill.style.width = task.xp / task.getMaxXp() * 100 + "%"
         task == gameData.currentJob || task == gameData.currentSkill ? progressFill.classList.add("current") : progressFill.classList.remove("current")
 
-        var valueElement = row.getElementsByClassName("value")[0]
+        const valueElement = row.getElementsByClassName("value")[0]
         valueElement.getElementsByClassName("income")[0].style.display = task instanceof Job
         valueElement.getElementsByClassName("effect")[0].style.display = task instanceof Skill
 
-        var skipSkillElement = row.getElementsByClassName("skipSkill")[0]
+        const skipSkillElement = row.getElementsByClassName("skipSkill")[0]
         skipSkillElement.style.display = task instanceof Skill && autoLearnElement.checked ? "block" : "none"
 
         if (task instanceof Job) {
@@ -579,13 +580,13 @@ function updateTaskRows() {
 }
 
 function updateItemRows() {
-    for (key in gameData.itemData) {
-        var item = gameData.itemData[key]
-        var row = document.getElementById("row " + item.name)
-        var button = row.getElementsByClassName("button")[0]
+    for (const key in gameData.itemData) {
+        const item = gameData.itemData[key]
+        const row = document.getElementById("row " + item.name)
+        const button = row.getElementsByClassName("button")[0]
         button.disabled = gameData.coins < item.getExpense()
-        var active = row.getElementsByClassName("active")[0]
-        var color = itemCategories["Properties"].includes(item.name) ? headerRowColors["Properties"] : headerRowColors["Misc"]
+        const active = row.getElementsByClassName("active")[0]
+        const color = itemCategories["Properties"].includes(item.name) ? headerRowColors["Properties"] : headerRowColors["Misc"]
         active.style.backgroundColor = gameData.currentMisc.includes(item) || item == gameData.currentProperty ? color : "white"
         row.getElementsByClassName("effect")[0].textContent = item.getEffectDescription()
         formatCoins(item.getExpense(), row.getElementsByClassName("expense")[0])
@@ -593,12 +594,12 @@ function updateItemRows() {
 }
 
 function updateHeaderRows(categories) {
-    for (categoryName in categories) {
-        var className = removeSpaces(categoryName)
-        var headerRow = document.getElementsByClassName(className)[0]
-        var maxLevelElement = headerRow.getElementsByClassName("maxLevel")[0]
+    for (const categoryName in categories) {
+        const className = removeSpaces(categoryName)
+        const headerRow = document.getElementsByClassName(className)[0]
+        const maxLevelElement = headerRow.getElementsByClassName("maxLevel")[0]
         gameData.rebirthOneCount > 0 ? maxLevelElement.classList.remove("hidden") : maxLevelElement.classList.add("hidden")
-        var skipSkillElement = headerRow.getElementsByClassName("skipSkill")[0]
+        const skipSkillElement = headerRow.getElementsByClassName("skipSkill")[0]
         skipSkillElement.style.display = categories == skillCategories && autoLearnElement.checked ? "block" : "none"
     }
 }
@@ -626,7 +627,7 @@ function updateText() {
 }
 
 function setSignDisplay() {
-    var signDisplay = document.getElementById("signDisplay")
+    const signDisplay = document.getElementById("signDisplay")
     if (getIncome() > getExpense()) {
         signDisplay.textContent = "+"
         signDisplay.style.color = "green"
@@ -640,28 +641,21 @@ function setSignDisplay() {
 }
 
 function getNet() {
-    var net = Math.abs(getIncome() - getExpense())
+    const net = Math.abs(getIncome() - getExpense())
     return net
 }
 
 function hideEntities() {
-    for (key in gameData.requirements) {
-        var requirement = gameData.requirements[key]
-        var completed = requirement.isCompleted()
-        for (element of requirement.elements) {
+    for (const key in gameData.requirements) {
+        const requirement = gameData.requirements[key]
+        const completed = requirement.isCompleted()
+        for (const element of requirement.elements) {
             if (completed) {
                 element.classList.remove("hidden")
             } else {
                 element.classList.add("hidden")
             }
         }
-    }
-}
-
-function createItemData(baseData) {
-    for (var item of baseData) {
-        gameData.itemData[item.name] = "happiness" in item ? new Property(task) : new Misc(task)
-        gameData.itemData[item.name].id = "item " + item.name
     }
 }
 
@@ -673,24 +667,24 @@ function doCurrentTask(task) {
 }
 
 function getIncome() {
-    var income = 0
+    let income = 0
     income += gameData.currentJob.getIncome()
     return income
 }
 
 function increaseCoins() {
-    var coins = applySpeed(getIncome())
+    const coins = applySpeed(getIncome())
     gameData.coins += coins
 }
 
 function daysToYears(days) {
-    var years = Math.floor(days / 365)
+    const years = Math.floor(days / 365)
     return years
 }
 
 function getCategoryFromEntityName(categoryType, entityName) {
-    for (categoryName in categoryType) {
-        var category = categoryType[categoryName]
+    for (const categoryName in categoryType) {
+        const category = categoryType[categoryName]
         if (category.includes(entityName)) {
             return category
         }
@@ -698,59 +692,59 @@ function getCategoryFromEntityName(categoryType, entityName) {
 }
 
 function getNextEntity(data, categoryType, entityName) {
-    var category = getCategoryFromEntityName(categoryType, entityName)
-    var nextIndex = category.indexOf(entityName) + 1
+    const category = getCategoryFromEntityName(categoryType, entityName)
+    const nextIndex = category.indexOf(entityName) + 1
     if (nextIndex > category.length - 1) return null
-    var nextEntityName = category[nextIndex]
-    var nextEntity = data[nextEntityName]
+    const nextEntityName = category[nextIndex]
+    const nextEntity = data[nextEntityName]
     return nextEntity
 }
 
 function autoPromote() {
     if (!autoPromoteElement.checked) return
-    var nextEntity = getNextEntity(gameData.taskData, jobCategories, gameData.currentJob.name)
+    const nextEntity = getNextEntity(gameData.taskData, jobCategories, gameData.currentJob.name)
     if (nextEntity == null) return
-    var requirement = gameData.requirements[nextEntity.name]
+    const requirement = gameData.requirements[nextEntity.name]
     if (requirement.isCompleted()) gameData.currentJob = nextEntity
 }
 
 function checkSkillSkipped(skill) {
-    var row = document.getElementById("row " + skill.name)
-    var isSkillSkipped = row.getElementsByClassName("checkbox")[0].checked
+    const row = document.getElementById("row " + skill.name)
+    const isSkillSkipped = row.getElementsByClassName("checkbox")[0].checked
     return isSkillSkipped
 }
 
 function setSkillWithLowestMaxXp() {
-    var xpDict = {}
+    const xpDict = {}
 
-    for (skillName in gameData.taskData) {
-        var skill = gameData.taskData[skillName]
-        var requirement = gameData.requirements[skillName]
+    for (const skillName in gameData.taskData) {
+        const skill = gameData.taskData[skillName]
+        const requirement = gameData.requirements[skillName]
         if (skill instanceof Skill && requirement.isCompleted() && !checkSkillSkipped(skill)) {
             xpDict[skill.name] = skill.level //skill.getMaxXp() / skill.getXpGain()
         }
     }
 
-    if (xpDict == {}) {
+    if (Object.keys(xpDict).length == 0) {
         skillWithLowestMaxXp = gameData.taskData["Concentration"]
         return
     }
 
-    var skillName = getKeyOfLowestValueFromDict(xpDict)
+    const skillName = getKeyOfLowestValueFromDict(xpDict)
     skillWithLowestMaxXp = gameData.taskData[skillName]
 }
 
 function getKeyOfLowestValueFromDict(dict) {
-    var values = []
-    for (key in dict) {
-        var value = dict[key]
+    const values = []
+    for (const key in dict) {
+        const value = dict[key]
         values.push(value)
     }
 
     values.sort(function(a, b){return a - b})
 
-    for (key in dict) {
-        var value = dict[key]
+    for (const key in dict) {
+        const value = dict[key]
         if (value == values[0]) {
             return key
         }
@@ -763,88 +757,95 @@ function autoLearn() {
 }
 
 function yearsToDays(years) {
-    var days = years * 365
+    const days = years * 365
     return days
 }
  
 function getDay() {
-    var day = Math.floor(gameData.days - daysToYears(gameData.days) * 365)
+    const day = Math.floor(gameData.days - daysToYears(gameData.days) * 365)
     return day
 }
 
 function increaseDays() {
-    var increase = applySpeed(1)
+    const increase = applySpeed(1)
     gameData.days += increase
 }
 
 function format(number) {
+    number = Number(number)
+    if (!isFinite(number)) return String(number)
 
-    // what tier? (determines SI symbol)
-    var tier = Math.log10(number) / 3 | 0;
+    const sign = number < 0 ? "-" : ""
+    const abs = Math.abs(number)
 
-    // if zero, we don't need a suffix
-    if(tier == 0) return number;
+    // what tier? (determines SI symbol) - computed without log10 to avoid float error at exact powers of 1000
+    let tier = 0
+    while (abs >= Math.pow(1000, tier + 1)) tier++
 
-    // get suffix and determine scale
-    var suffix = units[tier];
-    var scale = Math.pow(10, tier * 3);
+    // below 1000 (including 0, fractions and small negatives) no suffix is needed
+    if (tier == 0) return number
 
-    // scale the number
-    var scaled = number / scale;
+    // beyond the last named suffix fall back to scientific notation
+    if (tier >= units.length) return sign + abs.toExponential(2)
 
-    // format number and add suffix
-    return scaled.toFixed(1) + suffix;
+    let scaled = abs / Math.pow(1000, tier)
+    // avoid displaying e.g. "1000.0k" when rounding pushes into the next tier
+    if (scaled.toFixed(1) == "1000.0" && tier + 1 < units.length) {
+        tier++
+        scaled = abs / Math.pow(1000, tier)
+    }
+
+    return sign + scaled.toFixed(1) + units[tier]
 }
 
 function formatCoins(coins, element) {
-    var tiers = ["p", "g", "s"]
-    var colors = {
+    const tiers = ["p", "g", "s"]
+    const colors = {
         "p": "#79b9c7",
         "g": "#E5C100",
         "s": "#a8a8a8",
         "c": "#a15c2f"
     }
-    var leftOver = coins
-    var i = 0
-    for (tier of tiers) {
-        var x = Math.floor(leftOver / Math.pow(10, (tiers.length - i) * 2))
-        var leftOver = Math.floor(leftOver - x * Math.pow(10, (tiers.length - i) * 2))
-        var text = format(String(x)) + tier + " "
+    let leftOver = coins
+    let i = 0
+    for (const tier of tiers) {
+        const x = Math.floor(leftOver / Math.pow(10, (tiers.length - i) * 2))
+        leftOver = Math.floor(leftOver - x * Math.pow(10, (tiers.length - i) * 2))
+        const text = format(String(x)) + tier + " "
         element.children[i].textContent = x > 0 ? text : ""
         element.children[i].style.color = colors[tier]
         i += 1
     }
     if (leftOver == 0 && coins > 0) {element.children[3].textContent = ""; return}
-    var text = String(Math.floor(leftOver)) + "c"
-    element.children[3].textContent = text
+    const copperText = String(Math.floor(leftOver)) + "c"
+    element.children[3].textContent = copperText
     element.children[3].style.color = colors["c"]
 }
 
 function getTaskElement(taskName) {
-    var task = gameData.taskData[taskName]
-    var element = document.getElementById(task.id)
+    const task = gameData.taskData[taskName]
+    const element = document.getElementById(task.id)
     return element
 }
 
 function getItemElement(itemName) {
-    var item = gameData.itemData[itemName]
-    var element = document.getElementById(item.id)
+    const item = gameData.itemData[itemName]
+    const element = document.getElementById(item.id)
     return element
 }
 
 function getElementsByClass(className) {
-    var elements = document.getElementsByClassName(removeSpaces(className))
+    const elements = document.getElementsByClassName(removeSpaces(className))
     return elements
 }
 
 function setLightDarkMode() {
-    var body = document.getElementById("body")
+    const body = document.getElementById("body")
     body.classList.contains("dark") ? body.classList.remove("dark") : body.classList.add("dark")
 }
 
 function removeSpaces(string) {
-    var string = string.replace(/ /g, "")
-    return string
+    return string.replace(/ /g, "")
 }
 
 function rebirthOne() {
@@ -859,8 +860,8 @@ function rebirthTwo() {
 
     rebirthReset()
 
-    for (taskName in gameData.taskData) {
-        var task = gameData.taskData[taskName]
+    for (const taskName in gameData.taskData) {
+        const task = gameData.taskData[taskName]
         task.maxLevel = 0
     }    
 }
@@ -875,30 +876,30 @@ function rebirthReset() {
     gameData.currentProperty = gameData.itemData["Homeless"]
     gameData.currentMisc = []
 
-    for (taskName in gameData.taskData) {
-        var task = gameData.taskData[taskName]
+    for (const taskName in gameData.taskData) {
+        const task = gameData.taskData[taskName]
         if (task.level > task.maxLevel) task.maxLevel = task.level
         task.level = 0
         task.xp = 0
     }
 
-    for (key in gameData.requirements) {
-        var requirement = gameData.requirements[key]
+    for (const key in gameData.requirements) {
+        const requirement = gameData.requirements[key]
         if (requirement.completed && permanentUnlocks.includes(key)) continue
         requirement.completed = false
     }
 }
 
 function getLifespan() {
-    var immortality = gameData.taskData["Immortality"]
-    var superImmortality = gameData.taskData["Super immortality"]
-    var lifespan = baseLifespan * immortality.getEffect() * superImmortality.getEffect()
+    const immortality = gameData.taskData["Immortality"]
+    const superImmortality = gameData.taskData["Super immortality"]
+    const lifespan = baseLifespan * immortality.getEffect() * superImmortality.getEffect()
     return lifespan
 }
 
 function isAlive() {
-    var condition = gameData.days < getLifespan()
-    var deathText = document.getElementById("deathText")
+    const condition = gameData.days < getLifespan()
+    const deathText = document.getElementById("deathText")
     if (!condition) {
         gameData.days = getLifespan()
         deathText.classList.remove("hidden")
@@ -911,8 +912,8 @@ function isAlive() {
 
 function assignMethods() {
 
-    for (key in gameData.taskData) {
-        var task = gameData.taskData[key]
+    for (const key in gameData.taskData) {
+        let task = gameData.taskData[key]
         if (task.baseData.income) {
             task.baseData = jobBaseData[task.name]
             task = Object.assign(new Job(jobBaseData[task.name]), task)
@@ -924,15 +925,15 @@ function assignMethods() {
         gameData.taskData[key] = task
     }
 
-    for (key in gameData.itemData) {
-        var item = gameData.itemData[key]
+    for (const key in gameData.itemData) {
+        let item = gameData.itemData[key]
         item.baseData = itemBaseData[item.name]
         item = Object.assign(new Item(itemBaseData[item.name]), item)
         gameData.itemData[key] = item
     }
 
-    for (key in gameData.requirements) {
-        var requirement = gameData.requirements[key]
+    for (const key in gameData.requirements) {
+        let requirement = gameData.requirements[key]
         if (requirement.type == "task") {
             requirement = Object.assign(new TaskRequirement(requirement.elements, requirement.requirements), requirement)
         } else if (requirement.type == "coins") {
@@ -943,7 +944,7 @@ function assignMethods() {
             requirement = Object.assign(new EvilRequirement(requirement.elements, requirement.requirements), requirement)
         }
 
-        var tempRequirement = tempData["requirements"][key]
+        const tempRequirement = tempData["requirements"][key]
         requirement.elements = tempRequirement.elements
         requirement.requirements = tempRequirement.requirements
         gameData.requirements[key] = requirement
@@ -952,15 +953,15 @@ function assignMethods() {
     gameData.currentJob = gameData.taskData[gameData.currentJob.name]
     gameData.currentSkill = gameData.taskData[gameData.currentSkill.name]
     gameData.currentProperty = gameData.itemData[gameData.currentProperty.name]
-    var newArray = []
-    for (misc of gameData.currentMisc) {
+    const newArray = []
+    for (const misc of gameData.currentMisc) {
         newArray.push(gameData.itemData[misc.name])
     }
     gameData.currentMisc = newArray
 }
 
 function replaceSaveDict(dict, saveDict) {
-    for (key in dict) {
+    for (const key in dict) {
         if (!(key in saveDict)) {
             saveDict[key] = dict[key]
         } else if (dict == gameData.requirements) {
@@ -970,7 +971,7 @@ function replaceSaveDict(dict, saveDict) {
         }
     }
 
-    for (key in saveDict) {
+    for (const key in saveDict) {
         if (!(key in dict)) {
             delete saveDict[key]
         }
@@ -982,7 +983,7 @@ function saveGameData() {
 }
 
 function loadGameData() {
-    var gameDataSave = JSON.parse(localStorage.getItem("gameDataSave"))
+    const gameDataSave = JSON.parse(localStorage.getItem("gameDataSave"))
 
     if (gameDataSave !== null) {
         replaceSaveDict(gameData, gameDataSave)
@@ -1026,15 +1027,15 @@ function resetGameData() {
 }
 
 function importGameData() {
-    var importExportBox = document.getElementById("importExportBox")
-    var data = JSON.parse(window.atob(importExportBox.value))
+    const importExportBox = document.getElementById("importExportBox")
+    const data = JSON.parse(window.atob(importExportBox.value))
     gameData = data
     saveGameData()
     location.reload()
 }
 
 function exportGameData() {
-    var importExportBox = document.getElementById("importExportBox")
+    const importExportBox = document.getElementById("importExportBox")
     importExportBox.value = window.btoa(JSON.stringify(gameData))
 }
 
@@ -1140,8 +1141,8 @@ gameData.requirements = {
 }
 
 tempData["requirements"] = {}
-for (key in gameData.requirements) {
-    var requirement = gameData.requirements[key]
+for (const key in gameData.requirements) {
+    const requirement = gameData.requirements[key]
     tempData["requirements"][key] = requirement
 }
 
