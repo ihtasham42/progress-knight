@@ -910,93 +910,6 @@ function isAlive() {
     return condition
 }
 
-function assignMethods() {
-
-    for (const key in gameData.taskData) {
-        let task = gameData.taskData[key]
-        if (task.baseData.income) {
-            task.baseData = jobBaseData[task.name]
-            task = Object.assign(new Job(jobBaseData[task.name]), task)
-            
-        } else {
-            task.baseData = skillBaseData[task.name]
-            task = Object.assign(new Skill(skillBaseData[task.name]), task)
-        } 
-        gameData.taskData[key] = task
-    }
-
-    for (const key in gameData.itemData) {
-        let item = gameData.itemData[key]
-        item.baseData = itemBaseData[item.name]
-        item = Object.assign(new Item(itemBaseData[item.name]), item)
-        gameData.itemData[key] = item
-    }
-
-    for (const key in gameData.requirements) {
-        let requirement = gameData.requirements[key]
-        if (requirement.type == "task") {
-            requirement = Object.assign(new TaskRequirement(requirement.elements, requirement.requirements), requirement)
-        } else if (requirement.type == "coins") {
-            requirement = Object.assign(new CoinRequirement(requirement.elements, requirement.requirements), requirement)
-        } else if (requirement.type == "age") {
-            requirement = Object.assign(new AgeRequirement(requirement.elements, requirement.requirements), requirement)
-        } else if (requirement.type == "evil") {
-            requirement = Object.assign(new EvilRequirement(requirement.elements, requirement.requirements), requirement)
-        }
-
-        const tempRequirement = tempData["requirements"][key]
-        requirement.elements = tempRequirement.elements
-        requirement.requirements = tempRequirement.requirements
-        gameData.requirements[key] = requirement
-    }
-
-    gameData.currentJob = gameData.taskData[gameData.currentJob.name]
-    gameData.currentSkill = gameData.taskData[gameData.currentSkill.name]
-    gameData.currentProperty = gameData.itemData[gameData.currentProperty.name]
-    const newArray = []
-    for (const misc of gameData.currentMisc) {
-        newArray.push(gameData.itemData[misc.name])
-    }
-    gameData.currentMisc = newArray
-}
-
-function replaceSaveDict(dict, saveDict) {
-    for (const key in dict) {
-        if (!(key in saveDict)) {
-            saveDict[key] = dict[key]
-        } else if (dict == gameData.requirements) {
-            if (saveDict[key].type != tempData["requirements"][key].type) {
-                saveDict[key] = tempData["requirements"][key]
-            }
-        }
-    }
-
-    for (const key in saveDict) {
-        if (!(key in dict)) {
-            delete saveDict[key]
-        }
-    }
-}
-
-function saveGameData() {
-    localStorage.setItem("gameDataSave", JSON.stringify(gameData))
-}
-
-function loadGameData() {
-    const gameDataSave = JSON.parse(localStorage.getItem("gameDataSave"))
-
-    if (gameDataSave !== null) {
-        replaceSaveDict(gameData, gameDataSave)
-        replaceSaveDict(gameData.requirements, gameDataSave.requirements)
-        replaceSaveDict(gameData.taskData, gameDataSave.taskData)
-        replaceSaveDict(gameData.itemData, gameDataSave.itemData)
-
-        gameData = gameDataSave
-    }
-
-    assignMethods()
-}
-
 function updateUI() {
     updateTaskRows()
     updateItemRows()
@@ -1019,24 +932,6 @@ function update() {
     doCurrentTask(gameData.currentSkill)
     applyExpenses()
     updateUI()
-}
-
-function resetGameData() {
-    localStorage.clear()
-    location.reload()
-}
-
-function importGameData() {
-    const importExportBox = document.getElementById("importExportBox")
-    const data = JSON.parse(window.atob(importExportBox.value))
-    gameData = data
-    saveGameData()
-    location.reload()
-}
-
-function exportGameData() {
-    const importExportBox = document.getElementById("importExportBox")
-    importExportBox.value = window.btoa(JSON.stringify(gameData))
 }
 
 //Init
