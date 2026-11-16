@@ -5,7 +5,8 @@
 //
 // requires: what must be reached before it is shown and can be used. Task
 //   requirements refer to other jobs/skills by id.
-// boosts: what a skill or item multiplies by its effect.
+// boosts: what a skill or item multiplies by its effect. (A property's effect
+//   is always happiness, so properties don't list boosts.)
 //   stat: "xp", "income", "expense", "happiness", "lifespan", "gameSpeed"
 //     or "evilGain"
 //   of: which tasks or items it applies to (xp, income and expense only):
@@ -124,21 +125,21 @@ const skills = [
 
 const items = [
     // Properties
-    {id: "homeless", name: "Homeless", category: "Properties", expense: 0, effect: 1, boosts: [{stat: "happiness"}], requires: [{coins: 0}],
+    {id: "homeless", name: "Homeless", category: "Properties", expense: 0, effect: 1, requires: [{coins: 0}],
         tooltip: "Sleep on the uncomfortable, filthy streets while almost freezing to death every night. It cannot get any worse than this."},
-    {id: "tent", name: "Tent", category: "Properties", expense: 15, effect: 1.4, boosts: [{stat: "happiness"}], requires: [{coins: 0}],
+    {id: "tent", name: "Tent", category: "Properties", expense: 15, effect: 1.4, requires: [{coins: 0}],
         tooltip: "A thin sheet of tattered cloth held up by a couple of feeble, wooden sticks. Horrible living conditions but at least you have a roof over your head."},
-    {id: "wooden_hut", name: "Wooden hut", category: "Properties", expense: 100, effect: 2, boosts: [{stat: "happiness"}], requires: [{coins: 10000}],
+    {id: "wooden_hut", name: "Wooden hut", category: "Properties", expense: 100, effect: 2, requires: [{coins: 10000}],
         tooltip: "Shabby logs and dirty hay glued together with horse manure. Much more sturdy than a tent, however, the stench isn't very pleasant."},
-    {id: "cottage", name: "Cottage", category: "Properties", expense: 750, effect: 3.5, boosts: [{stat: "happiness"}], requires: [{coins: 75000}],
+    {id: "cottage", name: "Cottage", category: "Properties", expense: 750, effect: 3.5, requires: [{coins: 75000}],
         tooltip: "Structured with a timber frame and a thatched roof. Provides decent living conditions for a fair price."},
-    {id: "house", name: "House", category: "Properties", expense: 3000, effect: 6, boosts: [{stat: "happiness"}], requires: [{coins: 300000}],
+    {id: "house", name: "House", category: "Properties", expense: 3000, effect: 6, requires: [{coins: 300000}],
         tooltip: "A building formed from stone bricks and sturdy timber, which contains a few rooms. Although quite expensive, it is a comfortable abode."},
-    {id: "large_house", name: "Large house", category: "Properties", expense: 25000, effect: 12, boosts: [{stat: "happiness"}], requires: [{coins: 2500000}],
+    {id: "large_house", name: "Large house", category: "Properties", expense: 25000, effect: 12, requires: [{coins: 2500000}],
         tooltip: "Much larger than a regular house, which boasts even more rooms and multiple floors. The building is quite spacious but comes with a hefty price tag."},
-    {id: "small_palace", name: "Small palace", category: "Properties", expense: 300000, effect: 25, boosts: [{stat: "happiness"}], requires: [{coins: 30000000}],
+    {id: "small_palace", name: "Small palace", category: "Properties", expense: 300000, effect: 25, requires: [{coins: 30000000}],
         tooltip: "A very rich and meticulously built structure rimmed with fine metals such as silver. Extremely high expenses to maintain for a lavish lifestyle."},
-    {id: "grand_palace", name: "Grand palace", category: "Properties", expense: 5000000, effect: 60, boosts: [{stat: "happiness"}], requires: [{coins: 500000000}],
+    {id: "grand_palace", name: "Grand palace", category: "Properties", expense: 5000000, effect: 60, requires: [{coins: 500000000}],
         tooltip: "A grand residence completely composed of gold and silver. Provides the utmost luxurious and comfortable living conditions possible for a ludicrous price."},
 
     // Misc

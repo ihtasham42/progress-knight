@@ -138,11 +138,20 @@ function setCustomEffects() {
     }
 }
 
+// A property's effect is always happiness, applied after other boosts
 function getHappiness() {
-    const meditationEffect = getBindedTaskEffect("Meditation")
-    const butlerEffect = getBindedItemEffect("Butler")
-    const happiness = meditationEffect() * butlerEffect() * gameData.currentProperty.getEffect()
-    return happiness
+    return applyStatBoosts("happiness", 1) * gameData.currentProperty.getEffect()
+}
+
+// Multiplies value by the effect of every skill and item that boosts a
+// global stat (happiness, lifespan, gameSpeed, evilGain), in definition order
+function applyStatBoosts(stat, value) {
+    for (const source of [...skills, ...items]) {
+        for (const boost of source.boosts || []) {
+            if (boost.stat == stat) value *= getSourceEffect(source)()
+        }
+    }
+    return value
 }
 
 function getEvil() {
@@ -164,15 +173,11 @@ function applySpeed(value) {
 }
 
 function getEvilGain() {
-    const evilControl = gameData.taskData["Evil control"]
-    const bloodMeditation = gameData.taskData["Blood meditation"]
-    const evil = evilControl.getEffect() * bloodMeditation.getEffect()
-    return evil
+    return applyStatBoosts("evilGain", 1)
 }
 
 function getGameSpeed() {
-    const timeWarping = gameData.taskData["Time warping"]
-    const timeWarpingSpeed = gameData.timeWarpingEnabled ? timeWarping.getEffect() : 1
+    const timeWarpingSpeed = gameData.timeWarpingEnabled ? applyStatBoosts("gameSpeed", 1) : 1
     const gameSpeed = baseGameSpeed * +!gameData.paused * +isAlive() * timeWarpingSpeed
     return gameSpeed
 }
@@ -776,10 +781,7 @@ function rebirthReset() {
 }
 
 function getLifespan() {
-    const immortality = gameData.taskData["Immortality"]
-    const superImmortality = gameData.taskData["Super immortality"]
-    const lifespan = baseLifespan * immortality.getEffect() * superImmortality.getEffect()
-    return lifespan
+    return applyStatBoosts("lifespan", baseLifespan)
 }
 
 function isAlive() {
