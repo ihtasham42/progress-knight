@@ -1,0 +1,31 @@
+"use strict"
+
+// The page shows the game state; the game logic never touches the page.
+
+const test = require("node:test")
+const assert = require("node:assert/strict")
+const { loadGame } = require("./helpers/game")
+
+test("the death text is shown once age reaches the lifespan, and hidden after a rebirth", () => {
+    const game = loadGame()
+    const deathText = game.window.document.getElementById("deathText")
+    assert.ok(deathText.classList.contains("hidden"))
+
+    game.run("gameData.days = getLifespan()")
+    assert.equal(game.run("isLifeOver()"), true)
+    game.run("updateUI()")
+    assert.ok(!deathText.classList.contains("hidden"))
+
+    game.run("rebirthOne()")
+    game.run("updateUI()")
+    assert.ok(deathText.classList.contains("hidden"))
+})
+
+test("checking whether the game is alive doesn't touch the page", () => {
+    const game = loadGame()
+    const deathText = game.window.document.getElementById("deathText")
+    game.run("gameData.days = getLifespan() + 100")
+    assert.equal(game.run("isAlive()"), false)
+    assert.ok(deathText.classList.contains("hidden"))
+    assert.equal(game.run("gameData.days"), game.run("getLifespan()"), "the age still stops at the lifespan")
+})

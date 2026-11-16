@@ -481,6 +481,9 @@ function updateText() {
 
     document.getElementById("timeWarpingDisplay").textContent = "x" + getTaskById("time_warping").getEffect().toFixed(2)
     document.getElementById("timeWarpingButton").textContent = gameData.timeWarpingEnabled ? "Disable warp" : "Enable warp"
+
+    const deathText = document.getElementById("deathText")
+    isLifeOver() ? deathText.classList.remove("hidden") : deathText.classList.add("hidden")
 }
 
 function setSignDisplay() {
@@ -793,17 +796,18 @@ function getLifespan() {
     return applyStatBoosts("lifespan", baseLifespan)
 }
 
+// Also stops the age going past the lifespan
 function isAlive() {
     const condition = gameData.days < getLifespan()
-    const deathText = document.getElementById("deathText")
     if (!condition) {
         gameData.days = getLifespan()
-        deathText.classList.remove("hidden")
-    }
-    else {
-        deathText.classList.add("hidden")
     }
     return condition
+}
+
+// Like isAlive(), but never changes the game state
+function isLifeOver() {
+    return gameData.days >= getLifespan()
 }
 
 function updateUI() {
