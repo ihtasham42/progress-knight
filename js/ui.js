@@ -37,11 +37,47 @@ function updateTabAfterRebirth() {
     shownRebirthCount = rebirthCount
 }
 
+// Elements that rendering writes to, looked up once when the page is built
+const taskRowElements = {} // task name -> elements in its row
+const itemRowElements = {} // item name -> elements in its row
+const headerRowElements = {} // job or skill category name -> elements in its header
+const requiredRowElements = {} // category name -> its "Required:" row and parts
+let sidebarElements = null
+let quickTaskElements = null
+
+function findSidebarElements() {
+    const ids = ["ageDisplay", "dayDisplay", "lifespanDisplay", "pauseButton", "coinDisplay", "signDisplay",
+        "netDisplay", "incomeDisplay", "expenseDisplay", "happinessDisplay", "evilDisplay", "evilGainDisplay",
+        "timeWarpingDisplay", "timeWarpingButton", "deathText"]
+    const elements = {}
+    for (const id of ids) elements[id] = document.getElementById(id)
+    return elements
+}
+
+function findQuickTaskElements() {
+    const quickTaskDisplayElement = document.getElementById("quickTaskDisplay")
+    const elements = {}
+    for (const taskType of ["job", "skill"]) {
+        const progressBar = quickTaskDisplayElement.getElementsByClassName(taskType)[0]
+        elements[taskType] = {
+            name: progressBar.getElementsByClassName("name")[0],
+            progressFill: progressBar.getElementsByClassName("progressFill")[0],
+        }
+    }
+    return elements
+}
+
 function createRequiredRow(categoryName) {
     const requiredRow = document.getElementsByClassName("requiredRowTemplate")[0].content.firstElementChild.cloneNode(true)
     requiredRow.classList.add("requiredRow")
     requiredRow.classList.add(removeSpaces(categoryName))
     requiredRow.id = categoryName
+    requiredRowElements[categoryName] = {
+        row: requiredRow,
+        coins: requiredRow.getElementsByClassName("coins")[0],
+        levels: requiredRow.getElementsByClassName("levels")[0],
+        evil: requiredRow.getElementsByClassName("evil")[0],
+    }
     return requiredRow
 }
 
@@ -56,6 +92,12 @@ function createHeaderRow(templates, categoryType, categoryName) {
     headerRow.style.color = "#ffffff"
     headerRow.classList.add(removeSpaces(categoryName))
     headerRow.classList.add("headerRow")
+    if (categoryType != itemCategories) {
+        headerRowElements[categoryName] = {
+            maxLevel: headerRow.getElementsByClassName("maxLevel")[0],
+            skipSkill: headerRow.getElementsByClassName("skipSkill")[0],
+        }
+    }
     
     return headerRow
 }
@@ -73,6 +115,27 @@ function createRow(templates, name, categoryName, categoryType) {
     if (categoryType == skillCategories) {
         const skipCheckbox = row.getElementsByClassName("checkbox")[0]
         skipCheckbox.onchange = function() {setSkillSkipped(name, skipCheckbox.checked)}
+    }
+
+    if (categoryType != itemCategories) {
+        const valueElement = row.getElementsByClassName("value")[0]
+        taskRowElements[name] = {
+            level: row.getElementsByClassName("level")[0],
+            xpGain: row.getElementsByClassName("xpGain")[0],
+            xpLeft: row.getElementsByClassName("xpLeft")[0],
+            maxLevel: row.getElementsByClassName("maxLevel")[0],
+            progressFill: row.getElementsByClassName("progressFill")[0],
+            income: valueElement.getElementsByClassName("income")[0],
+            effect: valueElement.getElementsByClassName("effect")[0],
+            skipSkill: row.getElementsByClassName("skipSkill")[0],
+        }
+    } else {
+        itemRowElements[name] = {
+            button: row.getElementsByClassName("button")[0],
+            active: row.getElementsByClassName("active")[0],
+            effect: row.getElementsByClassName("effect")[0],
+            expense: row.getElementsByClassName("expense")[0],
+        }
     }
 
     return row
@@ -103,18 +166,16 @@ function createAllRows(categoryType, tableId) {
 
 function updateQuickTaskDisplay(taskType) {
     const currentTask = taskType == "job" ? gameData.currentJob : gameData.currentSkill
-    const quickTaskDisplayElement = document.getElementById("quickTaskDisplay")
-    const progressBar = quickTaskDisplayElement.getElementsByClassName(taskType)[0]
-    progressBar.getElementsByClassName("name")[0].textContent = currentTask.name + " lvl " + currentTask.level
-    progressBar.getElementsByClassName("progressFill")[0].style.width = currentTask.xp / currentTask.getMaxXp() * 100 + "%"
+    const elements = quickTaskElements[taskType]
+    elements.name.textContent = currentTask.name + " lvl " + currentTask.level
+    elements.progressFill.style.width = currentTask.xp / currentTask.getMaxXp() * 100 + "%"
 }
 
 function updateRequiredRows(data, categoryType) {
-    const requiredRows = document.getElementsByClassName("requiredRow")
-    for (const requiredRow of requiredRows) {
+    for (const categoryName in categoryType) {
+        const requiredRow = requiredRowElements[categoryName].row
         let nextEntity = null
-        const category = categoryType[requiredRow.id] 
-        if (category == null) {continue}
+        const category = categoryType[categoryName]
         for (let i = 0; i < category.length; i++) {
             const entityName = category[i]
             if (i >= category.length - 1) break
@@ -144,9 +205,9 @@ function updateRequiredRows(data, categoryType) {
             const requirementObject = gameData.requirements[nextEntity.name]
             const requirements = requirementObject.requirements
 
-            const coinElement = requiredRow.getElementsByClassName("coins")[0]
-            const levelElement = requiredRow.getElementsByClassName("levels")[0]
-            const evilElement = requiredRow.getElementsByClassName("evil")[0]
+            const coinElement = requiredRowElements[categoryName].coins
+            const levelElement = requiredRowElements[categoryName].levels
+            const evilElement = requiredRowElements[categoryName].evil
 
             coinElement.classList.add("hiddenTask")
             levelElement.classList.add("hiddenTask")
@@ -179,30 +240,29 @@ function updateRequiredRows(data, categoryType) {
 function updateTaskRows() {
     for (const key in gameData.taskData) {
         const task = gameData.taskData[key]
-        const row = document.getElementById("row " + task.name)
-        row.getElementsByClassName("level")[0].textContent = task.level
-        row.getElementsByClassName("xpGain")[0].textContent = format(task.getXpGain())
-        row.getElementsByClassName("xpLeft")[0].textContent = format(task.getXpLeft())
+        const row = taskRowElements[task.name]
+        row.level.textContent = task.level
+        row.xpGain.textContent = format(task.getXpGain())
+        row.xpLeft.textContent = format(task.getXpLeft())
 
-        const maxLevel = row.getElementsByClassName("maxLevel")[0]
+        const maxLevel = row.maxLevel
         maxLevel.textContent = task.maxLevel
         gameData.rebirthOneCount > 0 ? maxLevel.classList.remove("hidden") : maxLevel.classList.add("hidden")
 
-        const progressFill = row.getElementsByClassName("progressFill")[0]
+        const progressFill = row.progressFill
         progressFill.style.width = task.xp / task.getMaxXp() * 100 + "%"
         task == gameData.currentJob || task == gameData.currentSkill ? progressFill.classList.add("current") : progressFill.classList.remove("current")
 
-        const valueElement = row.getElementsByClassName("value")[0]
-        valueElement.getElementsByClassName("income")[0].style.display = task instanceof Job
-        valueElement.getElementsByClassName("effect")[0].style.display = task instanceof Skill
+        row.income.style.display = task instanceof Job
+        row.effect.style.display = task instanceof Skill
 
-        const skipSkillElement = row.getElementsByClassName("skipSkill")[0]
+        const skipSkillElement = row.skipSkill
         skipSkillElement.style.display = task instanceof Skill && gameData.automation.autoLearn ? "block" : "none"
 
         if (task instanceof Job) {
-            formatCoins(task.getIncome(), valueElement.getElementsByClassName("income")[0])
+            formatCoins(task.getIncome(), row.income)
         } else {
-            valueElement.getElementsByClassName("effect")[0].textContent = task.getEffectDescription()
+            row.effect.textContent = task.getEffectDescription()
         }
     }
 }
@@ -210,55 +270,55 @@ function updateTaskRows() {
 function updateItemRows() {
     for (const key in gameData.itemData) {
         const item = gameData.itemData[key]
-        const row = document.getElementById("row " + item.name)
-        const button = row.getElementsByClassName("button")[0]
+        const row = itemRowElements[item.name]
+        const button = row.button
         button.disabled = gameData.coins < item.getExpense()
-        const active = row.getElementsByClassName("active")[0]
+        const active = row.active
         const color = itemCategories["Properties"].includes(item.name) ? headerRowColors["Properties"] : headerRowColors["Misc"]
         active.style.backgroundColor = gameData.currentMisc.includes(item) || item == gameData.currentProperty ? color : "white"
-        row.getElementsByClassName("effect")[0].textContent = item.getEffectDescription()
-        formatCoins(item.getExpense(), row.getElementsByClassName("expense")[0])
+        row.effect.textContent = item.getEffectDescription()
+        formatCoins(item.getExpense(), row.expense)
     }
 }
 
 function updateHeaderRows(categories) {
     for (const categoryName in categories) {
-        const className = removeSpaces(categoryName)
-        const headerRow = document.getElementsByClassName(className)[0]
-        const maxLevelElement = headerRow.getElementsByClassName("maxLevel")[0]
+        const headerRow = headerRowElements[categoryName]
+        const maxLevelElement = headerRow.maxLevel
         gameData.rebirthOneCount > 0 ? maxLevelElement.classList.remove("hidden") : maxLevelElement.classList.add("hidden")
-        const skipSkillElement = headerRow.getElementsByClassName("skipSkill")[0]
+        const skipSkillElement = headerRow.skipSkill
         skipSkillElement.style.display = categories == skillCategories && gameData.automation.autoLearn ? "block" : "none"
     }
 }
 
 function updateText() {
     //Sidebar
-    document.getElementById("ageDisplay").textContent = daysToYears(gameData.days)
-    document.getElementById("dayDisplay").textContent = getDay()
-    document.getElementById("lifespanDisplay").textContent = daysToYears(getLifespan())
-    document.getElementById("pauseButton").textContent = gameData.paused ? "Play" : "Pause"
+    const sidebar = sidebarElements
+    sidebar.ageDisplay.textContent = daysToYears(gameData.days)
+    sidebar.dayDisplay.textContent = getDay()
+    sidebar.lifespanDisplay.textContent = daysToYears(getLifespan())
+    sidebar.pauseButton.textContent = gameData.paused ? "Play" : "Pause"
 
-    formatCoins(gameData.coins, document.getElementById("coinDisplay"))
+    formatCoins(gameData.coins, sidebar.coinDisplay)
     setSignDisplay()
-    formatCoins(getNet(), document.getElementById("netDisplay"))
-    formatCoins(getIncome(), document.getElementById("incomeDisplay"))
-    formatCoins(getExpense(), document.getElementById("expenseDisplay"))
+    formatCoins(getNet(), sidebar.netDisplay)
+    formatCoins(getIncome(), sidebar.incomeDisplay)
+    formatCoins(getExpense(), sidebar.expenseDisplay)
 
-    document.getElementById("happinessDisplay").textContent = getHappiness().toFixed(1)
+    sidebar.happinessDisplay.textContent = getHappiness().toFixed(1)
 
-    document.getElementById("evilDisplay").textContent = gameData.evil.toFixed(1)
-    document.getElementById("evilGainDisplay").textContent = getEvilGain().toFixed(1)
+    sidebar.evilDisplay.textContent = gameData.evil.toFixed(1)
+    sidebar.evilGainDisplay.textContent = getEvilGain().toFixed(1)
 
-    document.getElementById("timeWarpingDisplay").textContent = "x" + getTaskById("time_warping").getEffect().toFixed(2)
-    document.getElementById("timeWarpingButton").textContent = gameData.timeWarpingEnabled ? "Disable warp" : "Enable warp"
+    sidebar.timeWarpingDisplay.textContent = "x" + getTaskById("time_warping").getEffect().toFixed(2)
+    sidebar.timeWarpingButton.textContent = gameData.timeWarpingEnabled ? "Disable warp" : "Enable warp"
 
-    const deathText = document.getElementById("deathText")
+    const deathText = sidebar.deathText
     isLifeOver() ? deathText.classList.remove("hidden") : deathText.classList.add("hidden")
 }
 
 function setSignDisplay() {
-    const signDisplay = document.getElementById("signDisplay")
+    const signDisplay = sidebarElements.signDisplay
     if (getIncome() > getExpense()) {
         signDisplay.textContent = "+"
         signDisplay.style.color = "green"
@@ -387,7 +447,9 @@ function removeSpaces(string) {
 function initUI() {
     createAllRows(jobCategories, "jobTable")
     createAllRows(skillCategories, "skillTable")
-    createAllRows(itemCategories, "itemTable") 
+    createAllRows(itemCategories, "itemTable")
+    sidebarElements = findSidebarElements()
+    quickTaskElements = findQuickTaskElements()
     setUpAutomationControls()
     requirementElements = createRequirementElements()
     setTab(jobTabButton, "jobs")
