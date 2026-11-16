@@ -1,6 +1,6 @@
 "use strict"
 
-let gameData = {
+const gameData = {
     taskData: {},
     itemData: {},
 
@@ -18,8 +18,6 @@ let gameData = {
     currentProperty: null,
     currentMisc: null,
 }
-
-const tempData = {}
 
 let skillWithLowestMaxXp = null
 
@@ -1033,12 +1031,6 @@ gameData.requirements = {
     "Sapphire charm": new CoinRequirement([getItemElement("Sapphire charm")], [{requirement: gameData.itemData["Sapphire charm"].getExpense() * 100}]),
     "Study desk": new CoinRequirement([getItemElement("Study desk")], [{requirement: gameData.itemData["Study desk"].getExpense() * 100}]),
     "Library": new CoinRequirement([getItemElement("Library")], [{requirement: gameData.itemData["Library"].getExpense() * 100}]), 
-}
-
-tempData["requirements"] = {}
-for (const key in gameData.requirements) {
-    const requirement = gameData.requirements[key]
-    tempData["requirements"][key] = requirement
 }
 
 loadGameData()
