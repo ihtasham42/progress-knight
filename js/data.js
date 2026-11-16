@@ -1,31 +1,74 @@
 "use strict"
 
-// Static game data: jobs, skills, items, categories and tooltips.
+// Static game data. Each job, skill and item is defined once, with a stable
+// id that saves can refer to even if its display name changes.
+//
+// The older lookup tables the rest of the game uses (jobBaseData,
+// jobCategories, tooltips, ...) are derived from these definitions.
 
-const jobBaseData = {
-    "Beggar": {name: "Beggar", maxXp: 50, income: 5},
-    "Farmer": {name: "Farmer", maxXp: 100, income: 9},
-    "Fisherman": {name: "Fisherman", maxXp: 200, income: 15},
-    "Miner": {name: "Miner", maxXp: 400, income: 40},
-    "Blacksmith": {name: "Blacksmith", maxXp: 800, income: 80},
-    "Merchant": {name: "Merchant", maxXp: 1600, income: 150},
-
-    "Squire": {name: "Squire", maxXp: 100, income: 5},
-    "Footman": {name: "Footman", maxXp: 1000, income: 50},
-    "Veteran footman": {name: "Veteran footman", maxXp: 10000, income: 120},
-    "Knight": {name: "Knight", maxXp: 100000, income: 300},
-    "Veteran knight": {name: "Veteran knight", maxXp: 1000000, income: 1000},
-    "Elite knight": {name: "Elite knight", maxXp: 7500000, income: 3000},
-    "Holy knight": {name: "Holy knight", maxXp: 40000000, income: 15000},
-    "Legendary knight": {name: "Legendary knight", maxXp: 150000000, income: 50000},
-
-    "Student": {name: "Student", maxXp: 100000, income: 100},
-    "Apprentice mage": {name: "Apprentice mage", maxXp: 1000000, income: 1000},
-    "Mage": {name: "Mage", maxXp: 10000000, income: 7500},
-    "Wizard": {name: "Wizard", maxXp: 100000000, income: 50000},
-    "Master wizard": {name: "Master wizard", maxXp: 10000000000, income: 250000},
-    "Chairman": {name: "Chairman", maxXp: 1000000000000, income: 1000000},
+function definitionsByName(definitions) {
+    const byName = {}
+    for (const definition of definitions) byName[definition.name] = definition
+    return byName
 }
+
+// Category name -> entity names, in definition order
+function namesByCategory(definitions) {
+    const categories = {}
+    for (const definition of definitions) {
+        if (!categories[definition.category]) categories[definition.category] = []
+        categories[definition.category].push(definition.name)
+    }
+    return categories
+}
+
+const jobs = [
+    // Common work
+    {id: "beggar", name: "Beggar", category: "Common work", maxXp: 50, income: 5,
+        tooltip: "Struggle day and night for a couple of copper coins. It feels like you are at the brink of death each day."},
+    {id: "farmer", name: "Farmer", category: "Common work", maxXp: 100, income: 9,
+        tooltip: "Plow the fields and grow the crops. It's not much but it's honest work."},
+    {id: "fisherman", name: "Fisherman", category: "Common work", maxXp: 200, income: 15,
+        tooltip: "Reel in various fish and sell them for a handful of coins. A relaxing but still a poor paying job."},
+    {id: "miner", name: "Miner", category: "Common work", maxXp: 400, income: 40,
+        tooltip: "Delve into dangerous caverns and mine valuable ores. The pay is quite meager compared to the risk involved."},
+    {id: "blacksmith", name: "Blacksmith", category: "Common work", maxXp: 800, income: 80,
+        tooltip: "Smelt ores and carefully forge weapons for the military. A respectable and OK paying commoner job."},
+    {id: "merchant", name: "Merchant", category: "Common work", maxXp: 1600, income: 150,
+        tooltip: "Travel from town to town, bartering fine goods. The job pays decently well and is a lot less manually-intensive."},
+
+    // Military
+    {id: "squire", name: "Squire", category: "Military", maxXp: 100, income: 5,
+        tooltip: "Carry around your knight's shield and sword along the battlefield. Very meager pay but the work experience is quite valuable."},
+    {id: "footman", name: "Footman", category: "Military", maxXp: 1000, income: 50,
+        tooltip: "Put down your life to battle with enemy soldiers. A courageous, respectable job but you are still worthless in the grand scheme of things."},
+    {id: "veteran_footman", name: "Veteran footman", category: "Military", maxXp: 10000, income: 120,
+        tooltip: "More experienced and useful than the average footman, take out the enemy forces in battle with your might. The pay is not that bad."},
+    {id: "knight", name: "Knight", category: "Military", maxXp: 100000, income: 300,
+        tooltip: "Slash and pierce through enemy soldiers with ease, while covered in steel from head to toe. A decently paying and very respectable job."},
+    {id: "veteran_knight", name: "Veteran knight", category: "Military", maxXp: 1000000, income: 1000,
+        tooltip: "Utilising your unmatched combat ability, slaughter enemies effortlessly. Most footmen in the military would never be able to acquire such a well paying job like this."},
+    {id: "elite_knight", name: "Elite knight", category: "Military", maxXp: 7500000, income: 3000,
+        tooltip: "Obliterate squadrons of enemy soldiers in one go with extraordinary proficiency, while equipped with the finest gear. Such a feared unit on the battlefield is paid extremely well."},
+    {id: "holy_knight", name: "Holy knight", category: "Military", maxXp: 40000000, income: 15000,
+        tooltip: "Collapse entire armies in mere seconds with your magically imbued blade. The handful of elite knights who attain this level of power are showered with coins."},
+    {id: "legendary_knight", name: "Legendary knight", category: "Military", maxXp: 150000000, income: 50000,
+        tooltip: "Feared worldwide, obliterate entire nations in a blink of an eye. Roughly every century, only one holy knight is worthy of receiving such an esteemed title."},
+
+    // The Arcane Association
+    {id: "student", name: "Student", category: "The Arcane Association", maxXp: 100000, income: 100,
+        tooltip: "Study the theory of mana and practice basic spells. There is minor pay to cover living costs, however, this is a necessary stage in becoming a mage."},
+    {id: "apprentice_mage", name: "Apprentice mage", category: "The Arcane Association", maxXp: 1000000, income: 1000,
+        tooltip: "Under the supervision of a mage, perform basic spells against enemies in battle. Generous pay will be provided to cover living costs."},
+    {id: "mage", name: "Mage", category: "The Arcane Association", maxXp: 10000000, income: 7500,
+        tooltip: "Turn the tides of battle through casting intermediate spells and mentor other apprentices. The pay for this particular job is extremely high."},
+    {id: "wizard", name: "Wizard", category: "The Arcane Association", maxXp: 100000000, income: 50000,
+        tooltip: "Utilise advanced spells to ravage and destroy entire legions of enemy soldiers. Only a small percentage of mages deserve to attain this role and are rewarded with an insanely high pay."},
+    {id: "master_wizard", name: "Master wizard", category: "The Arcane Association", maxXp: 10000000000, income: 250000,
+        tooltip: "Blessed with unparalleled talent, perform unbelievable feats with magic at will. It is said that a master wizard has enough destructive power to wipe an empire off the map."},
+    {id: "chairman", name: "Chairman", category: "The Arcane Association", maxXp: 1000000000000, income: 1000000,
+        tooltip: "Spend your days administrating The Arcane Association and investigate the concepts of true immortality. The chairman receives ludicrous amounts of pay daily."},
+]
 
 const skillBaseData = {
     "Concentration": {name: "Concentration", maxXp: 100, effect: 0.01, description: "Skill xp"},
@@ -71,11 +114,8 @@ const itemBaseData = {
     "Library": {name: "Library", expense: 10000000, effect: 1.5, description: "Skill xp"},
 }
 
-const jobCategories = {
-    "Common work": ["Beggar", "Farmer", "Fisherman", "Miner", "Blacksmith", "Merchant"],
-    "Military" : ["Squire", "Footman", "Veteran footman", "Knight", "Veteran knight", "Elite knight", "Holy knight", "Legendary knight"],
-    "The Arcane Association" : ["Student", "Apprentice mage", "Mage", "Wizard", "Master wizard", "Chairman"]
-}
+const jobBaseData = definitionsByName(jobs)
+const jobCategories = namesByCategory(jobs)
 
 const skillCategories = {
     "Fundamentals": ["Concentration", "Productivity", "Bargaining", "Meditation"],
@@ -102,29 +142,6 @@ const headerRowColors = {
 }
 
 const tooltips = {
-    "Beggar": "Struggle day and night for a couple of copper coins. It feels like you are at the brink of death each day.",
-    "Farmer": "Plow the fields and grow the crops. It's not much but it's honest work.",
-    "Fisherman": "Reel in various fish and sell them for a handful of coins. A relaxing but still a poor paying job.",
-    "Miner": "Delve into dangerous caverns and mine valuable ores. The pay is quite meager compared to the risk involved.",
-    "Blacksmith": "Smelt ores and carefully forge weapons for the military. A respectable and OK paying commoner job.",
-    "Merchant": "Travel from town to town, bartering fine goods. The job pays decently well and is a lot less manually-intensive.",
-
-    "Squire": "Carry around your knight's shield and sword along the battlefield. Very meager pay but the work experience is quite valuable.",
-    "Footman": "Put down your life to battle with enemy soldiers. A courageous, respectable job but you are still worthless in the grand scheme of things.",
-    "Veteran footman": "More experienced and useful than the average footman, take out the enemy forces in battle with your might. The pay is not that bad.",
-    "Knight": "Slash and pierce through enemy soldiers with ease, while covered in steel from head to toe. A decently paying and very respectable job.",
-    "Veteran knight": "Utilising your unmatched combat ability, slaughter enemies effortlessly. Most footmen in the military would never be able to acquire such a well paying job like this.",
-    "Elite knight": "Obliterate squadrons of enemy soldiers in one go with extraordinary proficiency, while equipped with the finest gear. Such a feared unit on the battlefield is paid extremely well.",
-    "Holy knight": "Collapse entire armies in mere seconds with your magically imbued blade. The handful of elite knights who attain this level of power are showered with coins.",
-    "Legendary knight": "Feared worldwide, obliterate entire nations in a blink of an eye. Roughly every century, only one holy knight is worthy of receiving such an esteemed title.",
-
-    "Student": "Study the theory of mana and practice basic spells. There is minor pay to cover living costs, however, this is a necessary stage in becoming a mage.",
-    "Apprentice mage": "Under the supervision of a mage, perform basic spells against enemies in battle. Generous pay will be provided to cover living costs.",
-    "Mage": "Turn the tides of battle through casting intermediate spells and mentor other apprentices. The pay for this particular job is extremely high.",
-    "Wizard": "Utilise advanced spells to ravage and destroy entire legions of enemy soldiers. Only a small percentage of mages deserve to attain this role and are rewarded with an insanely high pay.",
-    "Master wizard": "Blessed with unparalleled talent, perform unbelievable feats with magic at will. It is said that a master wizard has enough destructive power to wipe an empire off the map.",
-    "Chairman": "Spend your days administrating The Arcane Association and investigate the concepts of true immortality. The chairman receives ludicrous amounts of pay daily.",
-
     "Concentration": "Improve your learning speed through practising intense concentration activities.",
     "Productivity": "Learn to procrastinate less at work and receive more job experience per day.",
     "Bargaining": "Study the tricks of the trade and persuasive skills to lower any type of expense.",
@@ -164,3 +181,5 @@ const tooltips = {
     "Study desk": "A dedicated area which provides many fine stationery and equipment designed for furthering your progress in research.",
     "Library": "Stores a collection of books, each containing vast amounts of information from basic life skills to complex magic spells.",
 }
+
+for (const job of jobs) tooltips[job.name] = job.tooltip
