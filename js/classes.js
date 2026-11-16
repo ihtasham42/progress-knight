@@ -1,3 +1,5 @@
+"use strict"
+
 class Task {
     constructor(baseData) {
         this.baseData = baseData
@@ -11,7 +13,7 @@ class Task {
     }
 
     getMaxXp() {
-        var maxXp = Math.round(this.baseData.maxXp * (this.level + 1) * Math.pow(1.01, this.level))
+        const maxXp = Math.round(this.baseData.maxXp * (this.level + 1) * Math.pow(1.01, this.level))
         return maxXp
     }
 
@@ -20,7 +22,7 @@ class Task {
     }
 
     getMaxLevelMultiplier() {
-        var maxLevelMultiplier = 1 + this.maxLevel / 10
+        const maxLevelMultiplier = 1 + this.maxLevel / 10
         return maxLevelMultiplier
     }
 
@@ -31,7 +33,7 @@ class Task {
     increaseXp() {
         this.xp += applySpeed(this.getXpGain())
         if (this.xp >= this.getMaxXp()) {
-            var excess = this.xp - this.getMaxXp()
+            let excess = this.xp - this.getMaxXp()
             while (excess >= 0) {
                 this.level += 1
                 excess -= this.getMaxXp()
@@ -49,7 +51,7 @@ class Job extends Task {
     }
 
     getLevelMultiplier() {
-        var levelMultiplier = 1 + Math.log10(this.level + 1)
+        const levelMultiplier = 1 + Math.log10(this.level + 1)
         return levelMultiplier
     }
     
@@ -64,13 +66,13 @@ class Skill extends Task {
     }
 
     getEffect() {
-        var effect = 1 + this.baseData.effect * this.level
+        const effect = 1 + this.baseData.effect * this.level
         return effect
     }
 
     getEffectDescription() {
-        var description = this.baseData.description
-        var text = "x" + String(this.getEffect().toFixed(2)) + " " + description
+        const description = this.baseData.description
+        const text = "x" + String(this.getEffect().toFixed(2)) + " " + description
         return text
     }
 }
@@ -86,14 +88,14 @@ class Item {
 
     getEffect() {
         if (gameData.currentProperty != this && !gameData.currentMisc.includes(this)) return 1
-        var effect = this.baseData.effect
+        const effect = this.baseData.effect
         return effect
     }
 
     getEffectDescription() {
-        var description = this.baseData.description
+        let description = this.baseData.description
         if (itemCategories["Properties"].includes(this.name)) description = "Happiness"
-        var text = "x" + this.baseData.effect.toFixed(1) + " " + description
+        const text = "x" + this.baseData.effect.toFixed(1) + " " + description
         return text
     }
 
@@ -111,7 +113,7 @@ class Requirement {
 
     isCompleted() {
         if (this.completed) {return true}
-        for (var requirement of this.requirements) {
+        for (const requirement of this.requirements) {
             if (!this.getCondition(requirement)) {
                 return false
             }
