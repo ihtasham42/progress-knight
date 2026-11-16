@@ -77,3 +77,14 @@ test("requirements hold only their conditions; the page keeps the elements they 
     assert.deepEqual(Array.from(elements["Shop"]), [game.window.document.getElementById("shopTabButton")])
     assert.deepEqual(Array.from(elements["Farmer"]), [game.window.document.getElementById("row Farmer")])
 })
+
+test("a game step doesn't render; rendering is separate", () => {
+    const game = loadGame()
+    const coinDisplay = game.window.document.getElementById("coinDisplay")
+    const shown = coinDisplay.textContent
+    game.fastTicks(10)
+    assert.ok(game.gameData.coins > 0)
+    assert.equal(coinDisplay.textContent, shown)
+    game.run("updateUI()")
+    assert.notEqual(coinDisplay.textContent, shown)
+})

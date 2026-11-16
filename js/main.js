@@ -859,7 +859,18 @@ function update() {
     doCurrentTask(gameData.currentSkill)
     applyExpenses()
     updateRequirements()
-    updateUI()
+}
+
+// About 10 frames per second is plenty for numbers and progress bars
+const renderInterval = 100
+let lastRenderTime = -Infinity
+
+function renderFrame(now) {
+    if (now - lastRenderTime >= renderInterval) {
+        lastRenderTime = now
+        updateUI()
+    }
+    requestAnimationFrame(renderFrame)
 }
 
 //Init
@@ -888,6 +899,8 @@ addMultipliers()
 setTab(jobTabButton, "jobs")
 
 update()
+updateUI()
 setInterval(update, 1000 / updateSpeed)
+requestAnimationFrame(renderFrame)
 setInterval(saveGameData, 3000)
 setInterval(setSkillWithLowestMaxXp, 1000)
