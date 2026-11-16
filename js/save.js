@@ -83,21 +83,22 @@ function exportGameData() {
 //
 // Version history:
 //   (none) - legacy format: the whole gameData object passed to JSON.stringify
-//   2      - this format
+//   2      - only mutable state, referring to jobs/skills/items by name
+//   3      - the same, referring to everything by id (see data.js)
 // ---------------------------------------------------------------------------
 
-const SAVE_VERSION = 2
+const SAVE_VERSION = 3
 
 function serializeGameData() {
     const tasks = {}
     for (const name in gameData.taskData) {
         const task = gameData.taskData[name]
-        tasks[name] = {level: task.level, maxLevel: task.maxLevel, xp: task.xp}
+        tasks[task.baseData.id] = {level: task.level, maxLevel: task.maxLevel, xp: task.xp}
     }
 
     const completedRequirements = []
     for (const key in gameData.requirements) {
-        if (gameData.requirements[key].completed) completedRequirements.push(key)
+        if (gameData.requirements[key].completed) completedRequirements.push(idsByName[key])
     }
 
     return {
@@ -109,10 +110,10 @@ function serializeGameData() {
         timeWarpingEnabled: gameData.timeWarpingEnabled,
         rebirthOneCount: gameData.rebirthOneCount,
         rebirthTwoCount: gameData.rebirthTwoCount,
-        currentJob: gameData.currentJob.name,
-        currentSkill: gameData.currentSkill.name,
-        currentProperty: gameData.currentProperty.name,
-        currentMisc: gameData.currentMisc.map(function(item) {return item.name}),
+        currentJob: gameData.currentJob.baseData.id,
+        currentSkill: gameData.currentSkill.baseData.id,
+        currentProperty: gameData.currentProperty.baseData.id,
+        currentMisc: gameData.currentMisc.map(function(item) {return item.baseData.id}),
         tasks: tasks,
         completedRequirements: completedRequirements,
     }
@@ -126,6 +127,7 @@ function migrateSave(save) {
     }
 
     if (save.version === undefined) save = migrateLegacySave(save)
+    if (save.version === 2) save = migrateV2ToV3(save)
 
     if (save.version > SAVE_VERSION) {
         throw new Error("Save is from a newer version of the game")
@@ -175,6 +177,27 @@ function migrateLegacySave(legacy) {
     }
 }
 
+// Version 2 referred to jobs, skills, items and unlocks by display name.
+// Names the game no longer has are dropped.
+function migrateV2ToV3(save) {
+    const toId = name => typeof name === "string" ? idsByName[name] : undefined
+    const migrated = Object.assign({}, save, {version: 3})
+
+    if (save.tasks && typeof save.tasks === "object") {
+        migrated.tasks = {}
+        for (const name in save.tasks) {
+            if (toId(name)) migrated.tasks[toId(name)] = save.tasks[name]
+        }
+    }
+    migrated.currentJob = toId(save.currentJob)
+    migrated.currentSkill = toId(save.currentSkill)
+    migrated.currentProperty = toId(save.currentProperty)
+    for (const key of ["currentMisc", "completedRequirements"]) {
+        if (Array.isArray(save[key])) migrated[key] = save[key].map(toId).filter(Boolean)
+    }
+    return migrated
+}
+
 function validateSave(save) {
     for (const key of ["coins", "days"]) {
         if (!isFiniteNumber(save[key])) throw new Error("Save has an invalid " + key)
@@ -199,37 +222,38 @@ function applySaveData(save) {
         if (typeof save[key] === "boolean") gameData[key] = save[key]
     }
 
-    for (const name in save.tasks) {
-        const task = gameData.taskData[name]
-        const savedTask = save.tasks[name]
+    for (const id in save.tasks) {
+        const task = getTaskById(id)
+        const savedTask = save.tasks[id]
         if (!task || !savedTask) continue
         for (const key of ["level", "maxLevel", "xp"]) {
             if (isFiniteNumber(savedTask[key])) task[key] = savedTask[key]
         }
     }
 
-    const job = gameData.taskData[save.currentJob]
+    const job = getTaskById(save.currentJob)
     if (job instanceof Job) gameData.currentJob = job
 
-    const skill = gameData.taskData[save.currentSkill]
+    const skill = getTaskById(save.currentSkill)
     if (skill instanceof Skill) gameData.currentSkill = skill
 
-    if (itemCategories["Properties"].includes(save.currentProperty)) {
-        gameData.currentProperty = gameData.itemData[save.currentProperty]
-    }
+    const property = getItemById(save.currentProperty)
+    if (property && property.baseData.category == "Properties") gameData.currentProperty = property
 
     if (Array.isArray(save.currentMisc)) {
         gameData.currentMisc = []
-        for (const name of save.currentMisc) {
-            if (itemCategories["Misc"].includes(name) && !gameData.currentMisc.includes(gameData.itemData[name])) {
-                gameData.currentMisc.push(gameData.itemData[name])
+        for (const id of save.currentMisc) {
+            const item = getItemById(id)
+            if (item && item.baseData.category == "Misc" && !gameData.currentMisc.includes(item)) {
+                gameData.currentMisc.push(item)
             }
         }
     }
 
     if (Array.isArray(save.completedRequirements)) {
-        for (const key of save.completedRequirements) {
-            if (gameData.requirements[key]) gameData.requirements[key].completed = true
+        for (const id of save.completedRequirements) {
+            const requirement = gameData.requirements[namesById[id]]
+            if (requirement) requirement.completed = true
         }
     }
 }

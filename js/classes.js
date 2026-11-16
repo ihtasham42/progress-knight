@@ -66,8 +66,15 @@ class Skill extends Task {
     }
 
     getEffect() {
-        const effect = 1 + this.baseData.effect * this.level
-        return effect
+        const curve = this.baseData.effectCurve
+        if (curve && curve.type == "log") {
+            return 1 + getBaseLog(curve.base, this.level + 1)
+        }
+        if (curve && curve.type == "logReduction") {
+            const multiplier = 1 - getBaseLog(curve.base, this.level + 1) / curve.divisor
+            return multiplier < curve.minimum ? curve.minimum : multiplier
+        }
+        return 1 + this.baseData.effect * this.level
     }
 
     getEffectDescription() {
