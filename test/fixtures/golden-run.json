@@ -1,0 +1,129 @@
+[
+  {
+    "ticks": 102199,
+    "age": 70,
+    "coins": 1472367,
+    "job": "Blacksmith",
+    "skill": "Bargaining",
+    "property": "Wooden hut",
+    "misc": [
+      "Book"
+    ],
+    "tasks": {
+      "Beggar": [
+        10,
+        0
+      ],
+      "Farmer": [
+        10,
+        0
+      ],
+      "Fisherman": [
+        10,
+        0
+      ],
+      "Miner": [
+        28,
+        0
+      ],
+      "Blacksmith": [
+        21,
+        0
+      ],
+      "Concentration": [
+        38,
+        0
+      ],
+      "Productivity": [
+        38,
+        0
+      ],
+      "Bargaining": [
+        37,
+        0
+      ],
+      "Meditation": [
+        37,
+        0
+      ],
+      "Strength": [
+        37,
+        0
+      ],
+      "Battle tactics": [
+        37,
+        0
+      ],
+      "Muscle memory": [
+        37,
+        0
+      ]
+    }
+  },
+  {
+    "ticks": 102200,
+    "age": 70,
+    "coins": 3481198,
+    "job": "Merchant",
+    "skill": "Muscle memory",
+    "property": "Wooden hut",
+    "misc": [
+      "Book",
+      "Dumbbells"
+    ],
+    "tasks": {
+      "Beggar": [
+        10,
+        10
+      ],
+      "Farmer": [
+        10,
+        10
+      ],
+      "Fisherman": [
+        10,
+        10
+      ],
+      "Miner": [
+        24,
+        28
+      ],
+      "Blacksmith": [
+        28,
+        21
+      ],
+      "Merchant": [
+        30,
+        0
+      ],
+      "Concentration": [
+        107,
+        38
+      ],
+      "Productivity": [
+        107,
+        38
+      ],
+      "Bargaining": [
+        107,
+        37
+      ],
+      "Meditation": [
+        107,
+        37
+      ],
+      "Strength": [
+        107,
+        37
+      ],
+      "Battle tactics": [
+        107,
+        37
+      ],
+      "Muscle memory": [
+        106,
+        37
+      ]
+    }
+  }
+]
