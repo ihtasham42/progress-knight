@@ -1,0 +1,11 @@
+{
+  "name": "progress-knight-evolved",
+  "private": true,
+  "description": "Development tooling only. The game itself runs directly from index.html with no build step.",
+  "scripts": {
+    "test": "node --test \"test/**/*.test.js\""
+  },
+  "devDependencies": {
+    "jsdom": "^26.1.0"
+  }
+}
