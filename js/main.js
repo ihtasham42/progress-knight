@@ -50,52 +50,64 @@ function getBindedItemEffect(itemName) {
     return item.getEffect.bind(item)
 }
 
+// Wires up every xp, income and expense multiplier from the boosts declared
+// in data.js. Multipliers are applied from the broadest to the most specific
+// ("all", then "jobs"/"skills"/"items", then a category or a single task),
+// each group in definition order with skills before items.
 function addMultipliers() {
     for (const taskName in gameData.taskData) {
         const task = gameData.taskData[taskName]
 
-        task.xpMultipliers = []
-        if (task instanceof Job) task.incomeMultipliers = []
-
-        task.xpMultipliers.push(task.getMaxLevelMultiplier.bind(task))
-        task.xpMultipliers.push(getHappiness)
-        task.xpMultipliers.push(getBindedTaskEffect("Dark influence"))
-        task.xpMultipliers.push(getBindedTaskEffect("Demon training"))
+        task.xpMultipliers = [task.getMaxLevelMultiplier.bind(task), getHappiness]
+        task.xpMultipliers.push(...getBoostEffects("xp", task))
+        // Dark magic is fuelled by evil
+        if (task.baseData.category == "Dark magic") task.xpMultipliers.push(getEvil)
 
         if (task instanceof Job) {
-            task.incomeMultipliers.push(task.getLevelMultiplier.bind(task))
-            task.incomeMultipliers.push(getBindedTaskEffect("Demon's wealth"))
-            task.xpMultipliers.push(getBindedTaskEffect("Productivity"))
-            task.xpMultipliers.push(getBindedItemEffect("Personal squire"))    
-        } else if (task instanceof Skill) {
-            task.xpMultipliers.push(getBindedTaskEffect("Concentration"))
-            task.xpMultipliers.push(getBindedItemEffect("Book"))
-            task.xpMultipliers.push(getBindedItemEffect("Study desk"))
-            task.xpMultipliers.push(getBindedItemEffect("Library"))
-        }
-
-        if (jobCategories["Military"].includes(task.name)) {
-            task.incomeMultipliers.push(getBindedTaskEffect("Strength"))
-            task.xpMultipliers.push(getBindedTaskEffect("Battle tactics"))
-            task.xpMultipliers.push(getBindedItemEffect("Steel longsword"))
-        } else if (task.name == "Strength") {
-            task.xpMultipliers.push(getBindedTaskEffect("Muscle memory"))
-            task.xpMultipliers.push(getBindedItemEffect("Dumbbells"))
-        } else if (skillCategories["Magic"].includes(task.name)) {
-            task.xpMultipliers.push(getBindedItemEffect("Sapphire charm"))
-        } else if (jobCategories["The Arcane Association"].includes(task.name)) {
-            task.xpMultipliers.push(getBindedTaskEffect("Mana control"))
-        } else if (skillCategories["Dark magic"].includes(task.name)) {
-            task.xpMultipliers.push(getEvil)
+            task.incomeMultipliers = [task.getLevelMultiplier.bind(task)]
+            task.incomeMultipliers.push(...getBoostEffects("income", task))
         }
     }
 
     for (const itemName in gameData.itemData) {
         const item = gameData.itemData[itemName]
-        item.expenseMultipliers = []
-        item.expenseMultipliers.push(getBindedTaskEffect("Bargaining"))
-        item.expenseMultipliers.push(getBindedTaskEffect("Intimidation"))
+        item.expenseMultipliers = getBoostEffects("expense", item)
     }
+}
+
+const boostScopes = ["broad", "kind", "specific"]
+
+function getBoostScope(target) {
+    if (target == "all") return "broad"
+    if (["jobs", "skills", "items"].includes(target)) return "kind"
+    return "specific"
+}
+
+function boostApplies(target, entity) {
+    if (target == "all") return true
+    if (target == "jobs") return entity instanceof Job
+    if (target == "skills") return entity instanceof Skill
+    if (target == "items") return entity instanceof Item
+    return entity.baseData.category == target || entity.baseData.id == target
+}
+
+// Effect functions of every skill and item that boosts stat for entity
+function getBoostEffects(stat, entity) {
+    const effects = []
+    for (const scope of boostScopes) {
+        for (const source of [...skills, ...items]) {
+            for (const boost of source.boosts || []) {
+                if (boost.stat == stat && getBoostScope(boost.of) == scope && boostApplies(boost.of, entity)) {
+                    effects.push(getSourceEffect(source))
+                }
+            }
+        }
+    }
+    return effects
+}
+
+function getSourceEffect(source) {
+    return source.name in gameData.taskData ? getBindedTaskEffect(source.name) : getBindedItemEffect(source.name)
 }
 
 function setCustomEffects() {
