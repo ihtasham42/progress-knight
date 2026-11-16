@@ -114,25 +114,43 @@ const skills = [
         tooltip: "Through the means of dark magic, multiply the raw matter of the coins you receive from your job."},
 ]
 
-const itemBaseData = {
-    "Homeless": {name: "Homeless", expense: 0, effect: 1},
-    "Tent": {name: "Tent", expense: 15, effect: 1.4},
-    "Wooden hut": {name: "Wooden hut", expense: 100, effect: 2},
-    "Cottage": {name: "Cottage", expense: 750, effect: 3.5},
-    "House": {name: "House", expense: 3000, effect: 6},
-    "Large house": {name: "Large house", expense: 25000, effect: 12},
-    "Small palace": {name: "Small palace", expense: 300000, effect: 25},
-    "Grand palace": {name: "Grand palace", expense: 5000000, effect: 60},
+const items = [
+    // Properties
+    {id: "homeless", name: "Homeless", category: "Properties", expense: 0, effect: 1,
+        tooltip: "Sleep on the uncomfortable, filthy streets while almost freezing to death every night. It cannot get any worse than this."},
+    {id: "tent", name: "Tent", category: "Properties", expense: 15, effect: 1.4,
+        tooltip: "A thin sheet of tattered cloth held up by a couple of feeble, wooden sticks. Horrible living conditions but at least you have a roof over your head."},
+    {id: "wooden_hut", name: "Wooden hut", category: "Properties", expense: 100, effect: 2,
+        tooltip: "Shabby logs and dirty hay glued together with horse manure. Much more sturdy than a tent, however, the stench isn't very pleasant."},
+    {id: "cottage", name: "Cottage", category: "Properties", expense: 750, effect: 3.5,
+        tooltip: "Structured with a timber frame and a thatched roof. Provides decent living conditions for a fair price."},
+    {id: "house", name: "House", category: "Properties", expense: 3000, effect: 6,
+        tooltip: "A building formed from stone bricks and sturdy timber, which contains a few rooms. Although quite expensive, it is a comfortable abode."},
+    {id: "large_house", name: "Large house", category: "Properties", expense: 25000, effect: 12,
+        tooltip: "Much larger than a regular house, which boasts even more rooms and multiple floors. The building is quite spacious but comes with a hefty price tag."},
+    {id: "small_palace", name: "Small palace", category: "Properties", expense: 300000, effect: 25,
+        tooltip: "A very rich and meticulously built structure rimmed with fine metals such as silver. Extremely high expenses to maintain for a lavish lifestyle."},
+    {id: "grand_palace", name: "Grand palace", category: "Properties", expense: 5000000, effect: 60,
+        tooltip: "A grand residence completely composed of gold and silver. Provides the utmost luxurious and comfortable living conditions possible for a ludicrous price."},
 
-    "Book": {name: "Book", expense: 10, effect: 1.5, description: "Skill xp"},
-    "Dumbbells": {name: "Dumbbells", expense: 50, effect: 1.5, description: "Strength xp"},
-    "Personal squire": {name: "Personal squire", expense: 200, effect: 2, description: "Job xp"},
-    "Steel longsword": {name: "Steel longsword", expense: 1000, effect: 2, description: "Military xp"},
-    "Butler": {name: "Butler", expense: 7500, effect: 1.5, description: "Happiness"},
-    "Sapphire charm": {name: "Sapphire charm", expense: 50000, effect: 3, description: "Magic xp"},
-    "Study desk": {name: "Study desk", expense: 1000000, effect: 2, description: "Skill xp"},
-    "Library": {name: "Library", expense: 10000000, effect: 1.5, description: "Skill xp"},
-}
+    // Misc
+    {id: "book", name: "Book", category: "Misc", expense: 10, effect: 1.5, description: "Skill xp",
+        tooltip: "A place to write down all your thoughts and discoveries, allowing you to learn a lot more quickly."},
+    {id: "dumbbells", name: "Dumbbells", category: "Misc", expense: 50, effect: 1.5, description: "Strength xp",
+        tooltip: "Heavy tools used in strenuous exercise to toughen up and accumulate strength even faster than before. "},
+    {id: "personal_squire", name: "Personal squire", category: "Misc", expense: 200, effect: 2, description: "Job xp",
+        tooltip: "Assists you in completing day to day activities, giving you more time to be productive at work."},
+    {id: "steel_longsword", name: "Steel longsword", category: "Misc", expense: 1000, effect: 2, description: "Military xp",
+        tooltip: "A fine blade used to slay enemies even quicker in combat and therefore gain more experience."},
+    {id: "butler", name: "Butler", category: "Misc", expense: 7500, effect: 1.5, description: "Happiness",
+        tooltip: "Keeps your household clean at all times and also prepares three delicious meals per day, leaving you in a happier, stress-free mood."},
+    {id: "sapphire_charm", name: "Sapphire charm", category: "Misc", expense: 50000, effect: 3, description: "Magic xp",
+        tooltip: "Embedded with a rare sapphire, this charm activates more mana channels within your body, providing a much easier time learning magic."},
+    {id: "study_desk", name: "Study desk", category: "Misc", expense: 1000000, effect: 2, description: "Skill xp",
+        tooltip: "A dedicated area which provides many fine stationery and equipment designed for furthering your progress in research."},
+    {id: "library", name: "Library", category: "Misc", expense: 10000000, effect: 1.5, description: "Skill xp",
+        tooltip: "Stores a collection of books, each containing vast amounts of information from basic life skills to complex magic spells."},
+]
 
 const jobBaseData = definitionsByName(jobs)
 const jobCategories = namesByCategory(jobs)
@@ -140,10 +158,8 @@ const jobCategories = namesByCategory(jobs)
 const skillBaseData = definitionsByName(skills)
 const skillCategories = namesByCategory(skills)
 
-const itemCategories = {
-    "Properties": ["Homeless", "Tent", "Wooden hut", "Cottage", "House", "Large house", "Small palace", "Grand palace"],
-    "Misc": ["Book", "Dumbbells", "Personal squire", "Steel longsword", "Butler", "Sapphire charm", "Study desk", "Library"]
-}
+const itemBaseData = definitionsByName(items)
+const itemCategories = namesByCategory(items)
 
 const headerRowColors = {
     "Common work": "#55a630",
@@ -157,25 +173,8 @@ const headerRowColors = {
     "Misc": "#b56576",
 }
 
-const tooltips = {
-    "Homeless": "Sleep on the uncomfortable, filthy streets while almost freezing to death every night. It cannot get any worse than this.",
-    "Tent": "A thin sheet of tattered cloth held up by a couple of feeble, wooden sticks. Horrible living conditions but at least you have a roof over your head.",
-    "Wooden hut": "Shabby logs and dirty hay glued together with horse manure. Much more sturdy than a tent, however, the stench isn't very pleasant.",
-    "Cottage": "Structured with a timber frame and a thatched roof. Provides decent living conditions for a fair price.",
-    "House": "A building formed from stone bricks and sturdy timber, which contains a few rooms. Although quite expensive, it is a comfortable abode.",
-    "Large house": "Much larger than a regular house, which boasts even more rooms and multiple floors. The building is quite spacious but comes with a hefty price tag.",
-    "Small palace": "A very rich and meticulously built structure rimmed with fine metals such as silver. Extremely high expenses to maintain for a lavish lifestyle.",
-    "Grand palace": "A grand residence completely composed of gold and silver. Provides the utmost luxurious and comfortable living conditions possible for a ludicrous price.",
-
-    "Book": "A place to write down all your thoughts and discoveries, allowing you to learn a lot more quickly.",
-    "Dumbbells": "Heavy tools used in strenuous exercise to toughen up and accumulate strength even faster than before. ",
-    "Personal squire": "Assists you in completing day to day activities, giving you more time to be productive at work.",
-    "Steel longsword": "A fine blade used to slay enemies even quicker in combat and therefore gain more experience.",
-    "Butler": "Keeps your household clean at all times and also prepares three delicious meals per day, leaving you in a happier, stress-free mood.",
-    "Sapphire charm": "Embedded with a rare sapphire, this charm activates more mana channels within your body, providing a much easier time learning magic.",
-    "Study desk": "A dedicated area which provides many fine stationery and equipment designed for furthering your progress in research.",
-    "Library": "Stores a collection of books, each containing vast amounts of information from basic life skills to complex magic spells.",
+// Entity name -> tooltip text
+const tooltips = {}
+for (const definition of [...jobs, ...skills, ...items]) {
+    tooltips[definition.name] = definition.tooltip
 }
-
-for (const job of jobs) tooltips[job.name] = job.tooltip
-for (const skill of skills) tooltips[skill.name] = skill.tooltip
