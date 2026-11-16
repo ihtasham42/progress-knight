@@ -481,3 +481,33 @@ function update() {
     applyExpenses()
     updateRequirements()
 }
+
+// The game always advances in fixed steps of 1 / updateSpeed seconds, however
+// often it is called, so the maths of each step never changes.
+const stepDuration = 1000 / updateSpeed
+
+// After a long gap (a sleeping laptop, a throttled background tab) catch up
+// at most this much game time at once and drop the rest, so the page never
+// freezes.
+const MAX_CATCH_UP_MS = 20 * 1000
+
+// Real time (ms) that hasn't been turned into game steps yet
+let unsteppedTime = 0
+
+// Runs one game step for every step's worth of real time that has passed,
+// up to MAX_CATCH_UP_MS. Returns the number of steps run.
+function advanceGameTime(elapsedMs) {
+    unsteppedTime += Math.max(elapsedMs, 0)
+    let steps = Math.floor(unsteppedTime / stepDuration)
+    const maxSteps = Math.floor(MAX_CATCH_UP_MS / stepDuration)
+    if (steps > maxSteps) {
+        steps = maxSteps
+        unsteppedTime = 0
+    } else {
+        unsteppedTime -= steps * stepDuration
+    }
+    for (let i = 0; i < steps; i++) {
+        update()
+    }
+    return steps
+}
