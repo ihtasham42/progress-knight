@@ -70,29 +70,49 @@ const jobs = [
         tooltip: "Spend your days administrating The Arcane Association and investigate the concepts of true immortality. The chairman receives ludicrous amounts of pay daily."},
 ]
 
-const skillBaseData = {
-    "Concentration": {name: "Concentration", maxXp: 100, effect: 0.01, description: "Skill xp"},
-    "Productivity": {name: "Productivity", maxXp: 100, effect: 0.01, description: "Job xp"},
-    "Bargaining": {name: "Bargaining", maxXp: 100, effect: -0.01, description: "Expenses"},
-    "Meditation": {name: "Meditation", maxXp: 100, effect: 0.01, description: "Happiness"},
+const skills = [
+    // Fundamentals
+    {id: "concentration", name: "Concentration", category: "Fundamentals", maxXp: 100, effect: 0.01, description: "Skill xp",
+        tooltip: "Improve your learning speed through practising intense concentration activities."},
+    {id: "productivity", name: "Productivity", category: "Fundamentals", maxXp: 100, effect: 0.01, description: "Job xp",
+        tooltip: "Learn to procrastinate less at work and receive more job experience per day."},
+    {id: "bargaining", name: "Bargaining", category: "Fundamentals", maxXp: 100, effect: -0.01, description: "Expenses",
+        tooltip: "Study the tricks of the trade and persuasive skills to lower any type of expense."},
+    {id: "meditation", name: "Meditation", category: "Fundamentals", maxXp: 100, effect: 0.01, description: "Happiness",
+        tooltip: "Fill your mind with peace and tranquility to tap into greater happiness from within."},
 
-    "Strength": {name: "Strength", maxXp: 100, effect: 0.01, description: "Military pay"},
-    "Battle tactics": {name: "Battle tactics", maxXp: 100, effect: 0.01, description: "Military xp"},
-    "Muscle memory": {name: "Muscle memory", maxXp: 100, effect: 0.01, description: "Strength xp"},
+    // Combat
+    {id: "strength", name: "Strength", category: "Combat", maxXp: 100, effect: 0.01, description: "Military pay",
+        tooltip: "Condition your body and strength through harsh training. Stronger individuals are paid more in the military."},
+    {id: "battle_tactics", name: "Battle tactics", category: "Combat", maxXp: 100, effect: 0.01, description: "Military xp",
+        tooltip: "Create and revise battle strategies, improving experience gained in the military."},
+    {id: "muscle_memory", name: "Muscle memory", category: "Combat", maxXp: 100, effect: 0.01, description: "Strength xp",
+        tooltip: "Strengthen your neurons through habit and repetition, improving strength gains throughout the body."},
 
-    "Mana control": {name: "Mana control", maxXp: 100, effect: 0.01, description: "T.A.A. xp"},
-    "Immortality": {name: "Immortality", maxXp: 100, effect: 0.01, description: "Longer lifespan"},
-    "Time warping": {name: "Time warping", maxXp: 100, effect: 0.01, description: "Gamespeed"},
-    "Super immortality": {name: "Super immortality", maxXp: 100, effect: 0.01, description: "Longer lifespan"},
+    // Magic
+    {id: "mana_control", name: "Mana control", category: "Magic", maxXp: 100, effect: 0.01, description: "T.A.A. xp",
+        tooltip: "Strengthen your mana channels throughout your body, aiding you in becoming a more powerful magical user."},
+    {id: "immortality", name: "Immortality", category: "Magic", maxXp: 100, effect: 0.01, description: "Longer lifespan",
+        tooltip: "Lengthen your lifespan through the means of magic. However, is this truly the immortality you have tried seeking for...?"},
+    {id: "time_warping", name: "Time warping", category: "Magic", maxXp: 100, effect: 0.01, description: "Gamespeed",
+        tooltip: "Bend space and time through forbidden techniques, resulting in a faster gamespeed."},
+    {id: "super_immortality", name: "Super immortality", category: "Magic", maxXp: 100, effect: 0.01, description: "Longer lifespan",
+        tooltip: "Through harnessing ancient, forbidden techniques, lengthen your lifespan drastically beyond comprehension."},
 
-    "Dark influence": {name: "Dark influence", maxXp: 100, effect: 0.01, description: "All xp"},
-    "Evil control": {name: "Evil control", maxXp: 100, effect: 0.01, description: "Evil gain"},
-    "Intimidation": {name: "Intimidation", maxXp: 100, effect: -0.01, description: "Expenses"},
-    "Demon training": {name: "Demon training", maxXp: 100, effect: 0.01, description: "All xp"},
-    "Blood meditation": {name: "Blood meditation", maxXp: 100, effect: 0.01, description: "Evil gain"},
-    "Demon's wealth": {name: "Demon's wealth", maxXp: 100, effect: 0.002, description: "Job pay"},
-    
-}
+    // Dark magic
+    {id: "dark_influence", name: "Dark influence", category: "Dark magic", maxXp: 100, effect: 0.01, description: "All xp",
+        tooltip: "Encompass yourself with formidable power bestowed upon you by evil, allowing you to pick up and absorb any job or skill with ease."},
+    {id: "evil_control", name: "Evil control", category: "Dark magic", maxXp: 100, effect: 0.01, description: "Evil gain",
+        tooltip: "Tame the raging and growing evil within you, improving evil gain in-between rebirths."},
+    {id: "intimidation", name: "Intimidation", category: "Dark magic", maxXp: 100, effect: -0.01, description: "Expenses",
+        tooltip: "Learn to emit a devilish aura which strikes extreme fear into other merchants, forcing them to give you heavy discounts."},
+    {id: "demon_training", name: "Demon training", category: "Dark magic", maxXp: 100, effect: 0.01, description: "All xp",
+        tooltip: "A mere human body is too feeble and weak to withstand evil. Train with forbidden methods to slowly manifest into a demon, capable of absorbing knowledge rapidly."},
+    {id: "blood_meditation", name: "Blood meditation", category: "Dark magic", maxXp: 100, effect: 0.01, description: "Evil gain",
+        tooltip: "Grow and culture the evil within you through the sacrifice of other living beings, drastically increasing evil gain."},
+    {id: "demons_wealth", name: "Demon's wealth", category: "Dark magic", maxXp: 100, effect: 0.002, description: "Job pay",
+        tooltip: "Through the means of dark magic, multiply the raw matter of the coins you receive from your job."},
+]
 
 const itemBaseData = {
     "Homeless": {name: "Homeless", expense: 0, effect: 1},
@@ -117,12 +137,8 @@ const itemBaseData = {
 const jobBaseData = definitionsByName(jobs)
 const jobCategories = namesByCategory(jobs)
 
-const skillCategories = {
-    "Fundamentals": ["Concentration", "Productivity", "Bargaining", "Meditation"],
-    "Combat": ["Strength", "Battle tactics", "Muscle memory"],
-    "Magic": ["Mana control", "Immortality", "Time warping", "Super immortality"],
-    "Dark magic": ["Dark influence", "Evil control", "Intimidation", "Demon training", "Blood meditation", "Demon's wealth"]
-}
+const skillBaseData = definitionsByName(skills)
+const skillCategories = namesByCategory(skills)
 
 const itemCategories = {
     "Properties": ["Homeless", "Tent", "Wooden hut", "Cottage", "House", "Large house", "Small palace", "Grand palace"],
@@ -142,27 +158,6 @@ const headerRowColors = {
 }
 
 const tooltips = {
-    "Concentration": "Improve your learning speed through practising intense concentration activities.",
-    "Productivity": "Learn to procrastinate less at work and receive more job experience per day.",
-    "Bargaining": "Study the tricks of the trade and persuasive skills to lower any type of expense.",
-    "Meditation": "Fill your mind with peace and tranquility to tap into greater happiness from within.",
-
-    "Strength": "Condition your body and strength through harsh training. Stronger individuals are paid more in the military.",
-    "Battle tactics": "Create and revise battle strategies, improving experience gained in the military.",
-    "Muscle memory": "Strengthen your neurons through habit and repetition, improving strength gains throughout the body.",
-
-    "Mana control": "Strengthen your mana channels throughout your body, aiding you in becoming a more powerful magical user.",
-    "Immortality": "Lengthen your lifespan through the means of magic. However, is this truly the immortality you have tried seeking for...?",
-    "Time warping": "Bend space and time through forbidden techniques, resulting in a faster gamespeed.",
-    "Super immortality": "Through harnessing ancient, forbidden techniques, lengthen your lifespan drastically beyond comprehension.",
-
-    "Dark influence": "Encompass yourself with formidable power bestowed upon you by evil, allowing you to pick up and absorb any job or skill with ease.",
-    "Evil control": "Tame the raging and growing evil within you, improving evil gain in-between rebirths.",
-    "Intimidation": "Learn to emit a devilish aura which strikes extreme fear into other merchants, forcing them to give you heavy discounts.",
-    "Demon training": "A mere human body is too feeble and weak to withstand evil. Train with forbidden methods to slowly manifest into a demon, capable of absorbing knowledge rapidly.",
-    "Blood meditation": "Grow and culture the evil within you through the sacrifice of other living beings, drastically increasing evil gain.",
-    "Demon's wealth": "Through the means of dark magic, multiply the raw matter of the coins you receive from your job.",
-
     "Homeless": "Sleep on the uncomfortable, filthy streets while almost freezing to death every night. It cannot get any worse than this.",
     "Tent": "A thin sheet of tattered cloth held up by a couple of feeble, wooden sticks. Horrible living conditions but at least you have a roof over your head.",
     "Wooden hut": "Shabby logs and dirty hay glued together with horse manure. Much more sturdy than a tent, however, the stench isn't very pleasant.",
@@ -183,3 +178,4 @@ const tooltips = {
 }
 
 for (const job of jobs) tooltips[job.name] = job.tooltip
+for (const skill of skills) tooltips[skill.name] = skill.tooltip
