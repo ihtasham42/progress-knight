@@ -517,10 +517,9 @@ function getNet() {
 }
 
 function hideEntities() {
-    for (const key in gameData.requirements) {
-        const requirement = gameData.requirements[key]
-        const completed = requirement.completed
-        for (const element of requirement.elements) {
+    for (const key in requirementElements) {
+        const completed = gameData.requirements[key].completed
+        for (const element of requirementElements[key]) {
             if (completed) {
                 element.classList.remove("hidden")
             } else {
@@ -704,34 +703,44 @@ function formatCoins(coins, element) {
 // other entities by id.
 function createRequirements() {
     const requirements = {}
-    for (const unlock of unlocks) {
-        const elements = unlock.category ? getElementsByClass(unlock.category) : [document.getElementById(unlock.elementId)]
-        requirements[unlock.name] = createRequirement(unlock, elements)
-    }
-    for (const definition of [...jobs, ...skills]) {
-        requirements[definition.name] = createRequirement(definition, [getTaskElement(definition.name)])
-    }
-    for (const definition of items) {
-        requirements[definition.name] = createRequirement(definition, [getItemElement(definition.name)])
+    for (const definition of [...unlocks, ...jobs, ...skills, ...items]) {
+        requirements[definition.name] = createRequirement(definition)
     }
     return requirements
 }
 
-function createRequirement(definition, elements) {
+function createRequirement(definition) {
     const specs = definition.requires
     const types = new Set(specs.map(spec => Object.keys(spec).find(key => key != "level")))
     if (types.size > 1) throw new Error(definition.name + " mixes different kinds of requirement")
 
     if (specs.length == 0 || types.has("task")) {
-        return new TaskRequirement(elements, specs.map(function(spec) {
+        return new TaskRequirement(specs.map(function(spec) {
             if (!(spec.task in namesById)) throw new Error(definition.name + " requires unknown task " + spec.task)
             return {task: namesById[spec.task], requirement: spec.level}
         }))
     }
-    if (types.has("coins")) return new CoinRequirement(elements, specs.map(spec => ({requirement: spec.coins})))
-    if (types.has("age")) return new AgeRequirement(elements, specs.map(spec => ({requirement: spec.age})))
-    if (types.has("evil")) return new EvilRequirement(elements, specs.map(spec => ({requirement: spec.evil})))
+    if (types.has("coins")) return new CoinRequirement(specs.map(spec => ({requirement: spec.coins})))
+    if (types.has("age")) return new AgeRequirement(specs.map(spec => ({requirement: spec.age})))
+    if (types.has("evil")) return new EvilRequirement(specs.map(spec => ({requirement: spec.evil})))
     throw new Error(definition.name + " has an unknown kind of requirement")
+}
+
+// Requirement key -> the page elements shown once it is completed
+let requirementElements = {}
+
+function createRequirementElements() {
+    const elements = {}
+    for (const unlock of unlocks) {
+        elements[unlock.name] = unlock.category ? Array.from(getElementsByClass(unlock.category)) : [document.getElementById(unlock.elementId)]
+    }
+    for (const definition of [...jobs, ...skills]) {
+        elements[definition.name] = [getTaskElement(definition.name)]
+    }
+    for (const definition of items) {
+        elements[definition.name] = [getItemElement(definition.name)]
+    }
+    return elements
 }
 
 function getTaskElement(taskName) {
@@ -870,6 +879,7 @@ gameData.currentProperty = getItemById(startingItems.property)
 gameData.currentMisc = []
 
 gameData.requirements = createRequirements()
+requirementElements = createRequirementElements()
 
 loadGameData()
 

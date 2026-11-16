@@ -112,8 +112,7 @@ class Item {
 }
 
 class Requirement {
-    constructor(elements, requirements) {
-        this.elements = elements
+    constructor(requirements) {
         this.requirements = requirements
         this.completed = false
     }
@@ -131,8 +130,8 @@ class Requirement {
 }
 
 class TaskRequirement extends Requirement {
-    constructor(elements, requirements) {
-        super(elements, requirements)
+    constructor(requirements) {
+        super(requirements)
         this.type = "task"
     }
 
@@ -142,8 +141,8 @@ class TaskRequirement extends Requirement {
 }
 
 class CoinRequirement extends Requirement {
-    constructor(elements, requirements) {
-        super(elements, requirements)
+    constructor(requirements) {
+        super(requirements)
         this.type = "coins"
     }
 
@@ -153,8 +152,8 @@ class CoinRequirement extends Requirement {
 }
 
 class AgeRequirement extends Requirement {
-    constructor(elements, requirements) {
-        super(elements, requirements)
+    constructor(requirements) {
+        super(requirements)
         this.type = "age"
     }
 
@@ -164,8 +163,8 @@ class AgeRequirement extends Requirement {
 }
 
 class EvilRequirement extends Requirement {
-    constructor(elements, requirements) {
-        super(elements, requirements)
+    constructor(requirements) {
+        super(requirements)
         this.type = "evil"
     }
 

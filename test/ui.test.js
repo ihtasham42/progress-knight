@@ -65,3 +65,15 @@ test("unlocks are recorded by the game step, not by rendering", () => {
     game.run("updateUI()")
     assert.ok(!game.window.document.getElementById("shopTabButton").classList.contains("hidden"))
 })
+
+test("requirements hold only their conditions; the page keeps the elements they reveal", () => {
+    const game = loadGame()
+    for (const [key, requirement] of Object.entries(game.gameData.requirements)) {
+        assert.ok(!("elements" in requirement), key)
+    }
+    const elements = game.run("requirementElements")
+    assert.deepEqual(Object.keys(elements).sort(), Object.keys(game.gameData.requirements).sort())
+    // Arrays from the game's window, so compare their contents
+    assert.deepEqual(Array.from(elements["Shop"]), [game.window.document.getElementById("shopTabButton")])
+    assert.deepEqual(Array.from(elements["Farmer"]), [game.window.document.getElementById("row Farmer")])
+})
