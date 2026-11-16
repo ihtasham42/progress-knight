@@ -36,6 +36,7 @@ function loadGame(options = {}) {
 
     window.setInterval = () => 0
     window.reloads = 0
+    fireChangeWhenCheckboxesAreSet(window)
     if (options.localStorage) {
         for (const [key, value] of Object.entries(options.localStorage)) {
             window.localStorage.setItem(key, value)
@@ -73,6 +74,24 @@ function loadGame(options = {}) {
             }
         },
     }
+}
+
+// Tests tick checkboxes by setting `checked`. A player clicking a checkbox
+// also fires a "change" event, which the game listens for, so do the same.
+function fireChangeWhenCheckboxesAreSet(window) {
+    const checked = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "checked")
+    Object.defineProperty(window.HTMLInputElement.prototype, "checked", {
+        configurable: true,
+        enumerable: checked.enumerable,
+        get() { return checked.get.call(this) },
+        set(value) {
+            const changed = checked.get.call(this) !== Boolean(value)
+            checked.set.call(this, value)
+            if (changed && this.type == "checkbox") {
+                this.dispatchEvent(new window.Event("change", { bubbles: true }))
+            }
+        },
+    })
 }
 
 module.exports = { loadGame }
