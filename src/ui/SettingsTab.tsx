@@ -42,12 +42,12 @@ export const SettingsTab = memo(function SettingsTab() {
                 {/* Pressing Enter in the box mustn't submit (and reload) the page */}
                 <form id="importExportForm" style={{marginTop: "16px"}} onSubmit={event => event.preventDefault()}>
                     {" "}
-                    <input id="importExportBox" type="text" style={{width: "300px", height: "30px"}}
+                    <input id="importExportBox" type="text"
                         value={saveText} onChange={event => setSaveText(event.target.value)} />
                     {" "}
                 </form>
                 {" "}
-                <div id="importError" className={classNames(!showImportError && "hidden")} style={{color: "rgb(200, 0, 0)", marginTop: "8px"}}>{importError}</div>
+                <div id="importError" className={classNames(!showImportError && "hidden")} style={{color: "var(--pk-loss)", marginTop: "8px"}}>{importError}</div>
                 {" "}
             </li>
             {" "}

@@ -1,10 +1,30 @@
-body {
-    background-color: rgb(243, 243, 243);
+/* Page styles. Colours, sizes and fonts come from the tokens in tokens.css
+   (and dark.css), never raw values. w3.css loads after this file, so the
+   rules that restyle w3 classes are written to outrank it. */
+
+html body {
+    background-color: var(--pk-ground);
+    color: var(--pk-text);
+    font-family: var(--pk-font-sans);
+    font-size: var(--pk-text-sm);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Tables get the body's colour and font explicitly (old browsers and quirks
+   mode don't inherit them into tables) */
+table {
+    color: var(--pk-text);
+    font-size: inherit;
+}
+
+h1 {
+    font-family: var(--pk-font-display);
+    letter-spacing: 0.03em;
 }
 
 .w3-bar-item {
-    width: 100px;
-    height: 40px;
+    width: var(--pk-col-narrow);
+    height: var(--pk-control-height);
     text-align: center;
 }
 
@@ -12,28 +32,34 @@ td {
     vertical-align: middle !important;
 }
 
+table.w3-bordered tr {
+    border-bottom: 1px solid var(--pk-line);
+}
+
 .current {
-    background-color: orange !important;
+    background-color: var(--pk-bar-current) !important;
 }
 
 .progress-text {
     position: absolute;
     top: 0px;
     bottom: 0px;
-    padding: 5px;
-    color: white
+    padding: 5px var(--pk-space-3);
+    color: var(--pk-bar-text);
 }
 
 .progress-bar {
     position: relative;
-    background-color: rgb(12, 101, 173);
+    background-color: var(--pk-bar-track);
+    border-radius: var(--pk-radius);
     cursor: pointer;
-    width: 200px;
+    width: var(--pk-bar-width);
 }
 
 .progress-fill {
     height: 30px;
-    background-color: rgb(46, 148, 231)
+    border-radius: var(--pk-radius);
+    background-color: var(--pk-bar-fill);
 }
 
 .hidden {
@@ -45,24 +71,54 @@ td {
 }
 
 .button {
-    border: 1px solid black !important;
+    border: 0 !important;
+    border-radius: var(--pk-radius);
+    background-color: var(--pk-raised);
+    color: var(--pk-text) !important;
+}
+
+body .w3-button:hover {
+    background-color: var(--pk-line) !important;
+    color: var(--pk-text) !important;
+}
+
+/* The selected tab */
+body .tabButton.w3-blue-gray {
+    background-color: var(--pk-raised) !important;
+    color: var(--pk-text) !important;
+    box-shadow: inset 0 -2px 0 var(--pk-accent);
+}
+
+body .w3-red {
+    background-color: var(--pk-loss) !important;
+    color: var(--pk-panel) !important;
+}
+
+body .w3-text-gray {
+    color: var(--pk-text-muted) !important;
 }
 
 .item-button {
-    background-color: white;
+    background-color: var(--pk-panel);
+    border-radius: var(--pk-radius);
     text-align: center;
-    width: 200px;
-    height: 40px;
-    padding: 8px;
+    width: var(--pk-bar-width);
+    height: var(--pk-control-height);
+    padding: var(--pk-space-2);
 }
 
 .item-button:hover {
     cursor: pointer;
-    background-color: rgb(192, 192, 192);
+    background-color: var(--pk-raised);
 }
 
 button:focus {
     outline: none;
+}
+
+button:focus-visible {
+    outline: 2px solid var(--pk-accent);
+    outline-offset: 2px;
 }
 
 .scroll {
@@ -73,15 +129,15 @@ button:focus {
     position: relative;
     display: inline-block;
 }
-  
+
 .tooltip .tooltipText {
     visibility: hidden;
     width: 240px;
-    background-color: black;
-    color: #fff;
+    background-color: var(--pk-tooltip-bg);
+    color: var(--pk-tooltip-text);
     text-align: center;
-    border-radius: 6px;
-    padding: 10px 0;
+    border-radius: var(--pk-radius);
+    padding: var(--pk-space-3) var(--pk-space-2);
 
     /* Position the tooltip */
     position: absolute;
@@ -92,14 +148,14 @@ button:focus {
     opacity: 0;
     transition: opacity 0.5s;
 }
-  
+
 .tooltip:hover .tooltipText {
     visibility: visible;
-    opacity: 0.8;
+    opacity: 1;
 }
 
 .sidebar-element {
-    margin-bottom: 16px;
+    margin-bottom: var(--pk-space-4);
 }
 
 .slidecontainer {
@@ -110,8 +166,8 @@ button:focus {
     -webkit-appearance: none;
     width: 50%;
     height: 15px;
-    border-radius: 5px;
-    background: #d3d3d3;
+    border-radius: var(--pk-radius);
+    background: var(--pk-raised);
     outline: none;
     opacity: 0.7;
     -webkit-transition: .2s;
@@ -128,7 +184,7 @@ button:focus {
     width: 25px;
     height: 25px;
     border-radius: 50%;
-    background: #4CAF50;
+    background: var(--pk-accent);
     cursor: pointer;
 }
 
@@ -136,7 +192,7 @@ button:focus {
     width: 25px;
     height: 25px;
     border-radius: 50%;
-    background: #4CAF50;
+    background: var(--pk-accent);
     cursor: pointer;
 }
 
@@ -145,9 +201,645 @@ button:focus {
 }
 
 .panel {
-    background-color: white;
+    background-color: var(--pk-panel);
+    border-radius: var(--pk-radius);
 }
 
 .small-margin  {
     margin-bottom: 2px;
+}
+
+/* Page layout. Phones first (one column, bottom tab bar), then stacked at
+   tablet width, then the sidebar beside the main panel from 1024px */
+
+.page {
+    box-sizing: border-box;
+    max-width: var(--pk-page-max);
+    margin: 0 auto;
+    padding: var(--pk-space-3);
+    /* Room for the fixed tab bar */
+    padding-bottom: calc(var(--pk-touch) + env(safe-area-inset-bottom) + var(--pk-space-4));
+}
+
+.layout {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-4);
+}
+
+.layout .sidebar {
+    box-sizing: border-box;
+    padding: var(--pk-space-2) var(--pk-space-4);
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-4);
+    min-width: 0;
+}
+
+.tab-panel {
+    box-sizing: border-box;
+    padding: var(--pk-space-2) var(--pk-space-4);
+    min-width: 0;
+}
+
+/* A wide table scrolls inside this box, not the page */
+.table-scroll {
+    overflow-x: auto;
+}
+
+th.category {
+    width: var(--pk-col-wide);
+}
+
+th.col-active {
+    width: var(--pk-col-narrow);
+}
+
+th.col-effect {
+    width: var(--pk-col-wide);
+}
+
+.quick-task {
+    width: 100%;
+    max-width: var(--pk-quick-bar-width);
+}
+
+.tab-bar {
+    display: flow-root;
+}
+
+/* The tabs stay inline (not flex items), so the page's text keeps them on
+   one line; the Settings tab floats to the right end */
+body .tab-bar .tabButton {
+    vertical-align: top;
+    box-sizing: border-box;
+    width: var(--pk-col-narrow);
+    height: var(--pk-control-height);
+    padding-top: 0;
+    padding-bottom: 0;
+    line-height: var(--pk-control-height);
+}
+
+body .tab-bar .tabButton.tab-end {
+    float: right;
+}
+
+#importExportBox {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--pk-measure);
+    height: var(--pk-control-height);
+    padding: 0 var(--pk-space-3);
+    background: var(--pk-panel);
+    color: var(--pk-text);
+    border: 1px solid var(--pk-line);
+    border-radius: var(--pk-radius);
+}
+
+th {
+    white-space: nowrap;
+}
+
+.tab-panel h2 {
+    font-size: var(--pk-text-lg);
+}
+
+/* Tablet and up: padding grows */
+@media (min-width: 640px) {
+    .page {
+        padding: var(--pk-space-4);
+    }
+
+    .tab-panel h2 {
+        font-size: var(--pk-text-xl);
+    }
+}
+
+/* Under 1024px the sidebar is above the main panel, so bars and item
+   buttons grow to fill their table cell */
+@media (max-width: 1023px) {
+    .progress-bar,
+    .item-button {
+        width: 100%;
+        min-width: var(--pk-bar-width);
+        box-sizing: border-box;
+    }
+
+    .tooltip {
+        display: block;
+    }
+}
+
+@media (min-width: 1024px) {
+    .page {
+        padding: var(--pk-space-4) var(--pk-space-6);
+    }
+
+    .layout {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: flex-start;
+    }
+
+    .layout .sidebar {
+        flex: 1 1 var(--pk-sidebar-min);
+        max-width: var(--pk-sidebar-max);
+    }
+
+    .main {
+        flex: 999 1 var(--pk-main-basis);
+    }
+}
+
+/* Phones: tab bar fixed to the bottom, touch-sized controls */
+@media (max-width: 639px) {
+    .tab-bar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 10;
+        padding-bottom: env(safe-area-inset-bottom);
+        border-radius: 0;
+        border-top: 1px solid var(--pk-line);
+    }
+
+    /* The visible tabs share the bar equally (--tab-count is set in App).
+       No font size on the bar, so the spaces between the tabs have no width */
+    .tab-bar {
+        font-size: 0;
+    }
+
+    body .tab-bar .tabButton,
+    body .tab-bar .tabButton.tab-end {
+        float: none;
+        width: calc(100% / var(--tab-count));
+        height: var(--pk-touch);
+        line-height: var(--pk-touch);
+        font-size: var(--pk-text-xs);
+        padding-left: 0;
+        padding-right: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .page h1 {
+        font-size: var(--pk-text-2xl);
+        margin-top: var(--pk-space-2);
+        margin-bottom: var(--pk-space-3);
+    }
+
+    .tab-panel ul {
+        padding-left: var(--pk-space-4);
+    }
+
+    body .tabButton.w3-blue-gray {
+        color: var(--pk-accent) !important;
+        box-shadow: inset 0 2px 0 var(--pk-accent);
+    }
+
+    .progress-bar,
+    .item-button {
+        min-height: var(--pk-touch);
+    }
+
+    .progress-fill {
+        height: var(--pk-touch);
+    }
+
+    .progress-bar .progress-text {
+        display: flex;
+        align-items: center;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    .item-button {
+        height: auto;
+    }
+
+    .layout .sidebar,
+    .tab-panel {
+        padding-left: var(--pk-space-3);
+        padding-right: var(--pk-space-3);
+    }
+}
+
+/* Phone header and the sidebar disclosure. From 640px up the header is gone
+   and the details wrapper adds no box of its own, so the sidebar lays out as
+   before (its summary is hidden and the details is always open, see App). */
+.phone-header {
+    display: none;
+}
+
+.sidebar-details {
+    display: contents;
+}
+
+.sidebar-details > summary {
+    display: none;
+}
+
+@media (max-width: 639px) {
+    .phone-header {
+        display: block;
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        padding: var(--pk-space-4);
+        background-color: var(--pk-ground);
+        border-bottom: 1px solid var(--pk-line);
+    }
+
+    .phone-header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--pk-space-3);
+    }
+
+    .phone-header-row + .phone-header-row {
+        margin-top: var(--pk-space-2);
+    }
+
+    .phone-header-title {
+        font-family: var(--pk-font-display);
+        font-size: var(--pk-text-lg);
+        font-weight: 600;
+    }
+
+    .phone-header-pause {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: none;
+        width: var(--pk-touch);
+        height: var(--pk-touch);
+        padding: 0;
+        border: 0;
+        border-radius: var(--pk-radius);
+        background-color: var(--pk-raised);
+        color: var(--pk-text);
+        cursor: pointer;
+    }
+
+    .phone-header-coins {
+        font-size: var(--pk-text-xl);
+        font-weight: 600;
+    }
+
+    .phone-header-net,
+    .phone-header-muted {
+        font-size: var(--pk-text-sm);
+        color: var(--pk-text-muted);
+        white-space: nowrap;
+    }
+
+    .phone-header-muted b {
+        font-weight: 400;
+        color: var(--pk-text);
+    }
+
+    .life-bar {
+        height: 6px;
+        margin-top: var(--pk-space-2);
+        border-radius: var(--pk-radius);
+        background-color: var(--pk-raised);
+        overflow: hidden;
+    }
+
+    .life-bar-fill {
+        height: 100%;
+        background-color: var(--pk-accent);
+    }
+
+    .phone-header-death {
+        margin-top: var(--pk-space-2);
+        font-size: var(--pk-text-sm);
+        color: var(--pk-loss);
+    }
+
+    .page h1 {
+        display: none;
+    }
+
+    .page {
+        padding-top: var(--pk-space-3);
+    }
+
+    .sidebar-details {
+        display: block;
+    }
+
+    .sidebar-details > summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-sizing: border-box;
+        min-height: var(--pk-touch);
+        padding: 0 var(--pk-space-3);
+        border-radius: var(--pk-radius);
+        background-color: var(--pk-panel);
+        color: var(--pk-text);
+        cursor: pointer;
+        list-style: none;
+    }
+
+    .sidebar-details > summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .sidebar-details > summary::after {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-right: 2px solid currentColor;
+        border-bottom: 2px solid currentColor;
+        transform: rotate(45deg);
+    }
+
+    .sidebar-details[open] > summary::after {
+        transform: rotate(-135deg);
+    }
+
+    .sidebar-details > summary:focus-visible {
+        outline: 2px solid var(--pk-accent);
+        outline-offset: 2px;
+    }
+
+    .sidebar-details[open] > .sidebar {
+        margin-top: var(--pk-space-2);
+    }
+
+    /* Already in the header */
+    .sidebar-age,
+    .sidebar-pause,
+    .sidebar-coins,
+    .sidebar-death {
+        display: none !important;
+    }
+}
+
+/* The level inside a bar is for phones only */
+.phone-level {
+    display: none;
+}
+
+/* Phones: the Jobs, Skills and Shop tables become lists. Each row is a bar
+   (or item button) with a muted line under it, so nothing scrolls sideways. */
+@media (max-width: 639px) {
+    .table-scroll {
+        overflow-x: visible;
+    }
+
+    #jobTable,
+    #skillTable,
+    #itemTable {
+        display: block;
+        width: 100%;
+    }
+
+    #jobTable > tbody,
+    #skillTable > tbody,
+    #itemTable > tbody {
+        display: block;
+    }
+
+    #jobTable td,
+    #skillTable td,
+    #itemTable td {
+        padding: 0;
+        min-width: 0;
+    }
+
+    /* A section heading, not a coloured bar. The inline colours stay for
+       the desktop table, so they're overridden here */
+    #jobTable tr.headerRow,
+    #skillTable tr.headerRow,
+    #itemTable tr.headerRow {
+        display: block;
+        margin-top: var(--pk-space-4);
+        padding: 0;
+        border-bottom: 0;
+        background: none !important;
+        color: var(--pk-text) !important;
+    }
+
+    #jobTable tr.headerRow > th:not(.category),
+    #skillTable tr.headerRow > th:not(.category),
+    #itemTable tr.headerRow > th:not(.category) {
+        display: none !important;
+    }
+
+    #jobTable th.category,
+    #skillTable th.category,
+    #itemTable th.category {
+        display: flex;
+        align-items: center;
+        gap: var(--pk-space-2);
+        width: auto;
+        padding: 0 0 var(--pk-space-2);
+        font-size: var(--pk-text-base);
+        font-weight: 600;
+        color: var(--pk-text);
+    }
+
+    #jobTable th.category::before,
+    #skillTable th.category::before,
+    #itemTable th.category::before {
+        content: "";
+        flex: none;
+        width: 10px;
+        height: 10px;
+        background-color: var(--cat);
+    }
+
+    /* Job and skill rows: [bar | skip] over the meta line */
+    #jobTable tr[id],
+    #skillTable tr[id] {
+        display: grid;
+        grid-template-columns: auto auto 1fr auto;
+        grid-template-areas:
+            "bar bar bar skip"
+            "value xp . .";
+        align-items: center;
+        padding: var(--pk-space-2) 0;
+    }
+
+    #jobTable tr[id] > td:first-child,
+    #skillTable tr[id] > td:first-child {
+        grid-area: bar;
+    }
+
+    #jobTable td.level,
+    #skillTable td.level,
+    #jobTable td.xpLeft,
+    #skillTable td.xpLeft,
+    #jobTable td.maxLevel,
+    #skillTable td.maxLevel,
+    #itemTable td:nth-child(2) {
+        display: none;
+    }
+
+    #jobTable td.value,
+    #skillTable td.value {
+        grid-area: value;
+    }
+
+    #jobTable td.xpGain,
+    #skillTable td.xpGain {
+        grid-area: xp;
+    }
+
+    #jobTable td.skipSkill,
+    #skillTable td.skipSkill {
+        grid-area: skip;
+        width: var(--pk-touch);
+        height: var(--pk-touch);
+    }
+
+    .skip-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: var(--pk-touch);
+        height: var(--pk-touch);
+    }
+
+    .skip-label .checkbox {
+        width: var(--pk-space-6);
+        height: var(--pk-space-6);
+        margin: 0;
+        accent-color: var(--pk-accent);
+    }
+
+    body.dark .skip-label .checkbox {
+        color-scheme: dark;
+    }
+
+    /* The meta line */
+    #jobTable td.value,
+    #skillTable td.value,
+    #jobTable td.xpGain,
+    #skillTable td.xpGain,
+    #itemTable td.effect,
+    #itemTable td.expense {
+        padding-top: var(--pk-space-1);
+        font-size: var(--pk-text-xs);
+        color: var(--pk-text-muted);
+    }
+
+    #jobTable td.value > div,
+    #skillTable td.value > div {
+        display: inline;
+    }
+
+    #jobTable .effect:empty,
+    #skillTable .income {
+        display: none;
+    }
+
+    #jobTable td.value::after {
+        content: " / day";
+    }
+
+    #jobTable td.xpGain::before,
+    #skillTable td.xpGain::before,
+    #itemTable td.expense::before {
+        content: "\00b7";
+        margin: 0 var(--pk-space-1);
+    }
+
+    #jobTable td.xpGain::after,
+    #skillTable td.xpGain::after {
+        content: " xp / day";
+    }
+
+    #itemTable td.expense::after {
+        content: " / day";
+    }
+
+    #jobTable .progress-bar,
+    #skillTable .progress-bar {
+        min-width: 0;
+    }
+
+    .phone-level {
+        position: absolute;
+        top: 0;
+        right: var(--pk-space-3);
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        font-size: var(--pk-text-sm);
+        color: var(--pk-bar-text);
+        opacity: 0.72;
+        pointer-events: none;
+    }
+
+    /* Shop rows: the item button over its meta line */
+    #itemTable tr[id] {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        align-items: center;
+        padding: var(--pk-space-2) 0;
+    }
+
+    #itemTable tr[id] > td:first-child {
+        grid-column: 1 / -1;
+    }
+
+    #itemTable .item-button {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        min-width: 0;
+        min-height: var(--pk-touch);
+        padding: 0 var(--pk-space-3);
+        text-align: left;
+        /* Same as the bars: the tab panel behind is --pk-panel */
+        background-color: var(--pk-raised);
+    }
+
+    #itemTable .item-button:disabled {
+        opacity: 0.6;
+        cursor: default;
+    }
+
+    #itemTable .item-button[aria-pressed="true"]::after {
+        content: "\2713";
+        color: var(--pk-accent);
+        font-weight: 600;
+    }
+
+    /* Required: a flat block, not a table row */
+    #jobTable td.requiredRow,
+    #skillTable td.requiredRow,
+    #itemTable td.requiredRow {
+        display: block;
+        margin-top: var(--pk-space-2);
+        padding: var(--pk-space-3) !important;
+        border-radius: var(--pk-radius);
+        /* The tab panel behind is --pk-panel */
+        background-color: var(--pk-raised);
+        font-size: var(--pk-text-sm);
+    }
+
+    /* Tooltips open under the bar at its width: beside it they'd be off
+       the screen and make the page scroll sideways */
+    #jobTable .tooltip .tooltipText,
+    #skillTable .tooltip .tooltipText,
+    #itemTable .tooltip .tooltipText {
+        top: 100%;
+        right: 0;
+        left: 0;
+        width: auto;
+        margin-top: var(--pk-space-1);
+        pointer-events: none;
+    }
 }

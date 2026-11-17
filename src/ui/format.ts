@@ -29,11 +29,12 @@ export function format(number: number | string): number | string {
     return sign + scaled.toFixed(1) + units[tier]
 }
 
+// Coin tier -> its colour, as a design token (css/tokens.css, css/dark.css)
 const coinColors = {
-    "p": "#79b9c7",
-    "g": "#E5C100",
-    "s": "#a8a8a8",
-    "c": "#a15c2f",
+    "p": "var(--pk-coin-p)",
+    "g": "var(--pk-coin-g)",
+    "s": "var(--pk-coin-s)",
+    "c": "var(--pk-coin-c)",
 }
 
 // One of the four parts of an amount of coins: platinum, gold, silver and

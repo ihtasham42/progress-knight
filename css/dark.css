@@ -1,23 +1,46 @@
-.dark {
-    background-color: rgb(32, 32, 32);
-    color: white
-}
+/* Dark theme: the default (index.html puts .dark on the body). Only colours
+   change; the scales in tokens.css stay the same. */
 
-.dark .panel {
-    background-color: rgb(46, 46, 46);
-}
+body.dark {
+    /* Neutrals: lighter means closer */
+    --pk-ground: #111318;
+    --pk-panel: #181b22;
+    --pk-raised: #20242d;
+    --pk-line: #2b303b;
+    --pk-text-muted: #a3a6ae;
+    --pk-text-secondary: #c9c5bc;
+    --pk-text: #ebe7df;
+    --pk-tooltip-bg: #2b303b;
+    --pk-tooltip-text: #ebe7df;
 
-.dark .button {
-    background-color: rgb(31, 31, 31);
-    border-color: white !important;
-    color: white !important
-}
+    --pk-accent: #e3a83b;
 
-.dark .w3-bordered tr, .w3-table-all tr {
-    border-bottom: 1px solid rgb(73, 73, 73);
-}
+    --pk-gain: #7fd47a;
+    --pk-loss: #ed7379;
+    --pk-info: #6fb2f2;
+    --pk-stat-happiness: #6fb2f2;
+    --pk-stat-evil: #ed7379;
+    --pk-stat-time: #c37fdc;
 
-.dark .w3-button:hover {
-    background-color: rgb(82, 82, 82) !important;
-    color: white !important
+    /* Fills are the colour at about 40% over the track, so white text stays readable */
+    --pk-bar-track: #20242d;
+    --pk-bar-fill: #405d7c;
+    --pk-bar-current: #785f33;
+    --pk-bar-text: #ffffff;
+
+    --pk-on-category: #111318;
+    --pk-cat-common-work: #6fb351;
+    --pk-cat-military: #ed7379;
+    --pk-cat-arcane: #e074af;
+    --pk-cat-fundamentals: #9499d0;
+    --pk-cat-combat: #ee8545;
+    --pk-cat-magic: #ba82e4;
+    --pk-cat-dark-magic: #d85a62;
+    --pk-cat-properties: #00b0d2;
+    --pk-cat-misc: #ea728f;
+
+    --pk-coin-p: #86cddb;
+    --pk-coin-g: #e8c33a;
+    --pk-coin-s: #c3c6cc;
+    --pk-coin-c: #d98a57;
 }

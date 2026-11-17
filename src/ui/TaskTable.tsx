@@ -2,6 +2,7 @@
 // or skill, and what the next one needs.
 
 import { Fragment } from "react"
+import type { CSSProperties } from "react"
 import { headerRowColors, idsByName, jobCategories, skillCategories, tooltips } from "../game/data.ts"
 import { Job, Skill } from "../game/classes.ts"
 import { setSkillSkipped, setTask } from "../game/engine.ts"
@@ -25,17 +26,19 @@ export function TaskTable({kind}: {kind: TaskKind}) {
     const game = useGame()
     const categories = kind == "jobs" ? jobCategories : skillCategories
     return (
-        <table id={kind == "jobs" ? "jobTable" : "skillTable"} className="w3-table w3-bordered">
-            <tbody>
-                {Object.entries(categories).map(([categoryName, names]) => (
-                    <Fragment key={categoryName}>
-                        <TaskHeaderRow kind={kind} categoryName={categoryName} />
-                        {names.map(name => <TaskRow key={name} task={game.taskData[name]} />)}
-                        <RequiredRow categoryName={categoryName} category={names} items={false} />
-                    </Fragment>
-                ))}
-            </tbody>
-        </table>
+        <div className="table-scroll">
+            <table id={kind == "jobs" ? "jobTable" : "skillTable"} className="w3-table w3-bordered">
+                <tbody>
+                    {Object.entries(categories).map(([categoryName, names]) => (
+                        <Fragment key={categoryName}>
+                            <TaskHeaderRow kind={kind} categoryName={categoryName} />
+                            {names.map(name => <TaskRow key={name} task={game.taskData[name]} />)}
+                            <RequiredRow categoryName={categoryName} category={names} items={false} />
+                        </Fragment>
+                    ))}
+                </tbody>
+            </table>
+        </div>
     )
 }
 
@@ -43,8 +46,8 @@ function TaskHeaderRow({kind, categoryName}: {kind: TaskKind, categoryName: stri
     const game = useGame()
     return (
         <tr className={classNames(removeSpaces(categoryName), "headerRow", isCategoryHidden(categoryName) && "hidden")}
-            style={{backgroundColor: headerRowColors[categoryName as keyof typeof headerRowColors], color: "#ffffff"}}>
-            <th className="category" style={{width: "250px"}}>{categoryName}</th>
+            style={{"--cat": headerRowColors[categoryName as keyof typeof headerRowColors], backgroundColor: headerRowColors[categoryName as keyof typeof headerRowColors], color: "var(--pk-on-category)"} as CSSProperties}>
+            <th className="category">{categoryName}</th>
             <th>Level</th>
             <th className="valueType">{kind == "jobs" ? "Income/day" : "Effect"}</th>
             <th>Xp/day</th>
@@ -66,6 +69,8 @@ function TaskRow({task}: {task: Job | Skill}) {
                     <div className={classNames("progress-fill progressFill", isCurrent && "current")}
                         style={{width: task.xp / task.getMaxXp() * 100 + "%"}}></div>
                     <div className="progress-text name">{name}</div>
+                    {/* Phones show the level inside the bar (hidden from 640px) */}
+                    <span className="phone-level">{"lvl " + task.level}</span>
                     <span className="tooltipText">{tooltips[name]}</span>
                 </div>
             </td>
@@ -79,8 +84,9 @@ function TaskRow({task}: {task: Job | Skill}) {
             <td className={classNames("maxLevel", !(game.rebirthOneCount > 0) && "hidden")}>{task.maxLevel}</td>
             <td className="skipSkill" style={{display: task instanceof Skill && game.automation.autoLearn ? "block" : "none"}}>
                 {" "}
-                <Checkbox className="checkbox" checked={task instanceof Skill && game.automation.skippedSkills.has(idsByName[name])}
-                    onToggle={task instanceof Skill ? skipSkill[name] : undefined} />
+                {/* The label makes the whole 44px cell on phones tap to toggle */}
+                <label className="skip-label"><Checkbox className="checkbox" ariaLabel={"Skip " + name} checked={task instanceof Skill && game.automation.skippedSkills.has(idsByName[name])}
+                    onToggle={task instanceof Skill ? skipSkill[name] : undefined} /></label>
                 {" "}
             </td>
         </tr>

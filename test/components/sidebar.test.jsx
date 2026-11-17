@@ -29,13 +29,13 @@ test("coins are shown in platinum, gold, silver and copper, each in its colour",
     game.rerender()
     const parts = [...byId("coinDisplay").children]
     assert.deepEqual(parts.map(part => part.textContent), ["123p ", "45g ", "67s ", "89c"])
-    assert.deepEqual(parts.map(part => part.style.color), ["rgb(121, 185, 199)", "rgb(229, 193, 0)", "rgb(168, 168, 168)", "rgb(161, 92, 47)"])
+    assert.deepEqual(parts.map(part => part.style.color), ["var(--pk-coin-p)", "var(--pk-coin-g)", "var(--pk-coin-s)", "var(--pk-coin-c)"])
 })
 
 test("net income, income and expenses, with the sign of the net", async () => {
     const game = await renderComponent("Sidebar.tsx", "Sidebar")
     assert.equal(text("signDisplay"), "+")
-    assert.equal(byId("signDisplay").style.color, "green")
+    assert.equal(byId("signDisplay").style.color, "var(--pk-gain)")
     assert.equal(text("incomeDisplay"), "5c")
     assert.equal(text("expenseDisplay"), "0c")
     assert.equal(text("netDisplay"), "5c")
@@ -43,7 +43,7 @@ test("net income, income and expenses, with the sign of the net", async () => {
     game.engine.setProperty("Tent")
     game.rerender()
     assert.equal(text("signDisplay"), "-")
-    assert.equal(byId("signDisplay").style.color, "red")
+    assert.equal(byId("signDisplay").style.color, "var(--pk-loss)")
     assert.equal(text("expenseDisplay"), "15c")
     assert.equal(text("netDisplay"), "10c")
 })

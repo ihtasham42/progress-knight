@@ -86,7 +86,7 @@ export function RequiredRow({categoryName, category, items}: {categoryName: stri
                         {showCoins ? <CoinParts coins={coins} /> : <EmptyCoinParts />}
                     </span>
                     {" "}
-                    <span style={{color: "rgb(200, 0, 0)"}} className={classNames("evil", !showEvil && "hiddenTask")}>{evil}</span>
+                    <span style={{color: "var(--pk-stat-evil)"}} className={classNames("evil", !showEvil && "hiddenTask")}>{evil}</span>
                     {" "}
                 </span>
                 {" "}

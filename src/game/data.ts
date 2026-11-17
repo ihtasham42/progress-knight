@@ -212,16 +212,17 @@ export const skillCategories = namesByCategory(skills)
 export const itemBaseData = definitionsByName(items)
 export const itemCategories = namesByCategory(items)
 
+// Category -> its colour, as a design token (css/tokens.css, css/dark.css)
 export const headerRowColors: Record<Category, string> = {
-    "Common work": "#55a630",
-    "Military": "#e63946",
-    "The Arcane Association": "#C71585",
-    "Fundamentals": "#4a4e69",
-    "Combat": "#ff704d",
-    "Magic": "#875F9A",
-    "Dark magic": "#73000f",
-    "Properties": "#219ebc",
-    "Misc": "#b56576",
+    "Common work": "var(--pk-cat-common-work)",
+    "Military": "var(--pk-cat-military)",
+    "The Arcane Association": "var(--pk-cat-arcane)",
+    "Fundamentals": "var(--pk-cat-fundamentals)",
+    "Combat": "var(--pk-cat-combat)",
+    "Magic": "var(--pk-cat-magic)",
+    "Dark magic": "var(--pk-cat-dark-magic)",
+    "Properties": "var(--pk-cat-properties)",
+    "Misc": "var(--pk-cat-misc)",
 }
 
 // Entity name -> tooltip text

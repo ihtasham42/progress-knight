@@ -1,0 +1,100 @@
+/* Design tokens. Every colour, size and font the page uses comes from here,
+   so a theme is just a different set of values (dark.css overrides the
+   colours for body.dark).
+
+   Scales follow Tailwind's: spacing on a 4px grid, its text sizes and one
+   corner radius (rounded-md). Colours are a 7-step neutral ramp, one accent
+   and category colours of equal OKLCH lightness, so none of them shouts. */
+
+:root {
+    /* Spacing, 4px grid */
+    --pk-space-1: 4px;
+    --pk-space-2: 8px;
+    --pk-space-3: 12px;
+    --pk-space-4: 16px;
+    --pk-space-5: 20px;
+    --pk-space-6: 24px;
+    --pk-space-8: 32px;
+    --pk-space-10: 40px;
+    --pk-space-12: 48px;
+
+    /* Type */
+    --pk-font-sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --pk-font-display: Cinzel, Georgia, "Times New Roman", serif;
+    --pk-text-xs: 12px;
+    --pk-text-sm: 14px;
+    --pk-text-base: 16px;
+    --pk-text-lg: 18px;
+    --pk-text-xl: 20px;
+    --pk-text-2xl: 24px;
+    --pk-text-3xl: 30px;
+    --pk-text-4xl: 36px;
+
+    /* Shape */
+    --pk-radius: 6px;
+
+    /* Layout. The breakpoints (640px and 1024px) can't be variables, so
+       they're written out in the media queries in styles.css */
+    --pk-page-max: 1376px;
+    --pk-sidebar-min: 300px;
+    --pk-sidebar-max: 340px;
+    --pk-main-basis: 560px;
+    --pk-measure: 480px;
+    --pk-bar-width: 200px;
+    --pk-quick-bar-width: 230px;
+    --pk-col-wide: 250px;
+    --pk-col-narrow: 100px;
+    --pk-control-height: 40px;
+    --pk-touch: 44px;
+}
+
+/* Light theme (body without .dark) */
+body {
+    /* Neutrals */
+    --pk-ground: #f3f2ef;
+    --pk-panel: #ffffff;
+    --pk-raised: #ecebe7;
+    --pk-line: #dcdad4;
+    --pk-text-muted: #64676f;
+    --pk-text-secondary: #45474d;
+    --pk-text: #1d1f24;
+    --pk-tooltip-bg: #1d1f24;
+    --pk-tooltip-text: #f3f2ef;
+
+    /* The one accent: the current task, the primary action */
+    --pk-accent: #956800;
+
+    /* Meaning */
+    --pk-gain: #257d24;
+    --pk-loss: #af3c3a;
+    --pk-info: #006cb7;
+    --pk-stat-happiness: #1f68bc;
+    --pk-stat-evil: #af3b43;
+    --pk-stat-time: #8a48a2;
+
+    /* Progress bars: the task buttons. Fills are the colour at about 28%
+       over the track, so dark text stays readable */
+    --pk-bar-track: #ecebe7;
+    --pk-bar-fill: #aac7da;
+    --pk-bar-current: #d4c6a6;
+    --pk-bar-text: #1d1f24;
+
+    /* Categories (header rows and markers) and the text on them */
+    --pk-on-category: #ffffff;
+    --pk-cat-common-work: #397b10;
+    --pk-cat-military: #ae3b45;
+    --pk-cat-arcane: #a33d78;
+    --pk-cat-fundamentals: #5a5e90;
+    --pk-cat-combat: #a54b00;
+    --pk-cat-magic: #824ba9;
+    --pk-cat-dark-magic: #8d1828;
+    --pk-cat-properties: #00758d;
+    --pk-cat-misc: #ac3a5a;
+
+    /* Coins */
+    /* Platinum and gold are deepened to pass 4.5:1 on white */
+    --pk-coin-p: #22717f;
+    --pk-coin-g: #7f6500;
+    --pk-coin-s: #6f7278;
+    --pk-coin-c: #a15c2f;
+}

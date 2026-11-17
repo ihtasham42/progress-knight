@@ -16,8 +16,8 @@ const requiredRow = category => document.getElementById(category)
 test("each category has a header row in its colour", async () => {
     await renderComponent("TaskTable.tsx", "TaskTable", { kind: "jobs" })
     const commonWork = header("Common work")
-    assert.equal(commonWork.style.backgroundColor, "rgb(85, 166, 48)")
-    assert.equal(commonWork.style.color, "rgb(255, 255, 255)")
+    assert.equal(commonWork.style.backgroundColor, "var(--pk-cat-common-work)")
+    assert.equal(commonWork.style.color, "var(--pk-on-category)")
     assert.deepEqual([...commonWork.children].map(th => th.textContent).slice(0, 5), ["Common work", "Level", "Income/day", "Xp/day", "Xp left"])
 })
 
@@ -126,4 +126,13 @@ test("the required row is hidden when everything in the category is unlocked", a
     for (const name of ["Concentration", "Productivity", "Bargaining", "Meditation"]) game.task(name).level = 100
     game.ticks(1)
     assert.ok(requiredRow("Fundamentals").classList.contains("hiddenTask"))
+})
+
+test("phones get the level inside the bar and a labelled skip checkbox", async () => {
+    const game = await renderComponent("TaskTable.tsx", "TaskTable", { kind: "skills" })
+    game.task("Strength").level = 7
+    game.rerender()
+    assert.equal(text(cell("Strength", "phone-level")), "lvl 7")
+    assert.equal(cell("Strength", "progressBar").contains(cell("Strength", "phone-level")), true)
+    assert.equal(cell("Strength", "checkbox").getAttribute("aria-label"), "Skip Strength")
 })

@@ -30,10 +30,10 @@ export function AmuletTab() {
                     to see what happens.
                 </div>
                 {" "}
-                <i style={{color: "grey"}}>
+                <i style={{color: "var(--pk-text-muted)"}}>
                     {" "}By touching the eyeball, you will be reborn and have to restart life again, losing all your levels and coins.
                     However, you will gain <b>xp multipliers</b> for your jobs and skills equivalent to: <b>1 + the max level of the skill or job / 10.</b>{" "}
-                    This means you will learn everything again much more quickly than you did in your previous life. <span style={{color: "rgb(200, 0, 0)"}}>
+                    This means you will learn everything again much more quickly than you did in your previous life. <span style={{color: "var(--pk-stat-evil)"}}>
                         {" "}Something tells you that the amulet might transform even further after living for <b>2 whole centuries</b>...</span>{" "}
                 </i>
                 {" "}
@@ -53,7 +53,7 @@ export function AmuletTab() {
                     A mouth emerges from its surface and begins to cackle, and proceeds to say: &quot;So you&apos;ve made it this far... Are you ready to embrace evil?&quot;
                 </div>
                 {" "}
-                <i style={{color: "rgb(200, 0, 0)"}}>
+                <i style={{color: "var(--pk-stat-evil)"}}>
                     {" "}If you decide to embrace evil, all of your levels, coins and even max levels will be reset.
                     You will be reborn as a fresh slate. However, you will unlock a new line of skills and gain{" "}
                     <b><span id="evilGainDisplay">{getEvilGain().toFixed(1)}</span> evil</b>, which will heavily impact your future lives.{" "}
