@@ -7,20 +7,6 @@ export default [
     {
         ignores: ["node_modules/", "dist/", "src/vendor/", "css/"],
     },
-    {
-        // The game: ES modules that run in the browser
-        files: ["src/**/*.js"],
-        languageOptions: {
-            sourceType: "module",
-            ecmaVersion: 2022,
-            globals: globals.browser,
-        },
-        rules: {
-            ...js.configs.recommended.rules,
-            "no-var": "error",
-            "prefer-const": "error",
-        },
-    },
     ...tseslint.configs.recommended.map(config => ({ ...config, files: ["src/**/*.{ts,tsx}", "test/types/**/*.ts"] })),
     {
         // The game's TypeScript modules, and type tests
