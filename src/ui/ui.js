@@ -8,11 +8,10 @@ import { daysToYears, getLifespan } from "../game/rules.ts"
 import { Job, Skill, EvilRequirement } from "../game/classes.ts"
 import { getTaskById, getHappiness, getEvilGain, getExpense, setPause, setTimeWarping, setAutoPromote, setAutoLearn, setSkillSkipped, setTask, setProperty, setMisc, getNet, getIncome, getDay, rebirthOne, rebirthTwo, isLifeOver } from "../game/engine.ts"
 import { clearSave, importSave, exportSave } from "../game/save.ts"
+import { format, formatCoins } from "./format.ts"
 
 export const autoPromoteElement = document.getElementById("autoPromote")
 export const autoLearnElement = document.getElementById("autoLearn")
-
-export const units = ["", "k", "M", "B", "T", "q", "Q", "Sx", "Sp", "Oc"];
 
 export const jobTabButton = document.getElementById("jobTabButton")
 
@@ -267,7 +266,7 @@ export function updateRequiredRows(data, categoryType) {
             finalText = finalText.substring(0, finalText.length - 1)
             setText(levelElement, finalText)
         } else if (showCoins) {
-            formatCoins(requirements[0].requirement, coinElement)
+            writeCoins(requirements[0].requirement, coinElement)
         }
     }
 }
@@ -289,7 +288,7 @@ export function updateTaskRows() {
         setStyle(row.skipSkill, "display", task instanceof Skill && gameData.automation.autoLearn ? "block" : "none")
 
         if (task instanceof Job) {
-            formatCoins(task.getIncome(), row.income)
+            writeCoins(task.getIncome(), row.income)
         } else {
             setText(row.effect, task.getEffectDescription())
         }
@@ -304,7 +303,7 @@ export function updateItemRows() {
         const color = itemCategories["Properties"].includes(item.name) ? headerRowColors["Properties"] : headerRowColors["Misc"]
         setStyle(row.active, "backgroundColor", gameData.currentMisc.includes(item) || item == gameData.currentProperty ? color : "white")
         setText(row.effect, item.getEffectDescription())
-        formatCoins(item.getExpense(), row.expense)
+        writeCoins(item.getExpense(), row.expense)
     }
 }
 
@@ -324,11 +323,11 @@ export function updateText() {
     setText(sidebar.lifespanDisplay, daysToYears(getLifespan()))
     setText(sidebar.pauseButton, gameData.paused ? "Play" : "Pause")
 
-    formatCoins(gameData.coins, sidebar.coinDisplay)
+    writeCoins(gameData.coins, sidebar.coinDisplay)
     setSignDisplay()
-    formatCoins(getNet(), sidebar.netDisplay)
-    formatCoins(getIncome(), sidebar.incomeDisplay)
-    formatCoins(getExpense(), sidebar.expenseDisplay)
+    writeCoins(getNet(), sidebar.netDisplay)
+    writeCoins(getIncome(), sidebar.incomeDisplay)
+    writeCoins(getExpense(), sidebar.expenseDisplay)
 
     setText(sidebar.happinessDisplay, getHappiness().toFixed(1))
 
@@ -364,55 +363,13 @@ export function hideEntities() {
     }
 }
 
-export function format(number) {
-    number = Number(number)
-    if (!isFinite(number)) return String(number)
-
-    const sign = number < 0 ? "-" : ""
-    const abs = Math.abs(number)
-
-    // what tier? (determines SI symbol) - computed without log10 to avoid float error at exact powers of 1000
-    let tier = 0
-    while (abs >= Math.pow(1000, tier + 1)) tier++
-
-    // below 1000 (including 0, fractions and small negatives) no suffix is needed
-    if (tier == 0) return number
-
-    // beyond the last named suffix fall back to scientific notation
-    if (tier >= units.length) return sign + abs.toExponential(2)
-
-    let scaled = abs / Math.pow(1000, tier)
-    // avoid displaying e.g. "1000.0k" when rounding pushes into the next tier
-    if (scaled.toFixed(1) == "1000.0" && tier + 1 < units.length) {
-        tier++
-        scaled = abs / Math.pow(1000, tier)
-    }
-
-    return sign + scaled.toFixed(1) + units[tier]
-}
-
-export function formatCoins(coins, element) {
-    const tiers = ["p", "g", "s"]
-    const colors = {
-        "p": "#79b9c7",
-        "g": "#E5C100",
-        "s": "#a8a8a8",
-        "c": "#a15c2f"
-    }
-    let leftOver = coins
-    let i = 0
-    for (const tier of tiers) {
-        const x = Math.floor(leftOver / Math.pow(10, (tiers.length - i) * 2))
-        leftOver = Math.floor(leftOver - x * Math.pow(10, (tiers.length - i) * 2))
-        const text = format(String(x)) + tier + " "
-        setText(element.children[i], x > 0 ? text : "")
-        setStyle(element.children[i], "color", colors[tier])
-        i += 1
-    }
-    if (leftOver == 0 && coins > 0) {setText(element.children[3], ""); return}
-    const copperText = String(Math.floor(leftOver)) + "c"
-    setText(element.children[3], copperText)
-    setStyle(element.children[3], "color", colors["c"])
+// Writes an amount of coins into an element with four parts (platinum,
+// gold, silver, copper)
+export function writeCoins(coins, element) {
+    formatCoins(coins).forEach(function(part, i) {
+        setText(element.children[i], part.text)
+        if (part.color) setStyle(element.children[i], "color", part.color)
+    })
 }
 
 // Requirement key -> the page elements shown once it is completed

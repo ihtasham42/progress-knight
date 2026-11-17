@@ -2,10 +2,7 @@
 
 import { test } from "vitest"
 import assert from "node:assert/strict"
-import { loadGame } from "./helpers/game.js"
-
-const game = await loadGame()
-const format = game.api.format
+import { format, formatCoins } from "../src/ui/format.ts"
 
 test("numbers below 1000 are shown as-is", async () => {
     assert.equal(format(0), 0)
@@ -38,10 +35,7 @@ test("numbers beyond the last suffix use scientific notation", async () => {
 })
 
 function coinText(coins) {
-    const element = game.window.document.createElement("span")
-    for (let i = 0; i < 4; i++) element.appendChild(game.window.document.createElement("span"))
-    game.api.formatCoins(coins, element)
-    return [...element.children].map(child => child.textContent).join("").trim()
+    return formatCoins(coins).map(part => part.text).join("").trim()
 }
 
 test("coins are split into platinum, gold, silver and copper (100 of each per next)", async () => {
@@ -57,4 +51,10 @@ test("empty coin tiers are hidden", async () => {
 
 test("very large platinum amounts are abbreviated", async () => {
     assert.equal(coinText(5e12), "5.0Mp")
+})
+
+test("each coin part has its colour; copper has none when there is no copper", async () => {
+    assert.deepEqual(formatCoins(123456789).map(part => part.color), ["#79b9c7", "#E5C100", "#a8a8a8", "#a15c2f"])
+    assert.equal(formatCoins(100)[3].color, undefined)
+    assert.equal(formatCoins(0)[3].color, "#a15c2f")
 })
