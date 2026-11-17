@@ -1,9 +1,10 @@
 {
   "name": "progress-knight-evolved",
   "private": true,
+  "type": "module",
   "description": "Development tooling only. The game itself runs directly from index.html with no build step.",
   "scripts": {
-    "test": "node --test \"test/**/*.test.js\"",
+    "test": "vitest run",
     "test:e2e": "playwright test",
     "lint": "eslint ."
   },
@@ -12,6 +13,7 @@
     "@playwright/test": "^1.65.1",
     "eslint": "^9.39.5",
     "globals": "^16.5.0",
-    "jsdom": "^26.1.0"
+    "jsdom": "^26.1.0",
+    "vitest": "^5.1.0"
   }
 }

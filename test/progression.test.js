@@ -1,10 +1,8 @@
-"use strict"
-
 // Unlocks, automation and both kinds of rebirth.
 
-const test = require("node:test")
-const assert = require("node:assert/strict")
-const { loadGame } = require("./helpers/game")
+import { test } from "vitest"
+import assert from "node:assert/strict"
+import { loadGame } from "./helpers/game.js"
 
 function isUnlocked(game, key) {
     return game.run(`gameData.requirements[${JSON.stringify(key)}].isCompleted()`)

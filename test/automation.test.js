@@ -1,11 +1,9 @@
-"use strict"
-
 // Automation settings live in game state. The checkboxes only change that
 // state; the game logic never reads the checkboxes.
 
-const test = require("node:test")
-const assert = require("node:assert/strict")
-const { loadGame } = require("./helpers/game")
+import { test } from "vitest"
+import assert from "node:assert/strict"
+import { loadGame } from "./helpers/game.js"
 
 test("automation starts switched off", () => {
     const game = loadGame()

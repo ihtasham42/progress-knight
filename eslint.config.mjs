@@ -25,9 +25,9 @@ export default [
         },
     },
     {
-        files: ["test/**/*.js", "playwright.config.js"],
+        files: ["test/**/*.js", "*.config.js"],
         languageOptions: {
-            sourceType: "commonjs",
+            sourceType: "module",
             ecmaVersion: 2022,
             globals: globals.node,
         },

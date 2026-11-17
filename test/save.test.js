@@ -1,5 +1,3 @@
-"use strict"
-
 // Saving, loading, importing, exporting and upgrading old saves.
 //
 // fixtures/legacy-save.json is a real save written by the original game
@@ -12,16 +10,16 @@
 // fixtures/v3-save.json is the same state again in version 3 (by id, before
 // automation settings were saved).
 
-const test = require("node:test")
-const assert = require("node:assert/strict")
-const fs = require("node:fs")
-const path = require("node:path")
-const { loadGame } = require("./helpers/game")
+import { test } from "vitest"
+import assert from "node:assert/strict"
+import fs from "node:fs"
+import path from "node:path"
+import { loadGame } from "./helpers/game.js"
 
-const legacyRaw = fs.readFileSync(path.join(__dirname, "fixtures", "legacy-save.json"), "utf8")
+const legacyRaw = fs.readFileSync(path.join(import.meta.dirname, "fixtures", "legacy-save.json"), "utf8")
 const legacy = JSON.parse(legacyRaw)
-const v2Raw = fs.readFileSync(path.join(__dirname, "fixtures", "v2-save.json"), "utf8")
-const v3Raw = fs.readFileSync(path.join(__dirname, "fixtures", "v3-save.json"), "utf8")
+const v2Raw = fs.readFileSync(path.join(import.meta.dirname, "fixtures", "v2-save.json"), "utf8")
+const v3Raw = fs.readFileSync(path.join(import.meta.dirname, "fixtures", "v3-save.json"), "utf8")
 
 function savedState(game) {
     return JSON.parse(game.run("JSON.stringify(serializeGameData())"))

@@ -1,5 +1,3 @@
-"use strict"
-
 // Loads the game into a fresh jsdom window so tests can call its functions.
 //
 // The game is written as classic browser scripts that share globals, so each
@@ -7,11 +5,11 @@
 // animation frames are disabled: tests drive the game by calling update()
 // (one game step) and updateUI() (one render) themselves.
 
-const fs = require("node:fs")
-const path = require("node:path")
-const { JSDOM, VirtualConsole } = require("jsdom")
+import fs from "node:fs"
+import path from "node:path"
+import { JSDOM, VirtualConsole } from "jsdom"
 
-const ROOT = path.join(__dirname, "..", "..")
+const ROOT = path.join(import.meta.dirname, "..", "..")
 const SKIPPED_SCRIPTS = new Set(["js/HackTimer.js"])
 
 function loadGame(options = {}) {
@@ -94,4 +92,4 @@ function fireChangeWhenCheckboxesAreSet(window) {
     })
 }
 
-module.exports = { loadGame }
+export { loadGame }

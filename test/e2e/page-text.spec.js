@@ -1,5 +1,3 @@
-"use strict"
-
 // Plays a fixed, scripted game in a real browser and compares what the page
 // shows (its visible text) at several points with a recording. Any change to
 // the page's text or to what is shown or hidden fails this test, so the page
@@ -11,11 +9,11 @@
 // To re-record (only when the page is meant to change):
 //   UPDATE_PAGE_TEXT=1 npm run test:e2e
 
-const { test, expect } = require("@playwright/test")
-const fs = require("node:fs")
-const path = require("node:path")
+import { test, expect } from "@playwright/test"
+import fs from "node:fs"
+import path from "node:path"
 
-const ROOT = path.join(__dirname, "..", "..")
+const ROOT = path.join(import.meta.dirname, "..", "..")
 const FIXTURE = path.join(ROOT, "test", "fixtures", "page-text.json")
 const ORIGIN = "http://game.test"
 

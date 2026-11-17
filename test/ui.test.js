@@ -1,10 +1,8 @@
-"use strict"
-
 // The page shows the game state; the game logic never touches the page.
 
-const test = require("node:test")
-const assert = require("node:assert/strict")
-const { loadGame } = require("./helpers/game")
+import { test } from "vitest"
+import assert from "node:assert/strict"
+import { loadGame } from "./helpers/game.js"
 
 test("the death text is shown once age reaches the lifespan, and hidden after a rebirth", () => {
     const game = loadGame()

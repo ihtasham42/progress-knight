@@ -1,5 +1,3 @@
-"use strict"
-
 // The fixed strategy the golden run plays with. Shared so the same lives can
 // be played with and without a page.
 //
@@ -55,4 +53,4 @@ function playLife(game) {
     }
 }
 
-module.exports = { shop, playLife }
+export { shop, playLife }

@@ -1,14 +1,12 @@
-"use strict"
-
 // Loads only the game logic (classes.js, data.js and engine.js) into a plain
 // Node vm context: no page, no document, no window, no timers. If any of
 // these files touched the page, loading or playing would throw.
 
-const fs = require("node:fs")
-const path = require("node:path")
-const vm = require("node:vm")
+import fs from "node:fs"
+import path from "node:path"
+import vm from "node:vm"
 
-const ROOT = path.join(__dirname, "..", "..")
+const ROOT = path.join(import.meta.dirname, "..", "..")
 const ENGINE_SCRIPTS = ["js/classes.js", "js/data.js", "js/engine.js"]
 
 function loadEngine() {
@@ -35,4 +33,4 @@ function loadEngine() {
     }
 }
 
-module.exports = { loadEngine }
+export { loadEngine }

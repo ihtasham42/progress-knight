@@ -1,8 +1,6 @@
-"use strict"
-
-const test = require("node:test")
-const assert = require("node:assert/strict")
-const { loadGame } = require("./helpers/game")
+import { test } from "vitest"
+import assert from "node:assert/strict"
+import { loadGame } from "./helpers/game.js"
 
 test("a new game starts as a 14 year old beggar with no coins", () => {
     const game = loadGame()

@@ -1,8 +1,6 @@
-"use strict"
+import { defineConfig, devices } from "@playwright/test"
 
-const { defineConfig, devices } = require("@playwright/test")
-
-module.exports = defineConfig({
+export default defineConfig({
     testDir: "test/e2e",
     fullyParallel: false,
     forbidOnly: !!process.env.CI,

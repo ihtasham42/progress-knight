@@ -1,11 +1,9 @@
-"use strict"
-
 // Core game formulas. Expected values are worked out by hand from the
 // formulas so these tests catch accidental balance changes.
 
-const test = require("node:test")
-const assert = require("node:assert/strict")
-const { loadGame } = require("./helpers/game")
+import { test } from "vitest"
+import assert from "node:assert/strict"
+import { loadGame } from "./helpers/game.js"
 
 test("xp needed per level grows as base * (level + 1) * 1.01^level", () => {
     const game = loadGame()

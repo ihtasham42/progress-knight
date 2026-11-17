@@ -1,5 +1,3 @@
-"use strict"
-
 // Plays two full lives with a fixed strategy and compares the results with a
 // recorded run. This locks in game balance: any refactor that changes how the
 // game plays, even slightly, will fail this test.
@@ -8,14 +6,14 @@
 //   UPDATE_GOLDEN=1 npm test
 // and explain the difference in the commit message.
 
-const test = require("node:test")
-const assert = require("node:assert/strict")
-const fs = require("node:fs")
-const path = require("node:path")
-const { loadGame } = require("./helpers/game")
-const { playLife } = require("./helpers/golden-strategy")
+import { test } from "vitest"
+import assert from "node:assert/strict"
+import fs from "node:fs"
+import path from "node:path"
+import { loadGame } from "./helpers/game.js"
+import { playLife } from "./helpers/golden-strategy.js"
 
-const GOLDEN_FILE = path.join(__dirname, "fixtures", "golden-run.json")
+const GOLDEN_FILE = path.join(import.meta.dirname, "fixtures", "golden-run.json")
 
 function play() {
     const game = loadGame()

@@ -1,10 +1,8 @@
-"use strict"
-
 // Number and coin formatting used throughout the UI.
 
-const test = require("node:test")
-const assert = require("node:assert/strict")
-const { loadGame } = require("./helpers/game")
+import { test } from "vitest"
+import assert from "node:assert/strict"
+import { loadGame } from "./helpers/game.js"
 
 const game = loadGame()
 const format = game.window.format

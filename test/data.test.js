@@ -1,10 +1,8 @@
-"use strict"
-
 // Checks the game data definitions in data.js are consistent.
 
-const test = require("node:test")
-const assert = require("node:assert/strict")
-const { loadGame } = require("./helpers/game")
+import { test } from "vitest"
+import assert from "node:assert/strict"
+import { loadGame } from "./helpers/game.js"
 
 const game = loadGame()
 const jobs = Array.from(game.run("jobs"))

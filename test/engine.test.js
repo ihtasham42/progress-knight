@@ -1,15 +1,13 @@
-"use strict"
-
 // The game logic runs without a page at all.
 
-const test = require("node:test")
-const assert = require("node:assert/strict")
-const fs = require("node:fs")
-const path = require("node:path")
-const { loadEngine } = require("./helpers/engine")
-const { playLife } = require("./helpers/golden-strategy")
+import { test } from "vitest"
+import assert from "node:assert/strict"
+import fs from "node:fs"
+import path from "node:path"
+import { loadEngine } from "./helpers/engine.js"
+import { playLife } from "./helpers/golden-strategy.js"
 
-const GOLDEN_FILE = path.join(__dirname, "fixtures", "golden-run.json")
+const GOLDEN_FILE = path.join(import.meta.dirname, "fixtures", "golden-run.json")
 
 test("the game logic loads with no page, document or window", () => {
     const game = loadEngine()

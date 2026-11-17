@@ -1,11 +1,9 @@
-"use strict"
-
 // The game loop measures real time and runs one fixed game step for every
 // 1/20 of a second that has passed, catching up on at most MAX_CATCH_UP_MS.
 
-const test = require("node:test")
-const assert = require("node:assert/strict")
-const { loadEngine } = require("./helpers/engine")
+import { test } from "vitest"
+import assert from "node:assert/strict"
+import { loadEngine } from "./helpers/engine.js"
 
 function snapshot(game) {
     return game.run(`JSON.stringify({
