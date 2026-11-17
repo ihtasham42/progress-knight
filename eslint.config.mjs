@@ -57,10 +57,12 @@ export default [
         },
     },
     {
-        // The TypeScript parser's scope analysis sees components used in JSX
+        // Tests that render components run in jsdom. The TypeScript parser's
+        // scope analysis sees components used in JSX.
         files: ["test/**/*.jsx"],
         languageOptions: {
             parser: tseslint.parser,
+            globals: { ...globals.node, ...globals.browser },
         },
     },
     {

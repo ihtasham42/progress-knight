@@ -5,4 +5,10 @@ export default defineConfig({
     // The game is published at https://a-crawley.github.io/progress-knight-evolved/
     base: "/progress-knight-evolved/",
     plugins: [react()],
+    build: {
+        rollupOptions: {
+            // react.html: the React version of the page, while it's built
+            input: ["index.html", "react.html"],
+        },
+    },
 })
