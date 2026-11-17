@@ -18,7 +18,7 @@ export const gameData = {
     currentProperty: null,
     currentMisc: null,
 
-    // Not saved yet
+    // Saved since save version 4
     automation: {
         autoPromote: false,
         autoLearn: false,
