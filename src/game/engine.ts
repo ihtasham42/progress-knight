@@ -4,7 +4,8 @@
 // also run without a browser. ui.js shows this state on the page.
 
 import { jobs, skills, items, unlocks, startingItems, namesById, idsByName, jobBaseData, jobCategories, skillBaseData, itemBaseData } from "./data.ts"
-import { gameData } from "./state.ts"
+import { gameData, MAX_LIVES } from "./state.ts"
+import type { LifeBest, LifeEnd } from "./state.ts"
 import { updateSpeed, getSourceEffect, applyStatBoosts, applySpeed, daysToYears, getLifespan } from "./rules.ts"
 import { Job, Skill, Item, TaskRequirement, CoinRequirement, AgeRequirement, EvilRequirement } from "./classes.ts"
 import type { Requirement } from "./classes.ts"
@@ -342,15 +343,48 @@ export function initGameData() {
     addMultipliers()
 }
 
+// The highest level any job (or skill) has reached in this life. The first
+// one wins a tie, and a life without levels gives the first of them.
+export function getBestOfLife(kind: typeof Job | typeof Skill): LifeBest {
+    let best: Job | Skill | undefined
+    for (const taskName in gameData.taskData) {
+        const task = gameData.taskData[taskName]
+        if (task instanceof kind && (!best || task.level > best.level)) best = task
+    }
+    return {id: (best as Job | Skill).baseData.id, level: (best as Job | Skill).level}
+}
+
+// The most coins held in this life, counting those held right now
+export function getLifePeakCoins(): number {
+    return Math.max(gameData.lifePeakCoins, gameData.coins)
+}
+
+// Writes the life that is ending into the history, before the reset
+function recordLife(end: LifeEnd, evil: number): void {
+    gameData.lives.push({
+        life: gameData.rebirthOneCount + gameData.rebirthTwoCount + 1,
+        end: end,
+        age: daysToYears(gameData.days),
+        job: getBestOfLife(Job),
+        skill: getBestOfLife(Skill),
+        peakCoins: getLifePeakCoins(),
+        evil: evil,
+    })
+    if (gameData.lives.length > MAX_LIVES) gameData.lives.splice(0, gameData.lives.length - MAX_LIVES)
+}
+
 export function rebirthOne() {
+    recordLife("rebirth", 0)
     gameData.rebirthOneCount += 1
 
     rebirthReset()
 }
 
 export function rebirthTwo() {
+    const evilGain = getEvilGain()
+    recordLife("evil", evilGain)
     gameData.rebirthTwoCount += 1
-    gameData.evil += getEvilGain()
+    gameData.evil += evilGain
 
     rebirthReset()
 
@@ -362,6 +396,7 @@ export function rebirthTwo() {
 
 function rebirthReset() {
     gameData.coins = 0
+    gameData.lifePeakCoins = 0
     gameData.days = 365 * 14
     // The starting ids are a job, a skill and a property (checked in data.ts)
     gameData.currentJob = getTaskById(startingItems.job) as Job
@@ -402,6 +437,8 @@ export function update() {
     doCurrentTask(gameData.currentSkill)
     applyExpenses()
     updateRequirements()
+    // Only watches the coins; it changes nothing the game uses
+    gameData.lifePeakCoins = getLifePeakCoins()
 }
 
 // The game always advances in fixed steps of 1 / updateSpeed seconds, however

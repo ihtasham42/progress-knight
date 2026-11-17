@@ -2,6 +2,30 @@
 
 import type { Job, Skill, Item, Requirement } from "./classes.ts"
 
+// How a life ended: by touching the eye (Rebirth I) or embracing evil (Rebirth II)
+export type LifeEnd = "rebirth" | "evil"
+
+// The highest level a job or skill reached in a life. The id is kept rather
+// than the name so a renamed task still resolves (unknown ids show as such).
+export interface LifeBest {
+    id: string
+    level: number
+}
+
+// One finished life
+export interface Life {
+    life: number // 1-based across the whole save
+    end: LifeEnd
+    age: number // years
+    job: LifeBest
+    skill: LifeBest
+    peakCoins: number
+    evil: number // the evil gained, 0 unless the life ended in evil
+}
+
+// Past lives kept; older ones are dropped
+export const MAX_LIVES = 50
+
 export interface GameData {
     taskData: Record<string, Job | Skill> // by name
     itemData: Record<string, Item> // by name
@@ -14,6 +38,9 @@ export interface GameData {
 
     rebirthOneCount: number
     rebirthTwoCount: number
+
+    lives: Life[] // finished lives, newest last
+    lifePeakCoins: number // the most coins held in this life so far
 
     currentJob: Job
     currentSkill: Skill
@@ -46,6 +73,10 @@ export const gameData: GameData = {
 
     rebirthOneCount: 0,
     rebirthTwoCount: 0,
+
+    // Saved since save version 5
+    lives: [],
+    lifePeakCoins: 0,
 
     currentJob: notBuiltYet,
     currentSkill: notBuiltYet,
