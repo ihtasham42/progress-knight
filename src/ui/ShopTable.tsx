@@ -8,7 +8,7 @@ import type { Item } from "../game/classes.ts"
 import { setMisc, setProperty } from "../game/engine.ts"
 import { requestRender, useGame } from "./gameStore.ts"
 import { CoinParts } from "./CoinParts.tsx"
-import { RequiredRow, isCategoryHidden } from "./RequiredRow.tsx"
+import { RequiredRow, isCategoryHidden, isCategoryUnseen } from "./RequiredRow.tsx"
 import { classNames, removeSpaces } from "./classNames.ts"
 import { splitEffect } from "./format.ts"
 import { useLongPressTooltip } from "./useLongPressTooltip.ts"
@@ -29,7 +29,7 @@ export function ShopTable() {
                     <tbody>
                         {Object.entries(itemCategories).map(([categoryName, names]) => (
                             <Fragment key={categoryName}>
-                                <tr className={classNames(removeSpaces(categoryName), "headerRow", isCategoryHidden(categoryName) && "locked-header")}
+                                <tr className={classNames(removeSpaces(categoryName), "headerRow", isCategoryHidden(categoryName) && "locked-header", isCategoryUnseen(categoryName) && "hidden")}
                                     style={{"--cat": headerRowColors[categoryName as keyof typeof headerRowColors]} as CSSProperties}>
                                     <th className="category">
                                         {categoryName}
@@ -73,7 +73,7 @@ function ItemRow({item, isProperty, categoryName}: {item: Item, isProperty: bool
     const tooltipId = "tip-" + removeSpaces(name)
     const longPress = useLongPressTooltip()
     return (
-        <tr id={"row " + name} className={classNames(!game.requirements[name].completed && "hidden")}
+        <tr id={"row " + name} className={classNames((!game.requirements[name].completed || isCategoryUnseen(categoryName)) && "hidden")}
             style={{"--cat": headerRowColors[categoryName as keyof typeof headerRowColors]} as CSSProperties}>
             <td>
                 <button type="button" className={classNames("item-button tooltip", longPress.shown && "tooltip-open")} disabled={game.coins < expense} aria-pressed={isActive} aria-describedby={tooltipId} {...longPress.handlers}

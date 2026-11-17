@@ -180,15 +180,20 @@ export const items: readonly ItemDefinition[] = itemList
 // decides what the others reveal, asking isUnlocked(id) (engine.ts).
 const unlockList = [
     {id: "the_arcane_association", name: "The Arcane Association", category: "The Arcane Association", requires: [{task: "concentration", level: 200}, {task: "meditation", level: 200}]},
-    {id: "dark_magic", name: "Dark magic", category: "Dark magic", requires: [{evil: 1}]},
+    {id: "dark_magic", name: "Dark magic", category: "Dark magic", hidesNext: true, requires: [{evil: 1}]},
     {id: "arcane_glimpse", name: "Arcane glimpse", reveals: ["The Arcane Association", "Magic"], permanent: true, requires: [{task: "concentration", level: 100}, {task: "meditation", level: 100}]},
     {id: "dark_glimpse", name: "Dark glimpse", reveals: ["Dark magic"], permanent: true, requires: [{age: 200}]},
+    {id: "military_glimpse", name: "Military glimpse", reveals: ["Military"], permanent: true, requires: [{task: "strength", level: 1}]},
+    // 100 times the Book's upkeep, the rule the other items follow
+    {id: "misc_glimpse", name: "Misc glimpse", reveals: ["Misc"], permanent: true, requires: [{coins: 1000}]},
     {id: "shop", name: "Shop", permanent: true, requires: [{coins: 750}]},
     {id: "rebirth_tab", name: "Rebirth tab", requires: [{age: 25}]},
     {id: "rebirth_note_1", name: "Rebirth note 1", requires: [{age: 45}]},
     {id: "rebirth_note_2", name: "Rebirth note 2", requires: [{age: 65}]},
     {id: "rebirth_note_3", name: "Rebirth note 3", requires: [{age: 200}]},
     {id: "evil_info", name: "Evil info", requires: [{evil: 1}]},
+    // With the shop, when the first property can be bought
+    {id: "happiness_info", name: "Happiness info", permanent: true, requires: [{coins: 750}]},
     {id: "time_warping_info", name: "Time warping info", requires: [{task: "mage", level: 10}]},
     {id: "automation", name: "Automation", permanent: true, requires: [{age: 20}]},
     {id: "quick_task_display", name: "Quick task display", permanent: true, requires: [{age: 20}]},

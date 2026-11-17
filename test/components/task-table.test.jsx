@@ -174,13 +174,34 @@ test("the next row says what the next job needs", async () => {
     assert.equal(text(requiredRow("Common work")), "Next: Miner Strength 0 / 10 Fisherman 10 / 10")
 })
 
-test("the next row shows evil for dark magic", async () => {
+test("dark magic keeps its next skill a surprise", async () => {
     const game = await renderComponent("TaskTable.tsx", "TaskTable", { kind: "skills" })
     game.engine.rebirthTwo()
     game.ticks(1)
-    const required = requiredRow("Dark magic")
-    assert.equal(text(required), "Next: Demon training Evil 1 / 25")
-    assert.ok(required.querySelector(".need-chip").classList.contains("need-evil"))
+    assert.ok(requiredRow("Dark magic").classList.contains("hiddenTask"))
+    assert.ok(row("Demon training").classList.contains("hidden"))
+    game.gameData.evil = 25
+    game.ticks(1)
+    assert.ok(!row("Demon training").classList.contains("hidden"))
+    assert.ok(requiredRow("Dark magic").classList.contains("hiddenTask"))
+})
+
+test("the locked dark magic row shows evil", async () => {
+    const game = await renderComponent("TaskTable.tsx", "TaskTable", { kind: "skills" })
+    game.task("Immortality").level = 33 ** 3 - 1 // lifespan x4, so 200 can be reached
+    game.gameData.days = 365 * 200
+    game.ticks(1)
+    assert.ok(requiredRow("Dark magic").querySelector(".need-chip").classList.contains("need-evil"))
+})
+
+test("the Military stays out of sight until Strength has been trained", async () => {
+    const game = await renderComponent("TaskTable.tsx", "TaskTable", { kind: "jobs" })
+    assert.ok(header("Military").classList.contains("hidden"))
+    assert.equal(requiredRow("Military"), null)
+    game.task("Strength").level = 1
+    game.ticks(1)
+    assert.ok(!header("Military").classList.contains("hidden"))
+    assert.equal(text(requiredRow("Military")), "Next: Squire Strength 1 / 5")
 })
 
 test("the current task gets an Active badge", async () => {

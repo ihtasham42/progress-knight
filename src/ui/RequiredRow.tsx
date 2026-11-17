@@ -108,7 +108,9 @@ export function RequiredRow({categoryName, category, items}: {categoryName: stri
     if (isCategoryUnseen(categoryName)) return null
     const locked = isCategoryHidden(categoryName)
     const unlock = unlocks.find(unlock => unlock.category == categoryName)
-    const nextEntity = locked ? null : nextLocked(data, category)
+    // Some categories keep their next row a surprise (hidesNext in data.ts)
+    const hidesNext = unlock !== undefined && "hidesNext" in unlock && unlock.hidesNext
+    const nextEntity = locked || hidesNext ? null : nextLocked(data, category)
     const requirement = locked && unlock ? gameData.requirements[unlock.name] : nextEntity ? gameData.requirements[nextEntity.name] : null
     const needs = requirement ? needsOf(requirement) : []
     const evilUnlock = locked && requirement?.type == "evil"

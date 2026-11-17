@@ -206,6 +206,7 @@ const unlockElementIds = {
     rebirth_note_2: "rebirthNote2",
     rebirth_note_3: "rebirthNote3",
     evil_info: "evilInfo",
+    happiness_info: "happinessInfo",
     time_warping_info: "timeWarping",
     automation: "automation",
     quick_task_display: "quickTaskDisplay",

@@ -44,6 +44,26 @@ test("net income, income and expenses, with the sign of the net", async () => {
     assert.match(document.querySelector(".purse-notes").textContent, /upkeep · Tent, Book$/)
 })
 
+test("the stats card stays out of sight until something in it is unlocked", async () => {
+    const game = await renderComponent("Sidebar.tsx", "Sidebar")
+    const card = document.querySelector(".card-stats")
+    assert.ok(card.classList.contains("hidden"))
+    game.gameData.days = 365 * 20
+    game.ticks(1)
+    assert.ok(!card.classList.contains("hidden"), "automation is in it")
+})
+
+test("happiness shows up with the shop, when the first property can be bought, and stays", async () => {
+    const game = await renderComponent("Sidebar.tsx", "Sidebar")
+    assert.ok(isHidden("happinessInfo"))
+    game.gameData.coins = 750
+    game.ticks(1)
+    assert.ok(!isHidden("happinessInfo"))
+    game.engine.rebirthOne()
+    game.ticks(1)
+    assert.ok(!isHidden("happinessInfo"))
+})
+
 test("happiness and evil", async () => {
     const game = await renderComponent("Sidebar.tsx", "Sidebar")
     assert.equal(text("happinessDisplay"), "×1.0")
