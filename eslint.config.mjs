@@ -25,7 +25,7 @@ export default [
         },
     },
     {
-        files: ["test/**/*.js"],
+        files: ["test/**/*.js", "playwright.config.js"],
         languageOptions: {
             sourceType: "commonjs",
             ecmaVersion: 2022,
@@ -35,6 +35,13 @@ export default [
             ...js.configs.recommended.rules,
             "no-var": "error",
             "prefer-const": "error",
+        },
+    },
+    {
+        // Functions passed to page.evaluate run in the browser
+        files: ["test/e2e/**/*.js"],
+        languageOptions: {
+            globals: globals.browser,
         },
     },
 ]
