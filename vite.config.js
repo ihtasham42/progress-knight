@@ -1,6 +1,8 @@
 import { defineConfig } from "vite"
+import react from "@vitejs/plugin-react"
 
 export default defineConfig({
     // The game is published at https://a-crawley.github.io/progress-knight-evolved/
     base: "/progress-knight-evolved/",
+    plugins: [react()],
 })
