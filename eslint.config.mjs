@@ -57,6 +57,13 @@ export default [
         },
     },
     {
+        // The TypeScript parser's scope analysis sees components used in JSX
+        files: ["test/**/*.jsx"],
+        languageOptions: {
+            parser: tseslint.parser,
+        },
+    },
+    {
         // Functions passed to page.evaluate run in the browser
         files: ["test/e2e/**/*.js"],
         languageOptions: {
