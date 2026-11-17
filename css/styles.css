@@ -583,3 +583,263 @@ th {
         display: none !important;
     }
 }
+
+/* The level inside a bar is for phones only */
+.phone-level {
+    display: none;
+}
+
+/* Phones: the Jobs, Skills and Shop tables become lists. Each row is a bar
+   (or item button) with a muted line under it, so nothing scrolls sideways. */
+@media (max-width: 639px) {
+    .table-scroll {
+        overflow-x: visible;
+    }
+
+    #jobTable,
+    #skillTable,
+    #itemTable {
+        display: block;
+        width: 100%;
+    }
+
+    #jobTable > tbody,
+    #skillTable > tbody,
+    #itemTable > tbody {
+        display: block;
+    }
+
+    #jobTable td,
+    #skillTable td,
+    #itemTable td {
+        padding: 0;
+        min-width: 0;
+    }
+
+    /* A section heading, not a coloured bar. The inline colours stay for
+       the desktop table, so they're overridden here */
+    #jobTable tr.headerRow,
+    #skillTable tr.headerRow,
+    #itemTable tr.headerRow {
+        display: block;
+        margin-top: var(--pk-space-4);
+        padding: 0;
+        border-bottom: 0;
+        background: none !important;
+        color: var(--pk-text) !important;
+    }
+
+    #jobTable tr.headerRow > th:not(.category),
+    #skillTable tr.headerRow > th:not(.category),
+    #itemTable tr.headerRow > th:not(.category) {
+        display: none !important;
+    }
+
+    #jobTable th.category,
+    #skillTable th.category,
+    #itemTable th.category {
+        display: flex;
+        align-items: center;
+        gap: var(--pk-space-2);
+        width: auto;
+        padding: 0 0 var(--pk-space-2);
+        font-size: var(--pk-text-base);
+        font-weight: 600;
+        color: var(--pk-text);
+    }
+
+    #jobTable th.category::before,
+    #skillTable th.category::before,
+    #itemTable th.category::before {
+        content: "";
+        flex: none;
+        width: 10px;
+        height: 10px;
+        background-color: var(--cat);
+    }
+
+    /* Job and skill rows: [bar | skip] over the meta line */
+    #jobTable tr[id],
+    #skillTable tr[id] {
+        display: grid;
+        grid-template-columns: auto auto 1fr auto;
+        grid-template-areas:
+            "bar bar bar skip"
+            "value xp . .";
+        align-items: center;
+        padding: var(--pk-space-2) 0;
+    }
+
+    #jobTable tr[id] > td:first-child,
+    #skillTable tr[id] > td:first-child {
+        grid-area: bar;
+    }
+
+    #jobTable td.level,
+    #skillTable td.level,
+    #jobTable td.xpLeft,
+    #skillTable td.xpLeft,
+    #jobTable td.maxLevel,
+    #skillTable td.maxLevel,
+    #itemTable td:nth-child(2) {
+        display: none;
+    }
+
+    #jobTable td.value,
+    #skillTable td.value {
+        grid-area: value;
+    }
+
+    #jobTable td.xpGain,
+    #skillTable td.xpGain {
+        grid-area: xp;
+    }
+
+    #jobTable td.skipSkill,
+    #skillTable td.skipSkill {
+        grid-area: skip;
+        width: var(--pk-touch);
+        height: var(--pk-touch);
+    }
+
+    .skip-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: var(--pk-touch);
+        height: var(--pk-touch);
+    }
+
+    .skip-label .checkbox {
+        width: var(--pk-space-6);
+        height: var(--pk-space-6);
+        margin: 0;
+        accent-color: var(--pk-accent);
+    }
+
+    body.dark .skip-label .checkbox {
+        color-scheme: dark;
+    }
+
+    /* The meta line */
+    #jobTable td.value,
+    #skillTable td.value,
+    #jobTable td.xpGain,
+    #skillTable td.xpGain,
+    #itemTable td.effect,
+    #itemTable td.expense {
+        padding-top: var(--pk-space-1);
+        font-size: var(--pk-text-xs);
+        color: var(--pk-text-muted);
+    }
+
+    #jobTable td.value > div,
+    #skillTable td.value > div {
+        display: inline;
+    }
+
+    #jobTable .effect:empty,
+    #skillTable .income {
+        display: none;
+    }
+
+    #jobTable td.value::after {
+        content: " / day";
+    }
+
+    #jobTable td.xpGain::before,
+    #skillTable td.xpGain::before,
+    #itemTable td.expense::before {
+        content: "\00b7";
+        margin: 0 var(--pk-space-1);
+    }
+
+    #jobTable td.xpGain::after,
+    #skillTable td.xpGain::after {
+        content: " xp / day";
+    }
+
+    #itemTable td.expense::after {
+        content: " / day";
+    }
+
+    #jobTable .progress-bar,
+    #skillTable .progress-bar {
+        min-width: 0;
+    }
+
+    .phone-level {
+        position: absolute;
+        top: 0;
+        right: var(--pk-space-3);
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        font-size: var(--pk-text-sm);
+        color: var(--pk-bar-text);
+        opacity: 0.72;
+        pointer-events: none;
+    }
+
+    /* Shop rows: the item button over its meta line */
+    #itemTable tr[id] {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        align-items: center;
+        padding: var(--pk-space-2) 0;
+    }
+
+    #itemTable tr[id] > td:first-child {
+        grid-column: 1 / -1;
+    }
+
+    #itemTable .item-button {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        min-width: 0;
+        min-height: var(--pk-touch);
+        padding: 0 var(--pk-space-3);
+        text-align: left;
+        /* Same as the bars: the tab panel behind is --pk-panel */
+        background-color: var(--pk-raised);
+    }
+
+    #itemTable .item-button:disabled {
+        opacity: 0.6;
+        cursor: default;
+    }
+
+    #itemTable .item-button[aria-pressed="true"]::after {
+        content: "\2713";
+        color: var(--pk-accent);
+        font-weight: 600;
+    }
+
+    /* Required: a flat block, not a table row */
+    #jobTable td.requiredRow,
+    #skillTable td.requiredRow,
+    #itemTable td.requiredRow {
+        display: block;
+        margin-top: var(--pk-space-2);
+        padding: var(--pk-space-3) !important;
+        border-radius: var(--pk-radius);
+        /* The tab panel behind is --pk-panel */
+        background-color: var(--pk-raised);
+        font-size: var(--pk-text-sm);
+    }
+
+    /* Tooltips open under the bar at its width: beside it they'd be off
+       the screen and make the page scroll sideways */
+    #jobTable .tooltip .tooltipText,
+    #skillTable .tooltip .tooltipText,
+    #itemTable .tooltip .tooltipText {
+        top: 100%;
+        right: 0;
+        left: 0;
+        width: auto;
+        margin-top: var(--pk-space-1);
+        pointer-events: none;
+    }
+}

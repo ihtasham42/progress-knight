@@ -2,6 +2,7 @@
 // effect and its daily expense, and what the next one needs.
 
 import { Fragment } from "react"
+import type { CSSProperties } from "react"
 import { headerRowColors, itemCategories, tooltips } from "../game/data.ts"
 import type { Item } from "../game/classes.ts"
 import { setMisc, setProperty } from "../game/engine.ts"
@@ -19,7 +20,7 @@ export function ShopTable() {
                     {Object.entries(itemCategories).map(([categoryName, names]) => (
                         <Fragment key={categoryName}>
                             <tr className={classNames(removeSpaces(categoryName), "headerRow", isCategoryHidden(categoryName) && "hidden")}
-                                style={{backgroundColor: headerRowColors[categoryName as keyof typeof headerRowColors], color: "var(--pk-on-category)"}}>
+                                style={{"--cat": headerRowColors[categoryName as keyof typeof headerRowColors], backgroundColor: headerRowColors[categoryName as keyof typeof headerRowColors], color: "var(--pk-on-category)"} as CSSProperties}>
                                 <th className="category">{categoryName}</th>
                                 <th className="col-active">Active</th>
                                 <th className="col-effect">Effect</th>
@@ -44,7 +45,7 @@ function ItemRow({item, isProperty}: {item: Item, isProperty: boolean}) {
         <tr id={"row " + name} className={classNames(!game.requirements[name].completed && "hidden")}>
             <td>
                 {" "}
-                <button className="button item-button tooltip" disabled={game.coins < item.getExpense()}
+                <button className="button item-button tooltip" disabled={game.coins < item.getExpense()} aria-pressed={isActive}
                     onClick={() => {isProperty ? setProperty(name) : setMisc(name); requestRender()}}>
                     {" "}
                     <span className="name">{name}</span>

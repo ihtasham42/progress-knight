@@ -127,3 +127,12 @@ test("the required row is hidden when everything in the category is unlocked", a
     game.ticks(1)
     assert.ok(requiredRow("Fundamentals").classList.contains("hiddenTask"))
 })
+
+test("phones get the level inside the bar and a labelled skip checkbox", async () => {
+    const game = await renderComponent("TaskTable.tsx", "TaskTable", { kind: "skills" })
+    game.task("Strength").level = 7
+    game.rerender()
+    assert.equal(text(cell("Strength", "phone-level")), "lvl 7")
+    assert.equal(cell("Strength", "progressBar").contains(cell("Strength", "phone-level")), true)
+    assert.equal(cell("Strength", "checkbox").getAttribute("aria-label"), "Skip Strength")
+})
