@@ -9,6 +9,8 @@
 // fork's format, which referred to everything by display name.
 // fixtures/v3-save.json is the same state again in version 3 (by id, before
 // automation settings were saved).
+// fixtures/v4-save.json is the same state in version 4 (before the history of
+// past lives).
 
 import { test } from "vitest"
 import assert from "node:assert/strict"
@@ -20,6 +22,7 @@ const legacyRaw = fs.readFileSync(path.join(import.meta.dirname, "fixtures", "le
 const legacy = JSON.parse(legacyRaw)
 const v2Raw = fs.readFileSync(path.join(import.meta.dirname, "fixtures", "v2-save.json"), "utf8")
 const v3Raw = fs.readFileSync(path.join(import.meta.dirname, "fixtures", "v3-save.json"), "utf8")
+const v4Raw = fs.readFileSync(path.join(import.meta.dirname, "fixtures", "v4-save.json"), "utf8")
 
 function savedState(game) {
     return JSON.parse(JSON.stringify(game.api.serializeGameData()))
@@ -249,4 +252,87 @@ test("importSave and exportSave work with text only, not the page", async () => 
     assert.equal(other.window.localStorage.getItem("gameDataSave"), current)
     assert.equal(other.api.importSave(exportString), undefined)
     assert.equal(JSON.parse(other.window.localStorage.getItem("gameDataSave")).currentJob, "fisherman")
+})
+
+test("older saves start with no past lives and the coins held as the peak", async () => {
+    const fromLegacy = await loadGame({ localStorage: { gameDataSave: legacyRaw } })
+    for (const raw of [legacyRaw, v2Raw, v3Raw, v4Raw]) {
+        const game = await loadGame({ localStorage: { gameDataSave: raw } })
+        assert.deepEqual(Array.from(game.gameData.lives), [])
+        assert.equal(game.gameData.lifePeakCoins, game.gameData.coins)
+        assert.deepEqual(savedState(game), savedState(fromLegacy))
+    }
+    const saved = savedState(fromLegacy)
+    assert.equal(saved.version, 5)
+    assert.deepEqual(saved.lives, [])
+})
+
+const life = overrides => ({
+    life: 1, end: "rebirth", age: 66, job: { id: "footman", level: 31 }, skill: { id: "strength", level: 112 },
+    peakCoins: 81200, evil: 0, ...overrides,
+})
+
+test("past lives and the peak purse are saved and loaded", async () => {
+    const game = await loadGame()
+    game.api.getTaskById("footman").level = 31
+    game.api.gameData.coins = 81200
+    game.api.rebirthOne()
+    game.api.gameData.coins = 40
+    game.api.gameData.lifePeakCoins = 900
+    game.api.saveGameData()
+    const before = savedState(game)
+    assert.equal(before.lives.length, 1)
+    assert.equal(before.lives[0].job.id, "footman")
+    assert.equal(before.lifePeakCoins, 900)
+
+    const reloaded = await loadGame({ localStorage: { gameDataSave: game.window.localStorage.getItem("gameDataSave") } })
+    const after = savedState(reloaded)
+    assert.deepEqual(after.lives, before.lives)
+    assert.equal(after.lifePeakCoins, 900)
+    assert.equal(reloaded.gameData.lives[0].peakCoins, 81200)
+})
+
+test("malformed past lives are dropped, unknown tasks are kept", async () => {
+    const save = JSON.parse(v4Raw)
+    save.version = 5
+    save.lifePeakCoins = 5
+    save.lives = [
+        life({ life: 1 }),
+        life({ life: 2, job: { id: "astronaut", level: 3 } }),
+        life({ life: 3, end: "died" }),
+        life({ life: 4, age: "old" }),
+        life({ life: 5, peakCoins: -1 }),
+        life({ life: 6, skill: null }),
+        life({ life: 7, job: { id: 5, level: 1 } }),
+        life({ life: 0 }),
+        life({ life: 9, end: "evil", evil: 3 }),
+        null, 7, "x", [],
+    ]
+    const game = await loadGame({ localStorage: { gameDataSave: JSON.stringify(save) } })
+    assert.deepEqual(Array.from(game.gameData.lives, entry => entry.life), [1, 2, 9])
+    assert.equal(game.gameData.lives[1].job.id, "astronaut")
+    assert.equal(game.gameData.lives[2].evil, 3)
+    assert.equal(game.gameData.lifePeakCoins, game.gameData.coins, "a peak below the coins held is raised to them")
+    assert.equal(game.errors.length, 0, game.errors.join("\n"))
+})
+
+test("a save with bad past lives or none keeps the game going", async () => {
+    for (const lives of [undefined, "many", {}, 5]) {
+        const save = JSON.parse(v4Raw)
+        save.version = 5
+        save.lives = lives
+        save.lifePeakCoins = "lots"
+        const game = await loadGame({ localStorage: { gameDataSave: JSON.stringify(save) } })
+        assert.deepEqual(Array.from(game.gameData.lives), [])
+        assert.equal(game.gameData.lifePeakCoins, game.gameData.coins)
+    }
+})
+
+test("only the last 50 saved lives are loaded", async () => {
+    const save = JSON.parse(v4Raw)
+    save.version = 5
+    save.lives = Array.from({ length: 60 }, (_, i) => life({ life: i + 1 }))
+    const game = await loadGame({ localStorage: { gameDataSave: JSON.stringify(save) } })
+    assert.equal(game.gameData.lives.length, 50)
+    assert.equal(game.gameData.lives[0].life, 11)
 })

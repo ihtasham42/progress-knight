@@ -1,7 +1,8 @@
 // Saving, loading, importing and exporting game data.
 
 import { namesById, idsByName } from "./data.ts"
-import { gameData } from "./state.ts"
+import { gameData, MAX_LIVES } from "./state.ts"
+import type { Life, LifeEnd } from "./state.ts"
 import { Job, Skill } from "./classes.ts"
 import { getTaskById, getItemById, setAutoPromote, setAutoLearn, setSkillSkipped } from "./engine.ts"
 
@@ -92,9 +93,10 @@ export function exportSave(): string {
 //   2      - only mutable state, referring to jobs/skills/items by name
 //   3      - the same, referring to everything by id (see data.ts)
 //   4      - adds automation settings (auto-promote, auto-learn, skipped skills)
+//   5      - adds the history of past lives and the peak purse of this life
 // ---------------------------------------------------------------------------
 
-export const SAVE_VERSION = 4
+export const SAVE_VERSION = 5
 
 // What each version of a save looks like, as the game wrote it. A save read
 // from storage or imported by the player is only checked as far as
@@ -155,9 +157,14 @@ export interface SaveV4 extends SaveFields<4> {
         skippedSkills: string[] // skill ids
     }
 }
-type AnySave = LegacySave | SaveV2 | SaveV3 | SaveV4
+export interface SaveV5 extends Omit<SaveV4, "version"> {
+    version: 5
+    lives: Life[] // jobs and skills by id, so renamed tasks still resolve
+    lifePeakCoins: number
+}
+type AnySave = LegacySave | SaveV2 | SaveV3 | SaveV4 | SaveV5
 
-export function serializeGameData(): SaveV4 {
+export function serializeGameData(): SaveV5 {
     const tasks: Record<string, SavedTask> = {}
     for (const name in gameData.taskData) {
         const task = gameData.taskData[name]
@@ -189,12 +196,14 @@ export function serializeGameData(): SaveV4 {
             autoLearn: gameData.automation.autoLearn,
             skippedSkills: Array.from(gameData.automation.skippedSkills),
         },
+        lives: gameData.lives.map(life => ({...life, job: {...life.job}, skill: {...life.skill}})),
+        lifePeakCoins: gameData.lifePeakCoins,
     }
 }
 
 // Converts any supported save into the current format. Throws if the save
 // can't be understood.
-export function migrateSave(input: unknown): SaveV4 {
+export function migrateSave(input: unknown): SaveV5 {
     if (input === null || typeof input !== "object" || Array.isArray(input)) {
         throw new Error("Save is not an object")
     }
@@ -205,6 +214,7 @@ export function migrateSave(input: unknown): SaveV4 {
     if (save.version === undefined) save = migrateLegacySave(save)
     if (save.version === 2) save = migrateV2ToV3(save)
     if (save.version === 3) save = migrateV3ToV4(save)
+    if (save.version === 4) save = migrateV4ToV5(save)
 
     if (save.version > SAVE_VERSION) {
         throw new Error("Save is from a newer version of the game")
@@ -287,7 +297,17 @@ function migrateV3ToV4(save: SaveV3): SaveV4 {
     })
 }
 
-function validateSave(save: SaveV4): void {
+// Version 4 didn't keep a history, so it starts empty; the life in progress
+// takes the coins held now as its peak so far
+function migrateV4ToV5(save: SaveV4): SaveV5 {
+    return Object.assign({}, save, {
+        version: 5 as const,
+        lives: [],
+        lifePeakCoins: save.coins,
+    })
+}
+
+function validateSave(save: SaveV5): void {
     for (const key of ["coins", "days"] as const) {
         if (!isFiniteNumber(save[key])) throw new Error("Save has an invalid " + key)
     }
@@ -303,10 +323,15 @@ function isFiniteNumber(value: unknown): value is number {
 // Applies a current-format save on top of freshly initialised gameData.
 // Anything the save doesn't have, or that no longer exists in the game,
 // keeps its default value.
-function applySaveData(save: SaveV4): void {
+function applySaveData(save: SaveV5): void {
     for (const key of ["coins", "days", "evil", "rebirthOneCount", "rebirthTwoCount"] as const) {
         const value: unknown = save[key]
         if (isFiniteNumber(value)) gameData[key] = value
+    }
+    // A save that lacks it (or has nonsense) starts the peak from the coins held
+    gameData.lifePeakCoins = isFiniteNumber(save.lifePeakCoins) && save.lifePeakCoins >= gameData.coins ? save.lifePeakCoins : gameData.coins
+    if (Array.isArray(save.lives)) {
+        gameData.lives = save.lives.map(readLife).filter((life): life is Life => life !== undefined).slice(-MAX_LIVES)
     }
     for (const key of ["paused", "timeWarpingEnabled"] as const) {
         const value: unknown = save[key]
@@ -360,4 +385,28 @@ function applySaveData(save: SaveV4): void {
             }
         }
     }
+}
+
+// One saved life, or nothing if it is malformed. Ids are only checked to be
+// text: a task the game no longer has is shown as unknown, not dropped.
+function readLife(value: unknown): Life | undefined {
+    if (value === null || typeof value !== "object") return undefined
+    const life = value as Record<string, unknown>
+    const job = readBest(life.job)
+    const skill = readBest(life.skill)
+    if (!job || !skill) return undefined
+    if (!isCount(life.life) || life.life < 1 || !isCount(life.age) || !isCount(life.peakCoins) || !isCount(life.evil)) return undefined
+    if (life.end !== "rebirth" && life.end !== "evil") return undefined
+    return {life: life.life, end: life.end as LifeEnd, age: life.age, job, skill, peakCoins: life.peakCoins, evil: life.evil}
+}
+
+function readBest(value: unknown): Life["job"] | undefined {
+    if (value === null || typeof value !== "object") return undefined
+    const best = value as Record<string, unknown>
+    if (typeof best.id !== "string" || !isCount(best.level)) return undefined
+    return {id: best.id, level: best.level}
+}
+
+function isCount(value: unknown): value is number {
+    return isFiniteNumber(value) && value >= 0
 }

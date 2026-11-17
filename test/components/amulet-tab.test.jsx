@@ -75,3 +75,65 @@ test("the locked teaser shows the road to 200 and what Immortality needs", async
     game.ticks(1)
     assert.ok(teaser.classList.contains("hidden"))
 })
+
+const pastRows = () => [...document.querySelectorAll("#pastLives [role=row]")].slice(1)
+    .map(row => [...row.querySelectorAll("[role=cell]")].map(cell => cell.textContent.trim().replace(/\s+/g, " ")))
+
+test("past lives stay hidden until there is one", async () => {
+    const game = await renderComponent("AmuletTab.tsx", "AmuletTab")
+    assert.equal(document.getElementById("pastLives"), null)
+    game.task("Beggar").level = 5
+    fireEvent.click(screen.getByRole("button", { name: "Touch the eye" }))
+    assert.ok(document.getElementById("pastLives"))
+})
+
+test("past lives list each life, then the one being lived", async () => {
+    const game = await renderComponent("AmuletTab.tsx", "AmuletTab")
+    game.task("Footman").level = 31
+    game.task("Strength").level = 112
+    game.gameData.days = 365 * 66
+    game.gameData.coins = 81200
+    fireEvent.click(screen.getByRole("button", { name: "Touch the eye" }))
+    game.task("Squire").level = 14
+    game.task("Concentration").level = 40
+    game.task("Evil control").level = 100
+    game.task("Blood meditation").level = 50
+    game.task("Immortality").level = 33 ** 3 - 1 // lifespan x4, so 200 can be reached
+    game.gameData.days = 365 * 200
+    game.gameData.coins = 341
+    game.ticks(1)
+    fireEvent.click(screen.getByRole("button", { name: "Embrace evil" }))
+    game.task("Immortality").level = 0
+    game.gameData.lives.push({ life: 3, end: "rebirth", age: 30, job: { id: "gone", level: 2 }, skill: { id: "strength", level: 1 }, peakCoins: 0, evil: 0 })
+    game.task("Farmer").level = 7
+    game.gameData.coins = 250
+    game.ticks(1)
+
+    const rows = pastRows()
+    // A purse set just before a game step has earned a little by then
+    assert.match(rows[1].splice(3, 1)[0], /^3s \d+c$/)
+    assert.match(rows[3].splice(3, 1)[0], /^2s \d+c$/)
+    assert.deepEqual(rows, [
+        ["1", "Footman 31", "Strength 112", "8g 12s", "Age 66 · touched the eye"],
+        ["2", "Squire 14", "Immortality 35936", "Age 200 · embraced evil (+3.0 evil)"],
+        ["3", "Unknown 2", "Strength 1", "0c", "Age 30 · touched the eye"],
+        ["3", "Farmer 7", "Concentration 0", "Living"],
+    ])
+    assert.ok(document.querySelector(".past-living .past-ended"))
+    assert.equal(screen.queryByRole("button", { name: /Show all/ }), null)
+})
+
+test("only the 10 latest past lives show until Show all", async () => {
+    const game = await renderComponent("AmuletTab.tsx", "AmuletTab")
+    for (let i = 0; i < 14; i++) game.engine.rebirthOne()
+    game.ticks(1)
+    assert.equal(pastRows().length, 11, "10 past lives and the living one")
+    assert.equal(pastRows()[0][0], "5")
+
+    fireEvent.click(screen.getByRole("button", { name: "Show all 14 lives" }))
+    assert.equal(pastRows().length, 15)
+    assert.equal(pastRows()[0][0], "1")
+    assert.equal(pastRows()[14][4], "Living")
+    fireEvent.click(screen.getByRole("button", { name: "Show recent lives" }))
+    assert.equal(pastRows().length, 11)
+})
