@@ -1,5 +1,6 @@
 import js from "@eslint/js"
 import globals from "globals"
+import tseslint from "typescript-eslint"
 
 export default [
     {
@@ -17,6 +18,20 @@ export default [
             ...js.configs.recommended.rules,
             "no-var": "error",
             "prefer-const": "error",
+        },
+    },
+    ...tseslint.configs.recommended.map(config => ({ ...config, files: ["src/**/*.ts"] })),
+    {
+        // The game's TypeScript modules
+        files: ["src/**/*.ts"],
+        languageOptions: {
+            globals: globals.browser,
+        },
+        rules: {
+            "no-var": "error",
+            "prefer-const": "error",
+            // A @ts-expect-error must say why
+            "@typescript-eslint/ban-ts-comment": ["error", { "ts-expect-error": "allow-with-description" }],
         },
     },
     {
