@@ -12,6 +12,17 @@
     <script type="module" src="/src/main.tsx"></script>
 </head>
 <body id="body" class="dark">
+    <script>
+        // Only stops a stored light theme from flashing dark before the game's
+        // script runs; applyPreferences() in src/ui/preferences.ts decides.
+        // The key must match PREFERENCES_KEY there.
+        try {
+            var theme = JSON.parse(localStorage.getItem("pk-preferences")).theme
+            if (theme === "light" || (theme === "system" && !matchMedia("(prefers-color-scheme: dark)").matches)) {
+                document.body.classList.remove("dark")
+            }
+        } catch (error) {}
+    </script>
     <div id="root"></div>
 </body>
 </html>

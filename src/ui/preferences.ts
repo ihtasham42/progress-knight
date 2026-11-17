@@ -11,6 +11,7 @@ export interface Preferences {
     amuletEffects: boolean
 }
 
+// index.html reads this key too, to avoid a flash of the wrong theme: keep them the same
 export const PREFERENCES_KEY = "pk-preferences"
 
 const defaults: Preferences = {theme: "dark", amuletEffects: true}
