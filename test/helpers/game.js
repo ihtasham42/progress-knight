@@ -3,8 +3,9 @@
 // Loads the game into a fresh jsdom window so tests can call its functions.
 //
 // The game is written as classic browser scripts that share globals, so each
-// script listed in index.html is added to the page in order. Timers are
-// disabled: tests drive the game by calling update() themselves.
+// script listed in index.html is added to the page in order. Timers and
+// animation frames are disabled: tests drive the game by calling update()
+// (one game step) and updateUI() (one render) themselves.
 
 const fs = require("node:fs")
 const path = require("node:path")
@@ -35,7 +36,9 @@ function loadGame(options = {}) {
     const window = dom.window
 
     window.setInterval = () => 0
+    window.requestAnimationFrame = () => 0
     window.reloads = 0
+    fireChangeWhenCheckboxesAreSet(window)
     if (options.localStorage) {
         for (const [key, value] of Object.entries(options.localStorage)) {
             window.localStorage.setItem(key, value)
@@ -59,20 +62,36 @@ function loadGame(options = {}) {
         get gameData() { return window.eval("gameData") },
         task: name => window.eval("gameData.taskData")[name],
         item: name => window.eval("gameData.itemData")[name],
+        // Game steps, each followed by a render
         ticks(count) {
-            for (let i = 0; i < count; i++) window.update()
-        },
-        // Advances time without rendering, for tests that need long runs
-        fastTicks(count) {
-            const updateUI = window.updateUI
-            window.eval("updateUI = function() {}")
-            try {
-                for (let i = 0; i < count; i++) window.update()
-            } finally {
-                window.updateUI = updateUI
+            for (let i = 0; i < count; i++) {
+                window.update()
+                window.updateUI()
             }
         },
+        // Game steps without rendering, for tests that need long runs
+        fastTicks(count) {
+            for (let i = 0; i < count; i++) window.update()
+        },
     }
+}
+
+// Tests tick checkboxes by setting `checked`. A player clicking a checkbox
+// also fires a "change" event, which the game listens for, so do the same.
+function fireChangeWhenCheckboxesAreSet(window) {
+    const checked = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "checked")
+    Object.defineProperty(window.HTMLInputElement.prototype, "checked", {
+        configurable: true,
+        enumerable: checked.enumerable,
+        get() { return checked.get.call(this) },
+        set(value) {
+            const changed = checked.get.call(this) !== Boolean(value)
+            checked.set.call(this, value)
+            if (changed && this.type == "checkbox") {
+                this.dispatchEvent(new window.Event("change", { bubbles: true }))
+            }
+        },
+    })
 }
 
 module.exports = { loadGame }

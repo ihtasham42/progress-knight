@@ -78,8 +78,9 @@ function exportGameData() {
 // Versioned save format
 //
 // A save only holds the state that changes during play. Static game data
-// (job/skill/item definitions, requirement definitions, DOM references) is
-// rebuilt by main.js on every load, and the save is then applied on top.
+// (job/skill/item definitions and requirement definitions) is rebuilt by
+// initGameData() in engine.js on every load, and the save is then applied on
+// top.
 //
 // Version history:
 //   (none) - legacy format: the whole gameData object passed to JSON.stringify
