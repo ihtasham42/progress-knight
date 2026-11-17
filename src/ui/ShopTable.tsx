@@ -11,6 +11,7 @@ import { CoinParts } from "./CoinParts.tsx"
 import { RequiredRow, isCategoryHidden } from "./RequiredRow.tsx"
 import { classNames, removeSpaces } from "./classNames.ts"
 import { splitEffect } from "./format.ts"
+import { useLongPressTooltip } from "./useLongPressTooltip.ts"
 
 const categoryHints: Record<string, string> = {
     "Properties": "one at a time",
@@ -70,11 +71,12 @@ function ItemRow({item, isProperty, categoryName}: {item: Item, isProperty: bool
     // "x2.0 Happiness" -> "×2" and "happiness"
     const effect = splitEffect(item.getEffectDescription())
     const tooltipId = "tip-" + removeSpaces(name)
+    const longPress = useLongPressTooltip()
     return (
         <tr id={"row " + name} className={classNames(!game.requirements[name].completed && "hidden")}
             style={{"--cat": headerRowColors[categoryName as keyof typeof headerRowColors]} as CSSProperties}>
             <td>
-                <button type="button" className="item-button tooltip" disabled={game.coins < expense} aria-pressed={isActive} aria-describedby={tooltipId}
+                <button type="button" className={classNames("item-button tooltip", longPress.shown && "tooltip-open")} disabled={game.coins < expense} aria-pressed={isActive} aria-describedby={tooltipId} {...longPress.handlers}
                     onClick={() => {isProperty ? setProperty(name) : setMisc(name); requestRender()}}>
                     <span className="name">{name}</span>
                     {/* Phones show the tick inside the button (hidden from 640px) */}
