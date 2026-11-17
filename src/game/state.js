@@ -1,8 +1,6 @@
-"use strict"
-
 // The game state: one object that the game steps change and saves record.
 
-const gameData = {
+export const gameData = {
     taskData: {},
     itemData: {},
 

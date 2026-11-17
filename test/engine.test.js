@@ -9,15 +9,15 @@ import { playLife } from "./helpers/golden-strategy.js"
 
 const GOLDEN_FILE = path.join(import.meta.dirname, "fixtures", "golden-run.json")
 
-test("the game logic loads with no page, document or window", () => {
-    const game = loadEngine()
-    assert.equal(game.run("typeof document"), "undefined")
-    assert.equal(game.run("typeof window"), "undefined")
+test("the game logic loads with no page, document or window", async () => {
+    const game = await loadEngine()
+    assert.equal(typeof globalThis.document, "undefined")
+    assert.equal(typeof globalThis.window, "undefined")
     assert.equal(game.gameData.currentJob.name, "Beggar")
 })
 
-test("without a page, the golden run's two lives play out exactly as recorded", () => {
-    const game = loadEngine()
+test("without a page, the golden run's two lives play out exactly as recorded", async () => {
+    const game = await loadEngine()
     game.api.setAutoPromote(true)
     game.api.setAutoLearn(true)
     const lives = [playLife(game)]

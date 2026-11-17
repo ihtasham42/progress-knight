@@ -1,22 +1,28 @@
-// Loads the game into a fresh jsdom window so tests can call its functions.
+// Loads the game into a fresh jsdom page so tests can call its functions.
 //
-// The game is written as classic browser scripts that share globals, so each
-// script listed in index.html is added to the page in order. Timers and
-// animation frames are disabled: tests drive the game by calling update()
-// (one game step) and updateUI() (one render) themselves.
+// Every game gets new copies of the game's modules (vi.resetModules), so no
+// state is shared between games. The modules use the page through globals
+// (document, localStorage, location), which point at the game's own jsdom
+// window while it loads and whenever one of its functions is called. Timers
+// aren't started: tests drive the game by calling update() (one game step)
+// and updateUI() (one render) themselves.
 
 import fs from "node:fs"
 import path from "node:path"
+import { vi } from "vitest"
 import { JSDOM, VirtualConsole } from "jsdom"
+import { GAME_MODULES, PAGE_MODULES, importModules, gameApi } from "./modules.js"
 
 const ROOT = path.join(import.meta.dirname, "..", "..")
-const SKIPPED_SCRIPTS = new Set(["src/vendor/hacktimer.js"])
+const PAGE_GLOBALS = ["window", "document", "localStorage", "location"]
 
-function loadGame(options = {}) {
+// console.error from the game goes to the errors of the game that is running
+let activeErrors = null
+const consoleError = console.error
+console.error = (...args) => activeErrors ? activeErrors.push(args.join(" ")) : consoleError(...args)
+
+async function loadGame(options = {}) {
     const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8")
-    const scriptSources = [...html.matchAll(/<script[^>]*src="([^"]+)"[^>]*><\/script>/g)]
-        .map(match => match[1])
-        .filter(src => !SKIPPED_SCRIPTS.has(src))
 
     const errors = []
     const virtualConsole = new VirtualConsole()
@@ -26,16 +32,10 @@ function loadGame(options = {}) {
     })
     virtualConsole.on("error", (...args) => errors.push(args.join(" ")))
 
-    const dom = new JSDOM(html.replace(/<script[^>]*src="[^"]+"[^>]*><\/script>/g, ""), {
-        url: "https://progress-knight.test/",
-        runScripts: "dangerously",
-        virtualConsole,
-    })
+    // jsdom doesn't run the page's scripts; the modules are imported below
+    const dom = new JSDOM(html, { url: "https://progress-knight.test/", virtualConsole })
     const window = dom.window
 
-    window.setInterval = () => 0
-    window.requestAnimationFrame = () => 0
-    window.reloads = 0
     fireChangeWhenCheckboxesAreSet(window)
     if (options.localStorage) {
         for (const [key, value] of Object.entries(options.localStorage)) {
@@ -43,47 +43,39 @@ function loadGame(options = {}) {
         }
     }
 
-    // Inline <script> elements share one global scope, like the real page.
-    // (Evaluating with window.eval would keep each file's let/const/class private.)
-    for (const src of scriptSources) {
-        const script = window.document.createElement("script")
-        script.textContent = fs.readFileSync(path.join(ROOT, src), "utf8") + "\n//# sourceURL=" + src
-        window.document.body.appendChild(script)
+    const usePage = () => {
+        for (const name of PAGE_GLOBALS) globalThis[name] = window[name]
+        activeErrors = errors
     }
 
+    usePage()
+    vi.resetModules()
+    const modules = await importModules([...GAME_MODULES, ...PAGE_MODULES])
+    const { startGame } = await import(path.join(ROOT, "src/start.js"))
+    startGame()
+
+    const api = gameApi(modules, usePage)
     return {
         window,
         errors,
-        // The game's functions and data by name, e.g. api.setTask("Farmer")
-        // or api.gameData.coins. Values are looked up each time, so they are
-        // always current. (window.eval because top-level let/const, e.g.
-        // gameData, aren't properties of window.)
-        api: gameApi(name => window.eval(name)),
-        get gameData() { return window.eval("gameData") },
-        task: name => window.eval("gameData.taskData")[name],
-        item: name => window.eval("gameData.itemData")[name],
+        // The game's exported functions and data by name, e.g.
+        // api.setTask("Farmer") or api.gameData.coins
+        api,
+        get gameData() { return api.gameData },
+        task: name => api.gameData.taskData[name],
+        item: name => api.gameData.itemData[name],
         // Game steps, each followed by a render
         ticks(count) {
             for (let i = 0; i < count; i++) {
-                window.update()
-                window.updateUI()
+                api.update()
+                api.updateUI()
             }
         },
         // Game steps without rendering, for tests that need long runs
         fastTicks(count) {
-            for (let i = 0; i < count; i++) window.update()
+            for (let i = 0; i < count; i++) api.update()
         },
     }
-}
-
-// An object whose properties are the game's top-level names, read with lookup
-function gameApi(lookup) {
-    return new Proxy({}, {
-        get(target, name) {
-            if (typeof name != "string" || !/^[A-Za-z_$][\w$]*$/.test(name)) return undefined
-            return lookup(name)
-        },
-    })
 }
 
 // Tests tick checkboxes by setting `checked`. A player clicking a checkbox
@@ -104,4 +96,4 @@ function fireChangeWhenCheckboxesAreSet(window) {
     })
 }
 
-export { loadGame, gameApi }
+export { loadGame }

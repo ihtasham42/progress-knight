@@ -8,32 +8,32 @@ function isUnlocked(game, key) {
     return game.api.gameData.requirements[key].isCompleted()
 }
 
-test("each job needs level 10 in the previous job", () => {
-    const game = loadGame()
+test("each job needs level 10 in the previous job", async () => {
+    const game = await loadGame()
     assert.equal(isUnlocked(game, "Beggar"), true)
     assert.equal(isUnlocked(game, "Farmer"), false)
     game.task("Beggar").level = 10
     assert.equal(isUnlocked(game, "Farmer"), true)
 })
 
-test("some jobs also need skill levels", () => {
-    const game = loadGame()
+test("some jobs also need skill levels", async () => {
+    const game = await loadGame()
     game.task("Fisherman").level = 10
     assert.equal(isUnlocked(game, "Miner"), false)
     game.task("Strength").level = 10
     assert.equal(isUnlocked(game, "Miner"), true)
 })
 
-test("The Arcane Association needs Concentration 200 and Meditation 200", () => {
-    const game = loadGame()
+test("The Arcane Association needs Concentration 200 and Meditation 200", async () => {
+    const game = await loadGame()
     game.task("Concentration").level = 200
     assert.equal(isUnlocked(game, "The Arcane Association"), false)
     game.task("Meditation").level = 200
     assert.equal(isUnlocked(game, "The Arcane Association"), true)
 })
 
-test("the shop unlocks at 50 times the cost of a tent, and stays unlocked", () => {
-    const game = loadGame()
+test("the shop unlocks at 50 times the cost of a tent, and stays unlocked", async () => {
+    const game = await loadGame()
     assert.equal(isUnlocked(game, "Shop"), false)
     game.api.gameData.coins = 750
     assert.equal(isUnlocked(game, "Shop"), true)
@@ -41,8 +41,8 @@ test("the shop unlocks at 50 times the cost of a tent, and stays unlocked", () =
     assert.equal(isUnlocked(game, "Shop"), true)
 })
 
-test("locked rows are hidden in the UI and appear once unlocked", () => {
-    const game = loadGame()
+test("locked rows are hidden in the UI and appear once unlocked", async () => {
+    const game = await loadGame()
     const farmerRow = game.window.document.getElementById("row Farmer")
     assert.ok(farmerRow.classList.contains("hidden"))
     game.task("Beggar").level = 10
@@ -50,16 +50,16 @@ test("locked rows are hidden in the UI and appear once unlocked", () => {
     assert.ok(!farmerRow.classList.contains("hidden"))
 })
 
-test("auto-promote moves to the next job in the same career once unlocked", () => {
-    const game = loadGame()
+test("auto-promote moves to the next job in the same career once unlocked", async () => {
+    const game = await loadGame()
     game.window.document.getElementById("autoPromote").checked = true
     game.task("Beggar").level = 10
     game.ticks(1)
     assert.equal(game.gameData.currentJob.name, "Farmer")
 })
 
-test("auto-learn picks the lowest level unlocked skill that isn't skipped", () => {
-    const game = loadGame()
+test("auto-learn picks the lowest level unlocked skill that isn't skipped", async () => {
+    const game = await loadGame()
     game.window.document.getElementById("autoLearn").checked = true
     game.task("Concentration").level = 30
     game.task("Productivity").level = 15 // keeps Meditation (needs Productivity 20) locked
@@ -76,8 +76,8 @@ test("auto-learn picks the lowest level unlocked skill that isn't skipped", () =
     assert.equal(game.gameData.currentSkill.name, "Strength")
 })
 
-test("touching the eye resets the life but keeps max levels as an xp bonus", () => {
-    const game = loadGame()
+test("touching the eye resets the life but keeps max levels as an xp bonus", async () => {
+    const game = await loadGame()
     game.task("Beggar").level = 20
     game.task("Concentration").level = 15
     game.api.gameData.coins = 1000
@@ -105,16 +105,16 @@ test("touching the eye resets the life but keeps max levels as an xp bonus", () 
     assert.equal(isUnlocked(game, "Farmer"), false, "job unlocks have to be earned again")
 })
 
-test("a rebirth never lowers a max level", () => {
-    const game = loadGame()
+test("a rebirth never lowers a max level", async () => {
+    const game = await loadGame()
     game.task("Beggar").maxLevel = 50
     game.task("Beggar").level = 10
     game.api.rebirthOne()
     assert.equal(game.task("Beggar").maxLevel, 50)
 })
 
-test("embracing evil gives evil, unlocks dark magic and also resets max levels", () => {
-    const game = loadGame()
+test("embracing evil gives evil, unlocks dark magic and also resets max levels", async () => {
+    const game = await loadGame()
     game.task("Beggar").level = 20
     game.task("Beggar").maxLevel = 40
     assert.equal(isUnlocked(game, "Dark magic"), false)
@@ -128,15 +128,15 @@ test("embracing evil gives evil, unlocks dark magic and also resets max levels",
     assert.equal(isUnlocked(game, "Demon training"), false, "needs 25 evil")
 })
 
-test("dark magic skill xp is multiplied by evil", () => {
-    const game = loadGame()
+test("dark magic skill xp is multiplied by evil", async () => {
+    const game = await loadGame()
     game.api.gameData.evil = 5
     assert.equal(game.task("Dark influence").getXpGain(), 50)
     assert.equal(game.task("Concentration").getXpGain(), 10)
 })
 
-test("automation and the quick task display also stay unlocked after a rebirth", () => {
-    const game = loadGame()
+test("automation and the quick task display also stay unlocked after a rebirth", async () => {
+    const game = await loadGame()
     game.api.gameData.days = 365 * 20
     assert.equal(isUnlocked(game, "Automation"), true)
     assert.equal(isUnlocked(game, "Quick task display"), true)

@@ -5,8 +5,8 @@ import { test } from "vitest"
 import assert from "node:assert/strict"
 import { loadGame } from "./helpers/game.js"
 
-test("xp needed per level grows as base * (level + 1) * 1.01^level", () => {
-    const game = loadGame()
+test("xp needed per level grows as base * (level + 1) * 1.01^level", async () => {
+    const game = await loadGame()
     const beggar = game.task("Beggar") // base max xp 50
     assert.equal(beggar.getMaxXp(), 50)
     beggar.level = 10
@@ -14,8 +14,8 @@ test("xp needed per level grows as base * (level + 1) * 1.01^level", () => {
     assert.equal(beggar.getMaxXp(), 608)
 })
 
-test("base xp gain is 10 per day, and the game runs at 4 days per second", () => {
-    const game = loadGame()
+test("base xp gain is 10 per day, and the game runs at 4 days per second", async () => {
+    const game = await loadGame()
     assert.equal(game.task("Beggar").getXpGain(), 10)
     assert.equal(game.task("Concentration").getXpGain(), 10)
     assert.equal(game.api.getGameSpeed(), 4)
@@ -23,8 +23,8 @@ test("base xp gain is 10 per day, and the game runs at 4 days per second", () =>
     assert.equal(game.api.applySpeed(10), 2)
 })
 
-test("a job levels up once it has enough xp", () => {
-    const game = loadGame() // the game runs one tick on load
+test("a job levels up once it has enough xp", async () => {
+    const game = await loadGame() // the game runs one tick on load
     assert.equal(game.task("Beggar").xp, 2)
     game.ticks(23)
     assert.equal(game.task("Beggar").level, 0)
@@ -33,8 +33,8 @@ test("a job levels up once it has enough xp", () => {
     assert.equal(game.task("Beggar").xp, 0)
 })
 
-test("job income is multiplied by 1 + log10(level + 1)", () => {
-    const game = loadGame()
+test("job income is multiplied by 1 + log10(level + 1)", async () => {
+    const game = await loadGame()
     const beggar = game.task("Beggar") // base income 5
     assert.equal(beggar.getIncome(), 5)
     beggar.level = 9
@@ -43,15 +43,15 @@ test("job income is multiplied by 1 + log10(level + 1)", () => {
     assert.equal(beggar.getIncome(), 15)
 })
 
-test("military pay is boosted by Strength", () => {
-    const game = loadGame()
+test("military pay is boosted by Strength", async () => {
+    const game = await loadGame()
     game.task("Strength").level = 50
     assert.equal(game.task("Squire").getIncome(), Math.round(5 * 1.5)) // 8
     assert.equal(game.task("Farmer").getIncome(), 9) // common work isn't affected
 })
 
-test("most skills give +1% per level", () => {
-    const game = loadGame()
+test("most skills give +1% per level", async () => {
+    const game = await loadGame()
     const concentration = game.task("Concentration")
     concentration.level = 50
     assert.equal(concentration.getEffect(), 1.5)
@@ -59,8 +59,8 @@ test("most skills give +1% per level", () => {
     assert.equal(game.task("Farmer").getXpGain(), 10, "Concentration doesn't affect jobs")
 })
 
-test("Bargaining and Intimidation cut expenses on a log scale, never below x0.1", () => {
-    const game = loadGame()
+test("Bargaining and Intimidation cut expenses on a log scale, never below x0.1", async () => {
+    const game = await loadGame()
     for (const name of ["Bargaining", "Intimidation"]) {
         const skill = game.task(name)
         assert.equal(skill.getEffect(), 1)
@@ -72,8 +72,8 @@ test("Bargaining and Intimidation cut expenses on a log scale, never below x0.1"
     }
 })
 
-test("Time warping speeds the game up by 1 + log13(level + 1) when enabled", () => {
-    const game = loadGame()
+test("Time warping speeds the game up by 1 + log13(level + 1) when enabled", async () => {
+    const game = await loadGame()
     game.task("Time warping").level = 12
     assert.equal(game.task("Time warping").getEffect(), 2)
     assert.equal(game.api.getGameSpeed(), 8)
@@ -81,8 +81,8 @@ test("Time warping speeds the game up by 1 + log13(level + 1) when enabled", () 
     assert.equal(game.api.getGameSpeed(), 4)
 })
 
-test("lifespan is 70 years, extended by Immortality and Super immortality", () => {
-    const game = loadGame()
+test("lifespan is 70 years, extended by Immortality and Super immortality", async () => {
+    const game = await loadGame()
     assert.equal(game.api.daysToYears(game.api.getLifespan()), 70)
     game.task("Immortality").level = 32 // 1 + log33(33) = 2
     assert.equal(game.api.daysToYears(game.api.getLifespan()), 140)
@@ -90,8 +90,8 @@ test("lifespan is 70 years, extended by Immortality and Super immortality", () =
     assert.equal(game.api.daysToYears(game.api.getLifespan()), 280)
 })
 
-test("happiness multiplies Meditation, Butler and the current property", () => {
-    const game = loadGame()
+test("happiness multiplies Meditation, Butler and the current property", async () => {
+    const game = await loadGame()
     assert.equal(game.api.getHappiness(), 1)
     game.task("Meditation").level = 100
     game.api.setProperty('Tent')
@@ -101,8 +101,8 @@ test("happiness multiplies Meditation, Butler and the current property", () => {
     assert.equal(game.task("Beggar").getXpGain(), Math.round(10 * 4.2))
 })
 
-test("items only take effect while owned", () => {
-    const game = loadGame()
+test("items only take effect while owned", async () => {
+    const game = await loadGame()
     assert.equal(game.item("Book").getEffect(), 1)
     game.api.setMisc('Book')
     assert.equal(game.item("Book").getEffect(), 1.5)
@@ -111,8 +111,8 @@ test("items only take effect while owned", () => {
     assert.equal(game.item("Book").getEffect(), 1)
 })
 
-test("expenses add up the property and misc items, reduced by Bargaining", () => {
-    const game = loadGame()
+test("expenses add up the property and misc items, reduced by Bargaining", async () => {
+    const game = await loadGame()
     game.api.setProperty('Tent')
     game.api.setMisc('Book')
     assert.equal(game.api.getExpense(), 15 + 10)
@@ -120,8 +120,8 @@ test("expenses add up the property and misc items, reduced by Bargaining", () =>
     assert.equal(game.api.getExpense(), Math.round(15 * 0.9) + Math.round(10 * 0.9))
 })
 
-test("running out of coins makes you homeless and drops your items", () => {
-    const game = loadGame()
+test("running out of coins makes you homeless and drops your items", async () => {
+    const game = await loadGame()
     game.api.setProperty('Tent')
     game.api.setMisc('Book')
     game.ticks(1)
@@ -130,16 +130,16 @@ test("running out of coins makes you homeless and drops your items", () => {
     assert.equal(game.gameData.currentMisc.length, 0)
 })
 
-test("evil gained on rebirth is Evil control x Blood meditation", () => {
-    const game = loadGame()
+test("evil gained on rebirth is Evil control x Blood meditation", async () => {
+    const game = await loadGame()
     assert.equal(game.api.getEvilGain(), 1)
     game.task("Evil control").level = 100
     game.task("Blood meditation").level = 50
     assert.equal(game.api.getEvilGain(), 3)
 })
 
-test("time stops when paused or when lifespan is reached", () => {
-    const game = loadGame()
+test("time stops when paused or when lifespan is reached", async () => {
+    const game = await loadGame()
     const startDays = game.gameData.days
     game.api.setPause()
     game.ticks(10)

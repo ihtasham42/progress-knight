@@ -4,7 +4,8 @@
 // can be rebuilt with confidence that it still looks the same to the player.
 //
 // The game's timers are switched off; the test runs the game steps and the
-// renders itself, so every run is identical.
+// renders itself, so every run is identical. It runs against the Vite dev
+// server, so the test can import the same game modules the page is using.
 //
 // To re-record (only when the page is meant to change):
 //   UPDATE_PAGE_TEXT=1 npm run test:e2e
@@ -15,35 +16,47 @@ import path from "node:path"
 
 const ROOT = path.join(import.meta.dirname, "..", "..")
 const FIXTURE = path.join(ROOT, "test", "fixtures", "page-text.json")
-const ORIGIN = "http://game.test"
+const GAME_URL = "http://localhost:5174/progress-knight-evolved/"
 
-// Serves the game's files straight from the repository; anything else
-// (e.g. the Discord icon) is blocked so the run never needs the network.
-async function serveGame(page) {
+// Blocks anything that isn't the game (e.g. the Discord icon) so the run
+// never needs the network
+async function blockOtherSites(page) {
     await page.route("**/*", route => {
-        const url = new URL(route.request().url())
-        if (url.origin != ORIGIN) return route.abort()
-        const file = path.join(ROOT, decodeURIComponent(url.pathname))
-        if (!file.startsWith(ROOT) || !fs.existsSync(file)) return route.fulfill({ status: 404 })
-        return route.fulfill({ path: file })
+        return new URL(route.request().url()).hostname == "localhost" ? route.continue() : route.abort()
     })
 }
 
 // Stops the game's own timers before any game script runs. They are made
-// read-only so HackTimer can't replace them either.
+// read-only, and HackTimer is told there are no workers, so it leaves them
+// alone.
 function stopTimers() {
     for (const name of ["setInterval", "requestAnimationFrame"]) {
         Object.defineProperty(window, name, { value: () => 0, writable: false, configurable: false })
     }
+    Object.defineProperty(window, "Worker", { value: undefined, writable: false, configurable: false })
 }
 
-// Gives the test the game functions it drives, as window.pk
+// Gives the test the game functions it drives, as window.pk. The dev server
+// serves each module at one URL, so these are the page's own copies.
 async function exposeGame(page) {
-    await page.evaluate(`window.pk = {
-        get gameData() { return gameData },
-        update, updateUI, setAutoPromote, setAutoLearn, setSkillWithLowestMaxXp,
-        setProperty, setMisc, rebirthOne, rebirthTwo, getLifespan, daysToYears,
-    }`)
+    await page.evaluate(async base => {
+        const [state, rules, engine, ui] = await Promise.all(["game/state", "game/rules", "game/engine", "ui/ui"]
+            .map(name => import(base + "src/" + name + ".js")))
+        window.pk = {
+            gameData: state.gameData,
+            update: engine.update,
+            updateUI: ui.updateUI,
+            setAutoPromote: engine.setAutoPromote,
+            setAutoLearn: engine.setAutoLearn,
+            setSkillWithLowestMaxXp: engine.setSkillWithLowestMaxXp,
+            setProperty: engine.setProperty,
+            setMisc: engine.setMisc,
+            rebirthOne: engine.rebirthOne,
+            rebirthTwo: engine.rebirthTwo,
+            getLifespan: rules.getLifespan,
+            daysToYears: rules.daysToYears,
+        }
+    }, new URL(GAME_URL).pathname)
 }
 
 // Runs game steps the way the timers would, including the once-a-second
@@ -66,9 +79,9 @@ async function pageText(page) {
 }
 
 test("the page shows exactly the recorded text through a scripted game", async ({ page }) => {
-    await serveGame(page)
+    await blockOtherSites(page)
     await page.addInitScript(stopTimers)
-    await page.goto(ORIGIN + "/index.html")
+    await page.goto(GAME_URL)
     await exposeGame(page)
 
     const checkpoints = []

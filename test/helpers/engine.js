@@ -1,36 +1,29 @@
-// Loads only the game logic (data, state, rules, classes and engine) into a plain
-// Node vm context: no page, no document, no window, no timers. If any of
-// these files touched the page, loading or playing would throw.
+// Loads only the game logic (data, state, rules, classes and engine) with no
+// page: no document, no window, no timers. If any of these modules touched
+// the page, loading or playing would throw.
 
-import fs from "node:fs"
-import path from "node:path"
-import vm from "node:vm"
-import { gameApi } from "./game.js"
+import { vi } from "vitest"
+import { importModules, gameApi } from "./modules.js"
 
-const ROOT = path.join(import.meta.dirname, "..", "..")
-const ENGINE_SCRIPTS = ["src/game/data.js", "src/game/state.js", "src/game/rules.js", "src/game/classes.js", "src/game/engine.js"]
+const ENGINE_MODULES = ["src/game/data.js", "src/game/state.js", "src/game/rules.js", "src/game/classes.js", "src/game/engine.js"]
 
-function loadEngine() {
-    const context = vm.createContext({})
-    // Scripts run in one context share top-level let/const, like classic
-    // <script> files on a page.
-    for (const src of ENGINE_SCRIPTS) {
-        const code = fs.readFileSync(path.join(ROOT, src), "utf8")
-        vm.runInContext(code, context, { filename: src })
-    }
-    const run = code => vm.runInContext(code, context)
+async function loadEngine() {
+    // In case a test in the same file loaded a page
+    for (const name of ["window", "document", "localStorage", "location"]) delete globalThis[name]
+
+    vi.resetModules()
+    const api = gameApi(await importModules(ENGINE_MODULES))
 
     // Start a new game the way the page does: build the state, then run
     // one game step.
-    run("initGameData(); update()")
+    api.initGameData()
+    api.update()
 
     return {
-        context,
-        run,
-        api: gameApi(run),
-        get gameData() { return run("gameData") },
+        api,
+        get gameData() { return api.gameData },
         fastTicks(count) {
-            for (let i = 0; i < count; i++) run("update()")
+            for (let i = 0; i < count; i++) api.update()
         },
     }
 }

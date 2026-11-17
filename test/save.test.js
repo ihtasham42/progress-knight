@@ -32,8 +32,8 @@ function importText(game, text) {
     return error.classList.contains("hidden") ? null : error.textContent
 }
 
-test("an old save from the original game loads with everything intact", () => {
-    const game = loadGame({ localStorage: { gameDataSave: legacyRaw } })
+test("an old save from the original game loads with everything intact", async () => {
+    const game = await loadGame({ localStorage: { gameDataSave: legacyRaw } })
     const data = game.gameData
 
     assert.equal(data.coins, legacy.coins)
@@ -60,8 +60,8 @@ test("an old save from the original game loads with everything intact", () => {
     assert.equal(game.errors.length, 0, game.errors.join("\n"))
 })
 
-test("loading an old save keeps an untouched backup and re-saves in the new format", () => {
-    const game = loadGame({ localStorage: { gameDataSave: legacyRaw } })
+test("loading an old save keeps an untouched backup and re-saves in the new format", async () => {
+    const game = await loadGame({ localStorage: { gameDataSave: legacyRaw } })
     assert.equal(game.window.localStorage.getItem("gameDataSave_legacyBackup"), legacyRaw)
 
     game.api.saveGameData()
@@ -69,47 +69,47 @@ test("loading an old save keeps an untouched backup and re-saves in the new form
     assert.equal(saved.version, game.api.SAVE_VERSION)
     assert.ok(JSON.stringify(saved).length < legacyRaw.length / 5, "new saves are much smaller")
 
-    const reloaded = loadGame({ localStorage: { ...game.window.localStorage } })
+    const reloaded = await loadGame({ localStorage: { ...game.window.localStorage } })
     assert.equal(reloaded.window.localStorage.getItem("gameDataSave_legacyBackup"), legacyRaw, "backup isn't replaced")
 })
 
-test("a new-format save loads back to exactly the same state", () => {
-    const game = loadGame({ localStorage: { gameDataSave: legacyRaw } })
+test("a new-format save loads back to exactly the same state", async () => {
+    const game = await loadGame({ localStorage: { gameDataSave: legacyRaw } })
     game.api.gameData.paused = false
     game.ticks(500)
     game.api.gameData.paused = true
     game.api.saveGameData()
     const before = savedState(game)
 
-    const reloaded = loadGame({ localStorage: { gameDataSave: game.window.localStorage.getItem("gameDataSave") } })
+    const reloaded = await loadGame({ localStorage: { gameDataSave: game.window.localStorage.getItem("gameDataSave") } })
     assert.deepEqual(savedState(reloaded), before)
 })
 
-test("an export string from the original game can be imported", () => {
-    const game = loadGame()
+test("an export string from the original game can be imported", async () => {
+    const game = await loadGame()
     const exportString = Buffer.from(legacyRaw).toString("base64")
     assert.equal(importText(game, exportString), null)
 
-    const reloaded = loadGame({ localStorage: { gameDataSave: game.window.localStorage.getItem("gameDataSave") } })
+    const reloaded = await loadGame({ localStorage: { gameDataSave: game.window.localStorage.getItem("gameDataSave") } })
     assert.equal(reloaded.gameData.currentJob.name, "Fisherman")
     assert.equal(reloaded.gameData.evil, 1)
     assert.equal(reloaded.task("Farmer").maxLevel, 10)
 })
 
-test("export then import round-trips", () => {
-    const game = loadGame({ localStorage: { gameDataSave: legacyRaw } })
+test("export then import round-trips", async () => {
+    const game = await loadGame({ localStorage: { gameDataSave: legacyRaw } })
     game.api.exportGameData()
     const exportString = game.window.document.getElementById("importExportBox").value
     assert.equal(JSON.parse(Buffer.from(exportString, "base64").toString()).version, game.api.SAVE_VERSION)
 
-    const other = loadGame()
+    const other = await loadGame()
     assert.equal(importText(other, exportString), null)
-    const reloaded = loadGame({ localStorage: { gameDataSave: other.window.localStorage.getItem("gameDataSave") } })
+    const reloaded = await loadGame({ localStorage: { gameDataSave: other.window.localStorage.getItem("gameDataSave") } })
     assert.deepEqual(savedState(reloaded), savedState(game))
 })
 
-test("bad imports show a message and leave the current save alone", () => {
-    const game = loadGame()
+test("bad imports show a message and leave the current save alone", async () => {
+    const game = await loadGame()
     game.api.saveGameData()
     const current = game.window.localStorage.getItem("gameDataSave")
     const encode = value => Buffer.from(JSON.stringify(value)).toString("base64")
@@ -124,8 +124,8 @@ test("bad imports show a message and leave the current save alone", () => {
     assert.equal(importText(game, game.window.document.getElementById("importExportBox").value), null, "export clears the message")
 })
 
-test("migrateSave rejects things that aren't saves", () => {
-    const game = loadGame()
+test("migrateSave rejects things that aren't saves", async () => {
+    const game = await loadGame()
     const reasons = [null, 5, [], {}, {version: 1}, {version: 2, coins: "lots", days: 1, tasks: {}}, {version: 2, coins: 1, days: 1}]
         .map(save => { try { game.api.migrateSave(save); return "accepted" } catch (error) { return error.message } })
     assert.deepEqual(Array.from(reasons), [
@@ -139,7 +139,7 @@ test("migrateSave rejects things that aren't saves", () => {
     ])
 })
 
-test("unknown names and bad values in a save are ignored", () => {
+test("unknown names and bad values in a save are ignored", async () => {
     const save = {
         version: 2, coins: 500, days: 6000, evil: "lots", paused: true,
         currentJob: "Astronaut", currentSkill: "Farmer", currentProperty: "Book",
@@ -147,7 +147,7 @@ test("unknown names and bad values in a save are ignored", () => {
         tasks: { Farmer: { level: 7, maxLevel: "x", xp: 3 }, Astronaut: { level: 99 } },
         completedRequirements: ["Farmer", "Moon base"],
     }
-    const game = loadGame({ localStorage: { gameDataSave: JSON.stringify(save) } })
+    const game = await loadGame({ localStorage: { gameDataSave: JSON.stringify(save) } })
     const data = game.gameData
 
     assert.equal(data.coins, 500)
@@ -162,22 +162,22 @@ test("unknown names and bad values in a save are ignored", () => {
     assert.equal(game.errors.length, 0, game.errors.join("\n"))
 })
 
-test("an unreadable save is kept aside and the game starts fresh", () => {
-    const game = loadGame({ localStorage: { gameDataSave: "{not json" } })
+test("an unreadable save is kept aside and the game starts fresh", async () => {
+    const game = await loadGame({ localStorage: { gameDataSave: "{not json" } })
     assert.equal(game.window.localStorage.getItem("gameDataSave_unreadable"), "{not json")
     assert.equal(game.gameData.currentJob.name, "Beggar")
     assert.match(game.errors.join("\n"), /Could not load save/)
 })
 
-test("a version 2 save (by name) loads to the same state as the original save", () => {
-    const fromLegacy = loadGame({ localStorage: { gameDataSave: legacyRaw } })
-    const fromV2 = loadGame({ localStorage: { gameDataSave: v2Raw } })
+test("a version 2 save (by name) loads to the same state as the original save", async () => {
+    const fromLegacy = await loadGame({ localStorage: { gameDataSave: legacyRaw } })
+    const fromV2 = await loadGame({ localStorage: { gameDataSave: v2Raw } })
     assert.deepEqual(savedState(fromV2), savedState(fromLegacy))
     assert.equal(fromV2.window.localStorage.getItem("gameDataSave_legacyBackup"), null, "only legacy saves are backed up")
 })
 
-test("saves refer to jobs, skills, items and unlocks by id", () => {
-    const game = loadGame({ localStorage: { gameDataSave: legacyRaw } })
+test("saves refer to jobs, skills, items and unlocks by id", async () => {
+    const game = await loadGame({ localStorage: { gameDataSave: legacyRaw } })
     const saved = savedState(game)
     assert.equal(saved.version, game.api.SAVE_VERSION)
     assert.equal(saved.currentJob, "fisherman")
@@ -193,11 +193,11 @@ test("saves refer to jobs, skills, items and unlocks by id", () => {
     assert.ok(saved.completedRequirements.includes("shop"))
 })
 
-test("ids that look like object properties don't break loading", () => {
+test("ids that look like object properties don't break loading", async () => {
     const save = { version: 3, coins: 1, days: 6000, currentJob: "constructor", currentSkill: "__proto__",
         currentProperty: "toString", currentMisc: ["hasOwnProperty"], tasks: { constructor: { level: 5 } },
         completedRequirements: ["valueOf"] }
-    const game = loadGame({ localStorage: { gameDataSave: JSON.stringify(save) } })
+    const game = await loadGame({ localStorage: { gameDataSave: JSON.stringify(save) } })
     assert.equal(game.gameData.currentJob.name, "Beggar")
     assert.equal(game.gameData.currentSkill.name, "Concentration")
     assert.equal(game.gameData.currentProperty.name, "Homeless")
@@ -205,44 +205,44 @@ test("ids that look like object properties don't break loading", () => {
     assert.equal(game.errors.length, 0, game.errors.join("\n"))
 })
 
-test("a version 3 save loads to the same state, with automation switched off", () => {
-    const fromLegacy = loadGame({ localStorage: { gameDataSave: legacyRaw } })
-    const fromV3 = loadGame({ localStorage: { gameDataSave: v3Raw } })
+test("a version 3 save loads to the same state, with automation switched off", async () => {
+    const fromLegacy = await loadGame({ localStorage: { gameDataSave: legacyRaw } })
+    const fromV3 = await loadGame({ localStorage: { gameDataSave: v3Raw } })
     assert.deepEqual(savedState(fromV3), savedState(fromLegacy))
     assert.deepEqual(savedState(fromV3).automation, { autoPromote: false, autoLearn: false, skippedSkills: [] })
 })
 
-test("automation settings are saved and loaded", () => {
-    const game = loadGame()
+test("automation settings are saved and loaded", async () => {
+    const game = await loadGame()
     game.api.setAutoPromote(true)
     game.api.setAutoLearn(true)
     game.api.setSkillSkipped('Bargaining', true)
     game.api.setSkillSkipped('Strength', true)
     game.api.saveGameData()
-    const reloaded = loadGame({ localStorage: { gameDataSave: game.window.localStorage.getItem("gameDataSave") } })
+    const reloaded = await loadGame({ localStorage: { gameDataSave: game.window.localStorage.getItem("gameDataSave") } })
     const automation = reloaded.gameData.automation
     assert.equal(automation.autoPromote, true)
     assert.equal(automation.autoLearn, true)
     assert.deepEqual(Array.from(automation.skippedSkills).sort(), ["bargaining", "strength"])
 })
 
-test("bad automation settings in a save are ignored", () => {
+test("bad automation settings in a save are ignored", async () => {
     const save = JSON.parse(v3Raw)
     save.version = 4
     save.automation = { autoPromote: "yes", autoLearn: true, skippedSkills: ["farmer", "nonsense", "constructor", "meditation"] }
-    const game = loadGame({ localStorage: { gameDataSave: JSON.stringify(save) } })
+    const game = await loadGame({ localStorage: { gameDataSave: JSON.stringify(save) } })
     assert.equal(game.gameData.automation.autoPromote, false)
     assert.equal(game.gameData.automation.autoLearn, true)
     assert.deepEqual(Array.from(game.gameData.automation.skippedSkills), ["meditation"], "only real skills can be skipped")
     assert.equal(game.errors.length, 0, game.errors.join("\n"))
 })
 
-test("importSave and exportSave work with text only, not the page", () => {
-    const game = loadGame({ localStorage: { gameDataSave: legacyRaw } })
+test("importSave and exportSave work with text only, not the page", async () => {
+    const game = await loadGame({ localStorage: { gameDataSave: legacyRaw } })
     const exportString = game.api.exportSave()
     assert.equal(JSON.parse(Buffer.from(exportString, "base64").toString()).version, game.api.SAVE_VERSION)
 
-    const other = loadGame()
+    const other = await loadGame()
     other.api.saveGameData()
     const current = other.window.localStorage.getItem("gameDataSave")
     assert.match(other.api.importSave('not a save!!'), /doesn't look like a Progress Knight save/)

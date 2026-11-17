@@ -3,14 +3,14 @@ import globals from "globals"
 
 export default [
     {
-        ignores: ["node_modules/", "src/vendor/", "css/"],
+        ignores: ["node_modules/", "dist/", "src/vendor/", "css/"],
     },
     {
-        // The game: classic browser scripts that share globals across files
+        // The game: ES modules that run in the browser
         files: ["src/**/*.js"],
         languageOptions: {
-            sourceType: "script",
-            ecmaVersion: 2020,
+            sourceType: "module",
+            ecmaVersion: 2022,
             globals: globals.browser,
         },
         rules: {

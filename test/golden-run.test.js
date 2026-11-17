@@ -15,8 +15,8 @@ import { playLife } from "./helpers/golden-strategy.js"
 
 const GOLDEN_FILE = path.join(import.meta.dirname, "fixtures", "golden-run.json")
 
-function play() {
-    const game = loadGame()
+async function play() {
+    const game = await loadGame()
     game.window.document.getElementById("autoPromote").checked = true
     game.window.document.getElementById("autoLearn").checked = true
     const lives = [playLife(game)]
@@ -26,8 +26,8 @@ function play() {
     return lives
 }
 
-test("two full lives play out exactly as recorded", () => {
-    const lives = play()
+test("two full lives play out exactly as recorded", async () => {
+    const lives = await play()
     if (process.env.UPDATE_GOLDEN) {
         fs.writeFileSync(GOLDEN_FILE, JSON.stringify(lives, null, 2) + "\n")
         return

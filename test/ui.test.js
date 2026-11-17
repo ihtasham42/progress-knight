@@ -4,8 +4,8 @@ import { test } from "vitest"
 import assert from "node:assert/strict"
 import { loadGame } from "./helpers/game.js"
 
-test("the death text is shown once age reaches the lifespan, and hidden after a rebirth", () => {
-    const game = loadGame()
+test("the death text is shown once age reaches the lifespan, and hidden after a rebirth", async () => {
+    const game = await loadGame()
     const deathText = game.window.document.getElementById("deathText")
     assert.ok(deathText.classList.contains("hidden"))
 
@@ -19,8 +19,8 @@ test("the death text is shown once age reaches the lifespan, and hidden after a 
     assert.ok(deathText.classList.contains("hidden"))
 })
 
-test("checking whether the game is alive doesn't touch the page", () => {
-    const game = loadGame()
+test("checking whether the game is alive doesn't touch the page", async () => {
+    const game = await loadGame()
     const deathText = game.window.document.getElementById("deathText")
     game.api.gameData.days = game.api.getLifespan() + 100
     assert.equal(game.api.isAlive(), false)
@@ -29,8 +29,8 @@ test("checking whether the game is alive doesn't touch the page", () => {
 })
 
 for (const rebirth of ["rebirthOne", "rebirthTwo"]) {
-    test(`the page goes back to the jobs tab after ${rebirth}()`, () => {
-        const game = loadGame()
+    test(`the page goes back to the jobs tab after ${rebirth}()`, async () => {
+        const game = await loadGame()
         const document = game.window.document
         game.api.setTab(document.getElementById("rebirthTabButton"), "rebirth")
         assert.equal(document.getElementById("jobs").style.display, "none")
@@ -44,16 +44,16 @@ for (const rebirth of ["rebirthOne", "rebirthTwo"]) {
     })
 }
 
-test("rendering without a rebirth leaves the chosen tab alone", () => {
-    const game = loadGame()
+test("rendering without a rebirth leaves the chosen tab alone", async () => {
+    const game = await loadGame()
     const document = game.window.document
     game.api.setTab(document.getElementById("rebirthTabButton"), "rebirth")
     game.ticks(3)
     assert.equal(document.getElementById("rebirth").style.display, "block")
 })
 
-test("unlocks are recorded by the game step, not by rendering", () => {
-    const game = loadGame()
+test("unlocks are recorded by the game step, not by rendering", async () => {
+    const game = await loadGame()
     game.api.gameData.coins = 750
     game.api.updateUI()
     assert.equal(game.api.gameData.requirements['Shop'].completed, false)
@@ -64,8 +64,8 @@ test("unlocks are recorded by the game step, not by rendering", () => {
     assert.ok(!game.window.document.getElementById("shopTabButton").classList.contains("hidden"))
 })
 
-test("requirements hold only their conditions; the page keeps the elements they reveal", () => {
-    const game = loadGame()
+test("requirements hold only their conditions; the page keeps the elements they reveal", async () => {
+    const game = await loadGame()
     for (const [key, requirement] of Object.entries(game.gameData.requirements)) {
         assert.ok(!("elements" in requirement), key)
     }
@@ -76,8 +76,8 @@ test("requirements hold only their conditions; the page keeps the elements they 
     assert.deepEqual(Array.from(elements["Farmer"]), [game.window.document.getElementById("row Farmer")])
 })
 
-test("a game step doesn't render; rendering is separate", () => {
-    const game = loadGame()
+test("a game step doesn't render; rendering is separate", async () => {
+    const game = await loadGame()
     const coinDisplay = game.window.document.getElementById("coinDisplay")
     const shown = coinDisplay.textContent
     game.fastTicks(10)
@@ -87,8 +87,8 @@ test("a game step doesn't render; rendering is separate", () => {
     assert.notEqual(coinDisplay.textContent, shown)
 })
 
-test("rendering again with nothing changed doesn't touch the page", () => {
-    const game = loadGame()
+test("rendering again with nothing changed doesn't touch the page", async () => {
+    const game = await loadGame()
     game.ticks(5)
     const observer = new game.window.MutationObserver(() => {})
     observer.observe(game.window.document.body, { subtree: true, childList: true, attributes: true, characterData: true })
@@ -113,8 +113,8 @@ function gameState(game) {
     })
 }
 
-test("rendering never changes the game state", () => {
-    const game = loadGame()
+test("rendering never changes the game state", async () => {
+    const game = await loadGame()
     const renderTwice = () => {
         const before = gameState(game)
         game.api.updateUI()
@@ -145,8 +145,8 @@ test("rendering never changes the game state", () => {
     renderTwice()
 })
 
-test("automation checkboxes show the game state", () => {
-    const game = loadGame()
+test("automation checkboxes show the game state", async () => {
+    const game = await loadGame()
     const document = game.window.document
     game.api.setAutoPromote(true)
     game.api.setAutoLearn(true)
@@ -165,8 +165,8 @@ test("automation checkboxes show the game state", () => {
     assert.equal(skip("Bargaining").checked, false)
 })
 
-test("the page's buttons run their actions", () => {
-    const game = loadGame()
+test("the page's buttons run their actions", async () => {
+    const game = await loadGame()
     const document = game.window.document
     const click = id => document.getElementById(id).click()
 

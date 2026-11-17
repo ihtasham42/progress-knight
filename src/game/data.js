@@ -1,5 +1,3 @@
-"use strict"
-
 // Static game data. Each job, skill and item is defined once, with a stable
 // id that saves can refer to even if its display name changes.
 //
@@ -20,14 +18,14 @@
 // The older lookup tables the rest of the game uses (jobBaseData,
 // jobCategories, tooltips, ...) are derived from these definitions.
 
-function definitionsByName(definitions) {
+export function definitionsByName(definitions) {
     const byName = {}
     for (const definition of definitions) byName[definition.name] = definition
     return byName
 }
 
 // Category name -> entity names, in definition order
-function namesByCategory(definitions) {
+export function namesByCategory(definitions) {
     const categories = {}
     for (const definition of definitions) {
         if (!categories[definition.category]) categories[definition.category] = []
@@ -36,7 +34,7 @@ function namesByCategory(definitions) {
     return categories
 }
 
-const jobs = [
+export const jobs = [
     // Common work
     {id: "beggar", name: "Beggar", category: "Common work", maxXp: 50, income: 5, requires: [],
         tooltip: "Struggle day and night for a couple of copper coins. It feels like you are at the brink of death each day."},
@@ -84,7 +82,7 @@ const jobs = [
         tooltip: "Spend your days administrating The Arcane Association and investigate the concepts of true immortality. The chairman receives ludicrous amounts of pay daily."},
 ]
 
-const skills = [
+export const skills = [
     // Fundamentals
     {id: "concentration", name: "Concentration", category: "Fundamentals", maxXp: 100, effect: 0.01, description: "Skill xp", boosts: [{stat: "xp", of: "skills"}], requires: [],
         tooltip: "Improve your learning speed through practising intense concentration activities."},
@@ -128,7 +126,7 @@ const skills = [
         tooltip: "Through the means of dark magic, multiply the raw matter of the coins you receive from your job."},
 ]
 
-const items = [
+export const items = [
     // Properties
     {id: "homeless", name: "Homeless", category: "Properties", expense: 0, effect: 1, requires: [{coins: 0}],
         tooltip: "Sleep on the uncomfortable, filthy streets while almost freezing to death every night. It cannot get any worse than this."},
@@ -169,7 +167,7 @@ const items = [
 // Parts of the game that are hidden until their requirements are met. A
 // category unlock reveals that category's rows; the others reveal the page
 // element with the given id.
-const unlocks = [
+export const unlocks = [
     {id: "the_arcane_association", name: "The Arcane Association", category: "The Arcane Association", requires: [{task: "concentration", level: 200}, {task: "meditation", level: 200}]},
     {id: "dark_magic", name: "Dark magic", category: "Dark magic", requires: [{evil: 1}]},
     {id: "shop", name: "Shop", elementId: "shopTabButton", permanent: true, requires: [{coins: 750}]},
@@ -184,27 +182,27 @@ const unlocks = [
 ]
 
 // What a new life starts with (ids)
-const startingItems = {job: "beggar", skill: "concentration", property: "homeless"}
+export const startingItems = {job: "beggar", skill: "concentration", property: "homeless"}
 
 // Id <-> display name for every job, skill, item and unlock. Prototype-free
 // so lookups of untrusted keys (e.g. from a save) can't hit Object methods.
-const namesById = Object.create(null)
-const idsByName = Object.create(null)
+export const namesById = Object.create(null)
+export const idsByName = Object.create(null)
 for (const definition of [...jobs, ...skills, ...items, ...unlocks]) {
     namesById[definition.id] = definition.name
     idsByName[definition.name] = definition.id
 }
 
-const jobBaseData = definitionsByName(jobs)
-const jobCategories = namesByCategory(jobs)
+export const jobBaseData = definitionsByName(jobs)
+export const jobCategories = namesByCategory(jobs)
 
-const skillBaseData = definitionsByName(skills)
-const skillCategories = namesByCategory(skills)
+export const skillBaseData = definitionsByName(skills)
+export const skillCategories = namesByCategory(skills)
 
-const itemBaseData = definitionsByName(items)
-const itemCategories = namesByCategory(items)
+export const itemBaseData = definitionsByName(items)
+export const itemCategories = namesByCategory(items)
 
-const headerRowColors = {
+export const headerRowColors = {
     "Common work": "#55a630",
     "Military": "#e63946",
     "The Arcane Association": "#C71585",
@@ -217,7 +215,7 @@ const headerRowColors = {
 }
 
 // Entity name -> tooltip text
-const tooltips = {}
+export const tooltips = {}
 for (const definition of [...jobs, ...skills, ...items]) {
     tooltips[definition.name] = definition.tooltip
 }
