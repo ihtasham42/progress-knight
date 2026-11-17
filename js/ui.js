@@ -440,6 +440,28 @@ function getElementsByClass(className) {
     return elements
 }
 
+// Wires the page's buttons to the functions they run
+function setUpButtons() {
+    for (const tabButton of document.getElementsByClassName("tabButton")) {
+        tabButton.onclick = function() {setTab(tabButton, tabButton.dataset.tab)}
+    }
+    const buttonActions = {
+        pauseButton: function() {setPause()},
+        timeWarpingButton: function() {setTimeWarping()},
+        rebirthOneButton: function() {rebirthOne()},
+        rebirthTwoButton: function() {rebirthTwo()},
+        importButton: function() {importGameData()},
+        exportButton: function() {exportGameData()},
+        lightDarkButton: function() {setLightDarkMode()},
+        resetButton: function() {resetGameData()},
+    }
+    for (const id in buttonActions) {
+        document.getElementById(id).onclick = buttonActions[id]
+    }
+    // Pressing Enter in the import box mustn't submit (and reload) the page
+    document.getElementById("importExportForm").onsubmit = function() {return false}
+}
+
 // The settings themselves are saved with the game; the checkboxes only
 // change them (and are kept in step by updateAutomationControls)
 function setUpAutomationControls() {
@@ -463,6 +485,7 @@ function initUI() {
     createAllRows(itemCategories, "itemTable")
     sidebarElements = findSidebarElements()
     quickTaskElements = findQuickTaskElements()
+    setUpButtons()
     setUpAutomationControls()
     requirementElements = createRequirementElements()
     setTab(jobTabButton, "jobs")

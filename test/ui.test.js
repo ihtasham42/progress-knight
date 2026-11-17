@@ -153,3 +153,31 @@ test("automation checkboxes show the game state", () => {
     assert.equal(document.getElementById("autoLearn").checked, false)
     assert.equal(skip("Bargaining").checked, false)
 })
+
+test("the page's buttons run their actions", () => {
+    const game = loadGame()
+    const document = game.window.document
+    const click = id => document.getElementById(id).click()
+
+    const skillsTabButton = [...document.getElementsByClassName("tabButton")].find(button => button.textContent == "Skills")
+    skillsTabButton.click()
+    assert.equal(document.getElementById("skills").style.display, "block")
+    assert.equal(document.getElementById("jobs").style.display, "none")
+    assert.ok(skillsTabButton.classList.contains("w3-blue-gray"))
+
+    click("pauseButton")
+    assert.equal(game.gameData.paused, true)
+    click("timeWarpingButton")
+    assert.equal(game.gameData.timeWarpingEnabled, false)
+
+    click("lightDarkButton")
+    assert.ok(!document.getElementById("body").classList.contains("dark"))
+
+    click("exportButton")
+    assert.notEqual(document.getElementById("importExportBox").value, "")
+
+    click("rebirthOneButton")
+    assert.equal(game.gameData.rebirthOneCount, 1)
+    click("rebirthTwoButton")
+    assert.equal(game.gameData.rebirthTwoCount, 1)
+})
