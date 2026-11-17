@@ -41,6 +41,7 @@
     --pk-main-basis: 560px;
     --pk-measure: 480px;
     --pk-bar-width: 200px;
+    --pk-bar-min: 240px;
     --pk-col-wide: 250px;
     --pk-col-narrow: 100px;
     --pk-control-height: 40px;
@@ -58,12 +59,18 @@ body {
     --pk-line: #dcdad4;
     --pk-text-muted: #64676f;
     --pk-text-secondary: #45474d;
+    --pk-text-faint: #73767d;
+    --pk-line-subtle: #efeee9;
     --pk-text: #1d1f24;
     --pk-tooltip-bg: #1d1f24;
     --pk-tooltip-text: #f3f2ef;
 
     /* The one accent: the current task, the primary action */
     --pk-accent: #956800;
+    --pk-on-accent: #ffffff;
+    /* Accent and gain as text on --pk-raised (chips), a little deeper to pass 4.5:1 */
+    --pk-accent-text: #835c00;
+    --pk-gain-text: #1f6e1e;
 
     /* Meaning */
     --pk-gain: #257d24;
@@ -79,6 +86,7 @@ body {
     --pk-bar-fill: #aac7da;
     --pk-bar-current: #d4c6a6;
     --pk-bar-text: #1d1f24;
+    --pk-bar-tint: 28%;
 
     /* Categories (header rows and markers) and the text on them */
     --pk-on-category: #ffffff;

@@ -13,18 +13,20 @@ const text = element => element.textContent.replace(/\s+/g, " ").trim()
 const header = category => document.querySelector(".headerRow." + category.replace(/ /g, ""))
 const requiredRow = category => document.getElementById(category)
 
-test("each category has a header row in its colour", async () => {
+test("each category has a flat header row that carries its colour", async () => {
     await renderComponent("TaskTable.tsx", "TaskTable", { kind: "jobs" })
     const commonWork = header("Common work")
-    assert.equal(commonWork.style.backgroundColor, "var(--pk-cat-common-work)")
-    assert.equal(commonWork.style.color, "var(--pk-on-category)")
-    assert.deepEqual([...commonWork.children].map(th => th.textContent).slice(0, 5), ["Common work", "Level", "Income/day", "Xp/day", "Xp left"])
+    assert.equal(commonWork.style.getPropertyValue("--cat"), "var(--pk-cat-common-work)")
+    assert.equal(commonWork.style.backgroundColor, "")
+    assert.deepEqual([...commonWork.children].map(th => th.textContent).slice(0, 6), ["Common work", "Level", "Income / day", "XP / day", "XP left", "Max lvl"])
+    assert.equal(row("Beggar").style.getPropertyValue("--cat"), "var(--pk-cat-common-work)")
 })
 
 test("the skills table shows effects instead of income", async () => {
     await renderComponent("TaskTable.tsx", "TaskTable", { kind: "skills" })
     assert.equal(header("Fundamentals").querySelector(".valueType").textContent, "Effect")
-    assert.equal(text(cell("Concentration", "effect")), "x1.00 Skill xp")
+    assert.equal(text(cell("Concentration", "effect")), "×1.00 skill xp")
+    assert.equal(text(cell("Concentration", "effect").querySelector("strong")), "×1.00")
     assert.equal(text(cell("Concentration", "income")), "")
 })
 
@@ -48,13 +50,26 @@ test("rows are hidden until unlocked", async () => {
     assert.ok(!row("Farmer").classList.contains("hidden"))
 })
 
-test("a locked category's header and required rows are hidden", async () => {
+test("a locked category shows its header and what unlocks it, but none of its rows", async () => {
     const game = await renderComponent("TaskTable.tsx", "TaskTable", { kind: "skills" })
-    assert.ok(header("Dark magic").classList.contains("hidden"))
-    assert.ok(requiredRow("Dark magic").classList.contains("hidden"))
+    assert.ok(!header("Dark magic").classList.contains("hidden"))
+    assert.ok(requiredRow("Dark magic").classList.contains("locked"))
+    assert.equal(text(requiredRow("Dark magic")), "Embrace evil at the Amulet to unlock Evil 0 / 1")
+    assert.ok(row("Dark influence").classList.contains("hidden"))
     game.engine.rebirthTwo()
     game.ticks(1)
-    assert.ok(!header("Dark magic").classList.contains("hidden"))
+    assert.ok(!requiredRow("Dark magic").classList.contains("locked"))
+})
+
+test("a locked job category lists the levels that unlock it", async () => {
+    const game = await renderComponent("TaskTable.tsx", "TaskTable", { kind: "jobs" })
+    const arcane = requiredRow("The Arcane Association")
+    assert.ok(arcane.classList.contains("locked"))
+    assert.equal(text(arcane), "Unlocks with Concentration 0 / 200 Meditation 0 / 200")
+    game.task("Concentration").level = 200
+    game.ticks(1)
+    assert.equal(text(requiredRow("The Arcane Association")), "Unlocks with Concentration 200 / 200 Meditation 0 / 200")
+    assert.ok(requiredRow("The Arcane Association").querySelector(".need-chip").classList.contains("met"))
 })
 
 test("the progress bar shows xp towards the next level and highlights the current task", async () => {
@@ -92,8 +107,8 @@ test("skip checkboxes appear with auto-learn and change which skills are skipped
     assert.equal(cell("Strength", "skipSkill").style.display, "none")
     game.engine.setAutoLearn(true)
     game.rerender()
-    assert.equal(cell("Strength", "skipSkill").style.display, "block")
-    assert.equal(header("Combat").querySelector(".skipSkill").style.display, "block")
+    assert.equal(cell("Strength", "skipSkill").style.display, "table-cell")
+    assert.equal(header("Combat").querySelector(".skipSkill").style.display, "table-cell")
 
     fireEvent.click(cell("Strength", "checkbox"))
     assert.deepEqual([...game.gameData.automation.skippedSkills], ["strength"])
@@ -102,23 +117,33 @@ test("skip checkboxes appear with auto-learn and change which skills are skipped
     assert.equal(game.gameData.automation.skippedSkills.size, 0)
 })
 
-test("the required row says what the next job needs", async () => {
+test("the next row says what the next job needs", async () => {
     const game = await renderComponent("TaskTable.tsx", "TaskTable", { kind: "jobs" })
-    assert.equal(text(requiredRow("Common work")), "Required: Beggar level 0/10")
+    assert.equal(text(requiredRow("Common work")), "Next: Farmer Beggar 0 / 10")
     game.task("Beggar").level = 10
     game.task("Farmer").level = 10
     game.task("Fisherman").level = 10
     game.ticks(1)
-    assert.equal(text(requiredRow("Common work").querySelector(".levels")), "Strength level 0/10")
+    assert.equal(text(requiredRow("Common work")), "Next: Miner Strength 0 / 10 Fisherman 10 / 10")
 })
 
-test("the required row shows evil for dark magic", async () => {
+test("the next row shows evil for dark magic", async () => {
     const game = await renderComponent("TaskTable.tsx", "TaskTable", { kind: "skills" })
     game.engine.rebirthTwo()
     game.ticks(1)
     const required = requiredRow("Dark magic")
-    assert.ok(required.querySelector(".levels").classList.contains("hiddenTask"))
-    assert.equal(text(required.querySelector(".evil")), "25 evil")
+    assert.equal(text(required), "Next: Demon training Evil 1 / 25")
+    assert.ok(required.querySelector(".need-chip").classList.contains("need-evil"))
+})
+
+test("the current task gets an Active badge", async () => {
+    const game = await renderComponent("TaskTable.tsx", "TaskTable", { kind: "jobs" })
+    assert.equal(text(cell("Beggar", "active-badge")), "Active")
+    game.task("Farmer").level = 0
+    game.engine.setTask("Farmer")
+    game.rerender()
+    assert.equal(cell("Beggar", "active-badge"), null)
+    assert.equal(text(cell("Farmer", "active-badge")), "Active")
 })
 
 test("the required row is hidden when everything in the category is unlocked", async () => {

@@ -9,11 +9,16 @@ body.dark {
     --pk-line: #2b303b;
     --pk-text-muted: #a3a6ae;
     --pk-text-secondary: #c9c5bc;
+    --pk-text-faint: #8a8e98;
+    --pk-line-subtle: #1f2229;
     --pk-text: #ebe7df;
     --pk-tooltip-bg: #2b303b;
     --pk-tooltip-text: #ebe7df;
 
     --pk-accent: #e3a83b;
+    --pk-on-accent: #1a1408;
+    --pk-accent-text: #e3a83b;
+    --pk-gain-text: #7fd47a;
 
     --pk-gain: #7fd47a;
     --pk-loss: #ed7379;
@@ -27,6 +32,7 @@ body.dark {
     --pk-bar-fill: #405d7c;
     --pk-bar-current: #785f33;
     --pk-bar-text: #ffffff;
+    --pk-bar-tint: 40%;
 
     --pk-on-category: #111318;
     --pk-cat-common-work: #6fb351;

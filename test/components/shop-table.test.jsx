@@ -51,6 +51,6 @@ test("items you can't afford can't be bought", async () => {
 
 test("the required row says how many coins the next item needs", async () => {
     await renderComponent("ShopTable.tsx", "ShopTable")
-    assert.equal(text(document.getElementById("Properties")), "Required: 1g")
-    assert.equal(text(document.getElementById("Misc")), "Required: 50s")
+    assert.equal(text(document.getElementById("Properties")), "Next: Wooden hut 1c / 1g")
+    assert.equal(text(document.getElementById("Misc")), "Next: Dumbbells 1c / 50s")
 })

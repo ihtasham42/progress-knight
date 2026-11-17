@@ -25,30 +25,76 @@ table.w3-bordered tr {
     border-bottom: 1px solid var(--pk-line);
 }
 
-.current {
-    background-color: var(--pk-bar-current) !important;
-}
-
+/* A task bar is a button. Its fill is the category colour tinted over the
+   track (--cat is set on the row); the current task uses the accent. On
+   hover the track steps up one shade, and the fill follows it. */
 .progress-text {
     position: absolute;
     top: 0px;
     bottom: 0px;
-    padding: 5px var(--pk-space-3);
+    left: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 var(--pk-space-3);
+    font-weight: 500;
     color: var(--pk-bar-text);
 }
 
-.progress-bar {
+button.progress-bar {
+    --pk-bar-base: var(--pk-bar-track);
     position: relative;
-    background-color: var(--pk-bar-track);
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: var(--pk-bar-min);
+    height: var(--pk-bar-height);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background-color: var(--pk-bar-base);
     border-radius: var(--pk-radius);
+    color: var(--pk-bar-text);
+    font: inherit;
+    text-align: left;
     cursor: pointer;
-    width: var(--pk-bar-width);
+}
+
+button.progress-bar:hover {
+    --pk-bar-base: var(--pk-line);
 }
 
 .progress-fill {
-    height: 30px;
+    display: block;
+    height: 100%;
     border-radius: var(--pk-radius);
-    background-color: var(--pk-bar-fill);
+    background-color: color-mix(in srgb, var(--cat) var(--pk-bar-tint), var(--pk-bar-base));
+}
+
+.progress-fill.current {
+    background-color: color-mix(in srgb, var(--pk-accent) calc(var(--pk-bar-tint) + 5%), var(--pk-bar-base));
+}
+
+/* The right end of a bar: the Active badge, and the level on phones */
+.bar-end {
+    position: absolute;
+    top: 0;
+    right: var(--pk-space-3);
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--pk-space-2);
+    pointer-events: none;
+}
+
+.active-badge {
+    padding: 2px var(--pk-space-2);
+    border-radius: var(--pk-radius);
+    background-color: var(--pk-accent);
+    color: var(--pk-on-accent);
+    font-size: var(--pk-text-xs);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .hidden {
@@ -131,7 +177,8 @@ button:focus-visible {
     transition: opacity 0.5s;
 }
 
-.tooltip:hover .tooltipText {
+.tooltip:hover .tooltipText,
+.tooltip:focus-visible .tooltipText {
     visibility: visible;
     opacity: 1;
 }
@@ -334,7 +381,6 @@ th {
 /* Under 1024px the sidebar is above the main panel, so bars and item
    buttons grow to fill their table cell */
 @media (max-width: 1023px) {
-    .progress-bar,
     .item-button {
         width: 100%;
         min-width: var(--pk-bar-width);
@@ -360,12 +406,15 @@ th {
     .layout .sidebar {
         display: flex;
         align-items: stretch;
-        flex: 1 1 var(--pk-sidebar-min);
-        max-width: var(--pk-sidebar-max);
+        /* Never narrower than the minimum, whatever the table needs */
+        flex: 0 0 clamp(var(--pk-sidebar-min), 24vw, var(--pk-sidebar-max));
     }
 
+    /* min-width 0 lets a wide table scroll inside the panel instead of
+       squeezing the sidebar */
     .main {
         flex: 999 1 var(--pk-main-basis);
+        min-width: 0;
     }
 }
 
@@ -417,15 +466,8 @@ th {
         min-height: var(--pk-touch);
     }
 
-    .progress-fill {
+    button.progress-bar {
         height: var(--pk-touch);
-    }
-
-    .progress-bar .progress-text {
-        display: flex;
-        align-items: center;
-        padding-top: 0;
-        padding-bottom: 0;
     }
 
     .item-button {
@@ -447,6 +489,15 @@ th {
 
 .sidebar-details {
     display: contents;
+}
+
+/* The browser wraps a details' content in a box of its own; without this
+   the sidebar isn't a flex item of the layout and can't hold its width.
+   Not on phones, where it also hides the content while the details is closed */
+@media (min-width: 640px) {
+    .sidebar-details::details-content {
+        display: contents;
+    }
 }
 
 .sidebar-details > summary {
@@ -1073,16 +1124,10 @@ body.dark .automation-check {
     }
 
     .phone-level {
-        position: absolute;
-        top: 0;
-        right: var(--pk-space-3);
-        bottom: 0;
-        display: flex;
-        align-items: center;
+        display: block;
         font-size: var(--pk-text-sm);
         color: var(--pk-bar-text);
         opacity: 0.72;
-        pointer-events: none;
     }
 
     /* Shop rows: the item button over its meta line */
@@ -1121,17 +1166,20 @@ body.dark .automation-check {
         font-weight: 600;
     }
 
-    /* Required: a flat block, not a table row */
+    /* Next and Unlocks with: a flat block under the rows, chips on the panel */
+    #jobTable tr.next-tr,
+    #skillTable tr.next-tr,
+    #itemTable tr.next-tr {
+        display: block;
+        border-bottom: 0;
+    }
+
     #jobTable td.requiredRow,
     #skillTable td.requiredRow,
     #itemTable td.requiredRow {
         display: block;
         margin-top: var(--pk-space-2);
-        padding: var(--pk-space-3) !important;
-        border-radius: var(--pk-radius);
-        /* The tab panel behind is --pk-panel */
-        background-color: var(--pk-raised);
-        font-size: var(--pk-text-sm);
+        padding: 0 !important;
     }
 
     /* Tooltips open under the bar at its width: beside it they'd be off
@@ -1145,5 +1193,249 @@ body.dark .automation-check {
         width: auto;
         margin-top: var(--pk-space-1);
         pointer-events: none;
+    }
+}
+
+/* Next and Unlocks with: a lock, what comes next, and a chip for each thing
+   it needs. The chip's number is coloured: met, still needed, or evil. */
+table.w3-bordered tr.next-tr {
+    border-bottom: 0;
+}
+
+.next-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--pk-space-2) var(--pk-space-4);
+    font-size: var(--pk-text-sm);
+    color: var(--pk-text-muted);
+}
+
+.next-lead {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pk-space-2);
+}
+
+.next-lead strong {
+    font-weight: 600;
+    color: var(--pk-text);
+}
+
+.next-lead.need-evil {
+    color: var(--pk-stat-evil);
+}
+
+.lock-icon {
+    flex: none;
+}
+
+.need-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pk-space-2);
+    padding: var(--pk-space-1) 10px;
+    border-radius: var(--pk-radius);
+    background-color: var(--pk-raised);
+    font-size: var(--pk-text-sm);
+    white-space: nowrap;
+}
+
+.need-value {
+    font-weight: 600;
+    color: var(--pk-accent-text);
+}
+
+.need-chip.need-evil .need-value {
+    color: var(--pk-stat-evil);
+}
+
+.need-chip.met .need-value {
+    color: var(--pk-gain-text);
+}
+
+.need-bar {
+    display: inline-block;
+    width: 40px;
+    height: 4px;
+    border-radius: var(--pk-radius);
+    background-color: var(--pk-line);
+    overflow: hidden;
+}
+
+.need-bar > span {
+    display: block;
+    height: 100%;
+    background-color: var(--pk-accent);
+}
+
+.need-chip.need-evil .need-bar > span {
+    background-color: var(--pk-stat-evil);
+}
+
+.need-chip.met .need-bar > span {
+    background-color: var(--pk-gain);
+}
+
+/* Phones: the lock line on its own, the chips wrapping under it, no bars */
+@media (max-width: 639px) {
+    .next-row {
+        gap: var(--pk-space-2) 6px;
+    }
+
+    .next-lead {
+        flex-basis: 100%;
+    }
+
+    .need-chip {
+        font-size: var(--pk-text-xs);
+    }
+
+    .need-bar {
+        display: none;
+    }
+}
+
+/* Tablet and up: the Jobs and Skills tables. A flat header per category
+   (colour square, name, small muted column labels), then one quiet row per
+   task, with a hairline between rows and no zebra or outer border. */
+@media (min-width: 640px) {
+    table.task-table {
+        min-width: 860px;
+        font-size: var(--pk-text-sm);
+    }
+
+    table.task-table th,
+    table.task-table td {
+        padding: var(--pk-space-1) var(--pk-space-2);
+        text-align: left;
+    }
+
+    table.task-table th:first-child,
+    table.task-table td:first-child {
+        padding-left: 0;
+    }
+
+    table.task-table th:last-child,
+    table.task-table td:last-child {
+        padding-right: 0;
+    }
+
+    /* A locked category has no rows yet, so only its square and name show */
+    table.task-table tr.headerRow.locked-header th:not(.category) {
+        visibility: hidden;
+    }
+
+    table.task-table tr.headerRow {
+        border-bottom: 1px solid var(--pk-line);
+    }
+
+    table.task-table tr.headerRow:not(:first-child) th {
+        padding-top: var(--pk-space-6);
+    }
+
+    table.task-table tr[id] {
+        border-bottom: 1px solid var(--pk-line-subtle);
+    }
+
+    table.task-table th {
+        padding-bottom: var(--pk-space-2);
+        font-size: var(--pk-text-xs);
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--pk-text-muted);
+    }
+
+    table.task-table th.category {
+        width: auto;
+        font-size: var(--pk-text-sm);
+        letter-spacing: 0.02em;
+        text-transform: none;
+        color: var(--pk-text);
+    }
+
+    table.task-table th.category::before {
+        content: "";
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        margin-right: 10px;
+        background-color: var(--cat);
+    }
+
+    table.task-table th:nth-child(2) {
+        width: 80px;
+    }
+
+    table.task-table th.valueType {
+        width: 24%;
+    }
+
+    table.task-table th:nth-child(4),
+    table.task-table th:nth-child(5) {
+        width: 104px;
+    }
+
+    table.task-table th.maxLevel {
+        width: 88px;
+    }
+
+    table.task-table th.skipSkill {
+        width: 64px;
+    }
+
+    table.task-table th.skipSkill,
+    table.task-table td.skipSkill {
+        text-align: center;
+    }
+
+    table.task-table td.level {
+        font-weight: 600;
+        color: var(--pk-text);
+    }
+
+    table.task-table .effect strong {
+        font-weight: 600;
+        color: var(--pk-text);
+    }
+
+    table.task-table .effect span,
+    table.task-table td.xpGain,
+    table.task-table td.xpLeft {
+        color: var(--pk-text-muted);
+    }
+
+    table.task-table td.maxLevel {
+        color: var(--pk-text-faint);
+    }
+
+    table.task-table .skip-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: var(--pk-bar-height);
+        cursor: pointer;
+    }
+
+    table.task-table .skip-label .checkbox {
+        width: 18px;
+        height: 18px;
+        margin: 0;
+        accent-color: var(--pk-accent);
+    }
+
+    body.dark table.task-table .skip-label .checkbox {
+        color-scheme: dark;
+    }
+
+    /* The inset outline stays inside the scrolling box */
+    table.task-table button.progress-bar:focus-visible {
+        outline-offset: -2px;
+    }
+
+    table.task-table td.requiredRow,
+    #itemTable td.requiredRow {
+        padding: var(--pk-space-3) var(--pk-space-3) var(--pk-space-1);
     }
 }
