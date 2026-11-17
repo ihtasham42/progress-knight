@@ -50,8 +50,51 @@ test("rows are hidden until unlocked", async () => {
     assert.ok(!row("Farmer").classList.contains("hidden"))
 })
 
-test("a locked category shows its header and what unlocks it, but none of its rows", async () => {
+test("magic and the Arcane Association stay out of sight until Concentration 100 and Meditation 100", async () => {
+    const game = await renderComponent("TaskTable.tsx", "TaskTable", { kind: "jobs" })
+    assert.ok(header("The Arcane Association").classList.contains("hidden"))
+    assert.equal(requiredRow("The Arcane Association"), null)
+    game.task("Concentration").level = 100
+    game.task("Meditation").level = 99
+    game.ticks(1)
+    assert.ok(header("The Arcane Association").classList.contains("hidden"))
+    game.task("Meditation").level = 100
+    game.ticks(1)
+    assert.ok(!header("The Arcane Association").classList.contains("hidden"))
+    assert.ok(row("Student").classList.contains("hidden"))
+})
+
+test("the magic skills appear with the Arcane Association, showing what mana control needs", async () => {
     const game = await renderComponent("TaskTable.tsx", "TaskTable", { kind: "skills" })
+    assert.ok(header("Magic").classList.contains("hidden"))
+    assert.equal(requiredRow("Magic"), null)
+    game.task("Concentration").level = 100
+    game.task("Meditation").level = 100
+    game.ticks(1)
+    assert.ok(!header("Magic").classList.contains("hidden"))
+    assert.equal(text(requiredRow("Magic")), "Next: Mana control Concentration 100 / 200 Meditation 100 / 200")
+})
+
+test("once glimpsed, magic and the Arcane Association stay in sight through rebirths", async () => {
+    const game = await renderComponent("TaskTable.tsx", "TaskTable", { kind: "jobs" })
+    game.task("Concentration").level = 100
+    game.task("Meditation").level = 100
+    game.ticks(1)
+    game.engine.rebirthOne()
+    game.engine.rebirthTwo()
+    game.ticks(1)
+    assert.ok(!header("The Arcane Association").classList.contains("hidden"))
+    assert.equal(text(requiredRow("The Arcane Association")), "Unlocks with Concentration 0 / 200 Meditation 0 / 200")
+})
+
+test("dark magic stays out of sight until the amulet offers evil, then shows what unlocks it", async () => {
+    const game = await renderComponent("TaskTable.tsx", "TaskTable", { kind: "skills" })
+    assert.ok(header("Dark magic").classList.contains("hidden"))
+    assert.equal(requiredRow("Dark magic"), null)
+    assert.ok(row("Dark influence").classList.contains("hidden"))
+    game.task("Immortality").level = 33 ** 3 - 1 // lifespan x4, so 200 can be reached
+    game.gameData.days = 365 * 200
+    game.ticks(1)
     assert.ok(!header("Dark magic").classList.contains("hidden"))
     assert.ok(requiredRow("Dark magic").classList.contains("locked"))
     assert.equal(text(requiredRow("Dark magic")), "Embrace evil at the Amulet to unlock Evil 0 / 1")
@@ -59,16 +102,20 @@ test("a locked category shows its header and what unlocks it, but none of its ro
     game.engine.rebirthTwo()
     game.ticks(1)
     assert.ok(!requiredRow("Dark magic").classList.contains("locked"))
+    assert.ok(!row("Dark influence").classList.contains("hidden"))
 })
 
 test("a locked job category lists the levels that unlock it", async () => {
     const game = await renderComponent("TaskTable.tsx", "TaskTable", { kind: "jobs" })
+    game.task("Concentration").level = 100
+    game.task("Meditation").level = 100
+    game.ticks(1)
     const arcane = requiredRow("The Arcane Association")
     assert.ok(arcane.classList.contains("locked"))
-    assert.equal(text(arcane), "Unlocks with Concentration 0 / 200 Meditation 0 / 200")
+    assert.equal(text(arcane), "Unlocks with Concentration 100 / 200 Meditation 100 / 200")
     game.task("Concentration").level = 200
     game.ticks(1)
-    assert.equal(text(requiredRow("The Arcane Association")), "Unlocks with Concentration 200 / 200 Meditation 0 / 200")
+    assert.equal(text(requiredRow("The Arcane Association")), "Unlocks with Concentration 200 / 200 Meditation 100 / 200")
     assert.ok(requiredRow("The Arcane Association").querySelector(".need-chip").classList.contains("met"))
 })
 

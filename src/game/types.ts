@@ -57,9 +57,12 @@ export interface ItemDefinition extends Definition {
     readonly boosts?: readonly Boost[]
 }
 
-// Reveals a category's rows, or a part of the page the page chooses
+// Reveals a category's rows, or a part of the page the page chooses.
+// reveals: categories kept wholly out of sight (header and all) until this
+//   unlock is reached. Until then the game doesn't hint they exist.
 export interface UnlockDefinition extends Definition {
     readonly category?: string
+    readonly reveals?: readonly string[]
     readonly permanent?: boolean
 }
 

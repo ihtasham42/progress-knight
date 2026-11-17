@@ -211,9 +211,9 @@ const unlockElementIds = {
     quick_task_display: "quickTaskDisplay",
 }
 
-test("every unlock that isn't a category reveals a part of the page", async () => {
+test("every unlock that isn't about categories reveals a part of the page", async () => {
     const game = await loadGame()
-    const unlocks = game.api.unlocks.filter(unlock => !unlock.category)
+    const unlocks = game.api.unlocks.filter(unlock => !unlock.category && !unlock.reveals)
     assert.deepEqual(unlocks.map(unlock => unlock.id).sort(), Object.keys(unlockElementIds).sort())
     for (const unlock of unlocks) {
         const element = game.byId(unlockElementIds[unlock.id])

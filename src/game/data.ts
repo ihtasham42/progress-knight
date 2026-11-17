@@ -174,11 +174,15 @@ const itemList = [
 export const items: readonly ItemDefinition[] = itemList
 
 // Parts of the game that are hidden until their requirements are met. A
-// category unlock reveals that category's rows; the page decides what the
-// others reveal, asking isUnlocked(id) (engine.ts).
+// category unlock reveals that category's rows; until then its header shows
+// what unlocks it. A reveals unlock keeps categories out of sight entirely
+// until it is reached, so they only appear as the game opens up. The page
+// decides what the others reveal, asking isUnlocked(id) (engine.ts).
 const unlockList = [
     {id: "the_arcane_association", name: "The Arcane Association", category: "The Arcane Association", requires: [{task: "concentration", level: 200}, {task: "meditation", level: 200}]},
     {id: "dark_magic", name: "Dark magic", category: "Dark magic", requires: [{evil: 1}]},
+    {id: "arcane_glimpse", name: "Arcane glimpse", reveals: ["The Arcane Association", "Magic"], permanent: true, requires: [{task: "concentration", level: 100}, {task: "meditation", level: 100}]},
+    {id: "dark_glimpse", name: "Dark glimpse", reveals: ["Dark magic"], permanent: true, requires: [{age: 200}]},
     {id: "shop", name: "Shop", permanent: true, requires: [{coins: 750}]},
     {id: "rebirth_tab", name: "Rebirth tab", requires: [{age: 25}]},
     {id: "rebirth_note_1", name: "Rebirth note 1", requires: [{age: 45}]},
@@ -245,7 +249,7 @@ type Expect<Actual extends Allowed, Allowed> = [Actual, Allowed]
 type AllDefinitions = typeof jobList | typeof skillList | typeof itemList | typeof unlockList
 type RequiredTask = Extract<AllDefinitions[number]["requires"][number], {task: string}>["task"]
 type BoostedTarget = Extract<Extract<(typeof skillList | typeof itemList)[number], {boosts: unknown}>["boosts"][number], {of: string}>["of"]
-type UnlockedCategory = Extract<(typeof unlockList)[number], {category: string}>["category"]
+type UnlockedCategory = Extract<(typeof unlockList)[number], {category: string}>["category"] | Extract<(typeof unlockList)[number], {reveals: unknown}>["reveals"][number]
 export type _RequiredTasksExist = Expect<RequiredTask, TaskId>
 export type _BoostTargetsExist = Expect<BoostedTarget, BoostTarget>
 export type _UnlockedCategoriesExist = Expect<UnlockedCategory, Category>

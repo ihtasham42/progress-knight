@@ -93,8 +93,19 @@ export function isCategoryHidden(categoryName: string): boolean {
     return unlock !== undefined && !isUnlocked(unlock.id)
 }
 
+// A category that a reveals unlock (data.ts) keeps out of sight: no header,
+// no rows and no hint of what it needs, until it is revealed or unlocked
+export function isCategoryUnseen(categoryName: string): boolean {
+    const revealers = unlocks.filter(unlock => "reveals" in unlock && (unlock.reveals as readonly string[]).includes(categoryName))
+    if (revealers.length == 0) return false
+    if (revealers.some(unlock => isUnlocked(unlock.id))) return false
+    const unlock = unlocks.find(unlock => unlock.category == categoryName)
+    return !(unlock !== undefined && isUnlocked(unlock.id))
+}
+
 export function RequiredRow({categoryName, category, items}: {categoryName: string, category: string[], items: boolean}) {
     const data: Record<string, Entity> = items ? gameData.itemData : gameData.taskData
+    if (isCategoryUnseen(categoryName)) return null
     const locked = isCategoryHidden(categoryName)
     const unlock = unlocks.find(unlock => unlock.category == categoryName)
     const nextEntity = locked ? null : nextLocked(data, category)

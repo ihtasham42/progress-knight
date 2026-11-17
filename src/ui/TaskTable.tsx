@@ -9,7 +9,7 @@ import { setSkillSkipped, setTask } from "../game/engine.ts"
 import { requestRender, useGame } from "./gameStore.ts"
 import { CoinParts, EmptyCoinParts } from "./CoinParts.tsx"
 import { Checkbox } from "./Checkbox.tsx"
-import { RequiredRow, isCategoryHidden } from "./RequiredRow.tsx"
+import { RequiredRow, isCategoryHidden, isCategoryUnseen } from "./RequiredRow.tsx"
 import { classNames, removeSpaces } from "./classNames.ts"
 import { format, splitEffect } from "./format.ts"
 import { fillStyle } from "./fill.ts"
@@ -47,7 +47,7 @@ export function TaskTable({kind}: {kind: TaskKind}) {
 function TaskHeaderRow({kind, categoryName}: {kind: TaskKind, categoryName: string}) {
     const game = useGame()
     return (
-        <tr className={classNames(removeSpaces(categoryName), "headerRow", isCategoryHidden(categoryName) && "locked-header")}
+        <tr className={classNames(removeSpaces(categoryName), "headerRow", isCategoryHidden(categoryName) && "locked-header", isCategoryUnseen(categoryName) && "hidden")}
             style={{"--cat": headerRowColors[categoryName as keyof typeof headerRowColors]} as CSSProperties}>
             <th className="category">{categoryName}</th>
             <th>Level</th>
@@ -67,8 +67,8 @@ function TaskRow({task, categoryName}: {task: Job | Skill, categoryName: string}
     const effect = task instanceof Skill ? splitEffect(task.getEffectDescription()) : null
     const tooltipId = "tip-" + removeSpaces(name)
     const longPress = useLongPressTooltip()
-    // A locked category keeps its rows out of sight, whatever they need
-    const hidden = !game.requirements[name].completed || isCategoryHidden(categoryName)
+    // A locked or unseen category keeps its rows out of sight, whatever they need
+    const hidden = !game.requirements[name].completed || isCategoryHidden(categoryName) || isCategoryUnseen(categoryName)
     return (
         <tr id={"row " + name} className={classNames(hidden && "hidden")}
             style={{"--cat": headerRowColors[categoryName as keyof typeof headerRowColors]} as CSSProperties}>
