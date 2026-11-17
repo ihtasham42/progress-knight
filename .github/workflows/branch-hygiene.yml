@@ -1,0 +1,43 @@
+name: Branch hygiene
+
+# Weekly sweep: deletes remote branches already merged into main,
+# skipping main and any branch that still has an open PR.
+on:
+  schedule:
+    - cron: "0 18 * * 0" # Mondays 05:00 Melbourne (AEDT)
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "List branches without deleting"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  prune-merged:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Delete merged branches
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+        run: |
+          open_pr_branches=$(gh pr list --state open --json headRefName -q '.[].headRefName')
+          for ref in $(git branch -r --merged origin/main --format='%(refname:lstrip=3)'); do
+            case "$ref" in main|HEAD|gh-pages) continue ;; esac
+            if echo "$open_pr_branches" | grep -qx "$ref"; then
+              echo "skip  $ref (open PR)"; continue
+            fi
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "would delete  $ref"
+            else
+              echo "delete  $ref"
+              git push origin --delete "$ref"
+            fi
+          done
