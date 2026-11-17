@@ -17,8 +17,8 @@ const GOLDEN_FILE = path.join(import.meta.dirname, "fixtures", "golden-run.json"
 
 async function play() {
     const game = await loadGame()
-    game.window.document.getElementById("autoPromote").checked = true
-    game.window.document.getElementById("autoLearn").checked = true
+    game.setChecked(game.byId("autoPromote"), true)
+    game.setChecked(game.byId("autoLearn"), true)
     const lives = [playLife(game)]
     game.api.rebirthOne()
     lives.push(playLife(game))

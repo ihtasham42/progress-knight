@@ -18,12 +18,11 @@ const ROOT = path.join(import.meta.dirname, "..", "..")
 const FIXTURE = path.join(ROOT, "test", "fixtures", "page-text.json")
 const GAME_URL = "http://localhost:5174/progress-knight-evolved/"
 
-// The page as it was built before React, and the React page being built to
-// replace it. Both must show exactly the recorded text. ui is the module
-// with the function that renders the game state straight away.
+// The page must show exactly the text recorded from the page as it was before
+// React. ui is the module with the function that renders the game state
+// straight away.
 const PAGES = [
-    { name: "the original page", path: "", ui: "ui/ui.js", render: "updateUI" },
-    { name: "the React page", path: "react.html", ui: "ui/gameStore.ts", render: "renderNow" },
+    { name: "the page", path: "", ui: "ui/gameStore.ts", render: "renderNow" },
 ]
 
 // Blocks anything that isn't the game (e.g. the Discord icon) so the run
@@ -138,8 +137,7 @@ for (const pageUnderTest of PAGES) test(`${pageUnderTest.name} shows exactly the
     await render(page)
     await record("embraced evil, then 1500 ticks on the Skills tab")
 
-    // Only the original page can make the recording
-    if (process.env.UPDATE_PAGE_TEXT && pageUnderTest.path == "") {
+    if (process.env.UPDATE_PAGE_TEXT) {
         fs.writeFileSync(FIXTURE, JSON.stringify(checkpoints, null, 2) + "\n")
         return
     }

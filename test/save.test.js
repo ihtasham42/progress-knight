@@ -26,8 +26,8 @@ function savedState(game) {
 }
 
 function importText(game, text) {
-    game.window.document.getElementById("importExportBox").value = text
-    game.api.importGameData()
+    game.type(game.byId("importExportBox"), text)
+    game.click(game.byId("importButton"))
     const error = game.window.document.getElementById("importError")
     return error.classList.contains("hidden") ? null : error.textContent
 }
@@ -98,7 +98,7 @@ test("an export string from the original game can be imported", async () => {
 
 test("export then import round-trips", async () => {
     const game = await loadGame({ localStorage: { gameDataSave: legacyRaw } })
-    game.api.exportGameData()
+    game.click(game.byId("exportButton"))
     const exportString = game.window.document.getElementById("importExportBox").value
     assert.equal(JSON.parse(Buffer.from(exportString, "base64").toString()).version, game.api.SAVE_VERSION)
 
@@ -120,7 +120,7 @@ test("bad imports show a message and leave the current save alone", async () => 
     assert.match(importText(game, encode({ version: 99, coins: 1, days: 1, tasks: {} })), /newer version of the game/)
     assert.equal(game.window.localStorage.getItem("gameDataSave"), current)
 
-    game.api.exportGameData()
+    game.click(game.byId("exportButton"))
     assert.equal(importText(game, game.window.document.getElementById("importExportBox").value), null, "export clears the message")
 })
 

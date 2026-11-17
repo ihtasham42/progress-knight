@@ -52,7 +52,7 @@ test("locked rows are hidden in the UI and appear once unlocked", async () => {
 
 test("auto-promote moves to the next job in the same career once unlocked", async () => {
     const game = await loadGame()
-    game.window.document.getElementById("autoPromote").checked = true
+    game.setChecked(game.byId("autoPromote"), true)
     game.task("Beggar").level = 10
     game.ticks(1)
     assert.equal(game.gameData.currentJob.name, "Farmer")
@@ -60,7 +60,7 @@ test("auto-promote moves to the next job in the same career once unlocked", asyn
 
 test("auto-learn picks the lowest level unlocked skill that isn't skipped", async () => {
     const game = await loadGame()
-    game.window.document.getElementById("autoLearn").checked = true
+    game.setChecked(game.byId("autoLearn"), true)
     game.task("Concentration").level = 30
     game.task("Productivity").level = 15 // keeps Meditation (needs Productivity 20) locked
     game.task("Bargaining").level = 2
@@ -70,7 +70,7 @@ test("auto-learn picks the lowest level unlocked skill that isn't skipped", asyn
     assert.equal(game.gameData.currentSkill.name, "Battle tactics")
 
     const skip = game.window.document.getElementById("row Battle tactics").getElementsByClassName("checkbox")[0]
-    skip.checked = true
+    game.setChecked(skip, true)
     game.api.setSkillWithLowestMaxXp()
     game.ticks(1)
     assert.equal(game.gameData.currentSkill.name, "Strength")
