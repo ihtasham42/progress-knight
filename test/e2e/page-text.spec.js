@@ -34,8 +34,8 @@ async function blockOtherSites(page) {
 }
 
 // Stops the game's own timers before any game script runs. They are made
-// read-only, and HackTimer is told there are no workers, so it leaves them
-// alone.
+// read-only, and there are no workers, so the background timer falls back
+// to these stopped ones.
 function stopTimers() {
     for (const name of ["setInterval", "requestAnimationFrame"]) {
         Object.defineProperty(window, name, { value: () => 0, writable: false, configurable: false })

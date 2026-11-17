@@ -17,7 +17,22 @@ The game is built with [Vite](https://vite.dev/). You need Node.js 22 or later.
 - `npm run typecheck`: TypeScript type checking
 - `npm run build`: build the site into `dist/`; `npm run preview` serves the build
 
-The game logic and data are in `src/game/` (TypeScript) and don't touch the page. The page is a React app in `src/ui/`: the game state stays a plain object that the game loop changes outside React, and `src/ui/gameStore.ts` tells the components to render it again about 10 times a second and after every player action. Player actions call the engine's functions; components never change the game state while rendering. Game data (jobs, skills, items and unlocks) lives in `src/game/data.ts`; the format is documented at the top of that file and typed in `src/game/types.ts`, so `npm run typecheck` catches a misspelt id, stat or requirement.
+#### How it's organised
+- `src/game/`: the game itself, in TypeScript, with no access to the page.
+  - `data.ts`: every job, skill, item and unlock. The format is documented at the top of the file and typed in `types.ts`, so `npm run typecheck` catches a misspelt id, stat or requirement.
+  - `state.ts`: the game state, one plain object.
+  - `engine.ts` (with `rules.ts` and `classes.ts`): formulas, game steps, rebirths and automation.
+  - `save.ts`: saving, loading, import/export and upgrading saves from older versions.
+- `src/ui/`: the page, a React app. The game state stays outside React; `gameStore.ts` tells the components to render it again about 10 times a second and after every player action. Player actions call the engine's functions, and components never change the game state while rendering.
+- `src/main.tsx`: starts the game, the page and the timers. `backgroundTimer.ts` keeps the game running in a background tab.
+
+#### Tests
+- `test/*.test.js`: the game logic, saves and the page in jsdom. `golden-run.test.js` plays two whole lives and compares them with a recording (`test/fixtures/golden-run.json`), so any change to game balance fails it.
+- `test/components/`: each React component, with React Testing Library.
+- `test/types/`: typos in game data that `npm run typecheck` must reject.
+- `test/e2e/`: Playwright. `page-text.spec.js` plays a scripted game and compares the page's text with a recording (`test/fixtures/page-text.json`); `built-site.spec.js` checks the production build.
+
+CI runs lint, type checking, the unit and component tests, the build and the browser tests on every pull request.
 
 Pushes to `main` are published to GitHub Pages automatically.
 

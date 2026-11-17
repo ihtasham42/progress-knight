@@ -24,14 +24,14 @@
 
 import type { JobDefinition, SkillDefinition, ItemDefinition, UnlockDefinition } from "./types.ts"
 
-export function definitionsByName<T extends {name: string}>(definitions: readonly T[]): Record<string, T> {
+function definitionsByName<T extends {name: string}>(definitions: readonly T[]): Record<string, T> {
     const byName: Record<string, T> = {}
     for (const definition of definitions) byName[definition.name] = definition
     return byName
 }
 
 // Category name -> entity names, in definition order
-export function namesByCategory(definitions: readonly {name: string, category: string}[]): Record<string, string[]> {
+function namesByCategory(definitions: readonly {name: string, category: string}[]): Record<string, string[]> {
     const categories: Record<string, string[]> = {}
     for (const definition of definitions) {
         if (!categories[definition.category]) categories[definition.category] = []

@@ -5,21 +5,7 @@ import reactHooks from "eslint-plugin-react-hooks"
 
 export default [
     {
-        ignores: ["node_modules/", "dist/", "src/vendor/", "css/"],
-    },
-    {
-        // The game: ES modules that run in the browser
-        files: ["src/**/*.js"],
-        languageOptions: {
-            sourceType: "module",
-            ecmaVersion: 2022,
-            globals: globals.browser,
-        },
-        rules: {
-            ...js.configs.recommended.rules,
-            "no-var": "error",
-            "prefer-const": "error",
-        },
+        ignores: ["node_modules/", "dist/", "css/"],
     },
     ...tseslint.configs.recommended.map(config => ({ ...config, files: ["src/**/*.{ts,tsx}", "test/types/**/*.ts"] })),
     {

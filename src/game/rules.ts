@@ -9,21 +9,21 @@ import type { GlobalStat, SkillDefinition, ItemDefinition } from "./types.ts"
 
 export const updateSpeed = 20
 
-export const baseLifespan = 365 * 70
+const baseLifespan = 365 * 70
 
-export const baseGameSpeed = 4
+const baseGameSpeed = 4
 
 export function getBaseLog(x: number, y: number): number {
     return Math.log(y) / Math.log(x);
 }
 
-export function getBindedTaskEffect(taskName: string): () => number {
+function getBindedTaskEffect(taskName: string): () => number {
     // Only skills have an effect; this is only called for skills
     const task = gameData.taskData[taskName] as Skill
     return task.getEffect.bind(task)
 }
 
-export function getBindedItemEffect(itemName: string): () => number {
+function getBindedItemEffect(itemName: string): () => number {
     const item = gameData.itemData[itemName]
     return item.getEffect.bind(item)
 }

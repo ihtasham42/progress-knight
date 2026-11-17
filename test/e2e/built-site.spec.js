@@ -30,8 +30,12 @@ test("the built game loads, styles the page and runs", async ({ page }) => {
     // dark.css and w3.css are applied
     await expect(page.locator("#body")).toHaveClass(/dark/)
     expect(await page.locator(".w3-button").first().evaluate(element => getComputedStyle(element).cursor)).toBe("pointer")
-    // The game's timers advance the days and render them
+    // The game's timers, kept by a worker so they keep going in a
+    // background tab, advance the days, which are rendered
     await expect(page.locator("#dayDisplay")).not.toHaveText("0", { timeout: 5000 })
+    expect(page.workers().map(worker => new URL(worker.url()).pathname)).toEqual([
+        expect.stringMatching(/^\/progress-knight-evolved\/assets\/backgroundTimer\.worker-.*\.js$/),
+    ])
     expect(errors).toEqual([])
 })
 
