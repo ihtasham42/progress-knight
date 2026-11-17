@@ -1,14 +1,12 @@
 // The compact header on phones: title, pause button, coins, net per day,
-// age and a life bar. The sidebar holds the same numbers behind ids (tests
+// age and a life bar. Header.tsx holds the same numbers behind ids (tests
 // and wider screens use those), so this uses classes only.
 
 import { daysToYears, getLifespan } from "../game/rules.ts"
 import { getDay, getExpense, getIncome, getNet, isLifeOver, setPause } from "../game/engine.ts"
 import { requestRender, useGame } from "./gameStore.ts"
 import { CoinParts } from "./CoinParts.tsx"
-
-// The age the character starts at
-const START_DAYS = 14 * 365
+import { getLifeShare } from "./life.ts"
 
 export function PhoneHeader() {
     const game = useGame()
@@ -16,7 +14,7 @@ export function PhoneHeader() {
     const expense = getExpense()
     const sign = income > expense ? {text: "+", color: "var(--pk-gain)"} : expense > income ? {text: "-", color: "var(--pk-loss)"} : {text: "", color: "var(--pk-text-muted)"}
     const lifespan = getLifespan()
-    const lifeShare = Math.min(1, Math.max(0, (game.days - START_DAYS) / (lifespan - START_DAYS)))
+    const lifeShare = getLifeShare(game.days)
     const age = daysToYears(game.days)
     return (
         <header className="phone-header">

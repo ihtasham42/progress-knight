@@ -41,10 +41,11 @@
     --pk-main-basis: 560px;
     --pk-measure: 480px;
     --pk-bar-width: 200px;
-    --pk-quick-bar-width: 230px;
     --pk-col-wide: 250px;
     --pk-col-narrow: 100px;
     --pk-control-height: 40px;
+    --pk-bar-height: 36px;
+    --pk-tab-height: 48px;
     --pk-touch: 44px;
 }
 
