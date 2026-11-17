@@ -5,6 +5,7 @@ import type { ReactNode } from "react"
 import { isUnlocked } from "../game/engine.ts"
 import { useGame } from "./gameStore.ts"
 import { Sidebar } from "./Sidebar.tsx"
+import { TaskTable } from "./TaskTable.tsx"
 import { classNames } from "./classNames.ts"
 
 export type TabName = "jobs" | "skills" | "shop" | "rebirth" | "settings"
@@ -47,9 +48,9 @@ export function App() {
                 {" "}
                 <div className="panel w3-margin-left w3-margin-top w3-padding" style={{width: "900px", height: "auto", float: "left"}}>
                     {" "}
-                    <Tab name="jobs" selected={selectedTab}>{null}</Tab>
+                    <Tab name="jobs" selected={selectedTab}><TaskTable kind="jobs" /></Tab>
                     {" "}
-                    <Tab name="skills" selected={selectedTab}>{null}</Tab>
+                    <Tab name="skills" selected={selectedTab}><TaskTable kind="skills" /></Tab>
                     {" "}
                     <Tab name="shop" selected={selectedTab}>{null}</Tab>
                     {" "}
