@@ -31,47 +31,35 @@ function backUpLegacySave(parsedSave, rawSave) {
     }
 }
 
-function resetGameData() {
+// Deletes the save (and its backups). The page reloads afterwards.
+function clearSave() {
     localStorage.clear()
-    location.reload()
 }
 
-function importGameData() {
-    const importExportBox = document.getElementById("importExportBox")
+// Checks an export string and, if it's a save the game can load, stores it
+// as the current save. Returns a message for the player if it can't be used
+// (the current save is then left alone), or nothing once it's stored.
+function importSave(text) {
     let data
     try {
-        data = JSON.parse(window.atob(importExportBox.value.trim()))
+        data = JSON.parse(atob(text.trim()))
     } catch (error) {
-        showImportError("That doesn't look like a Progress Knight save. Paste the full text from Export.")
-        return
+        return "That doesn't look like a Progress Knight save. Paste the full text from Export."
     }
 
     let save
     try {
         save = migrateSave(data)
     } catch (error) {
-        showImportError("That save couldn't be loaded: " + error.message + ".")
-        return
+        return "That save couldn't be loaded: " + error.message + "."
     }
 
     localStorage.setItem("gameDataSave", JSON.stringify(save))
-    location.reload()
 }
 
-function showImportError(message) {
-    const importError = document.getElementById("importError")
-    importError.textContent = message
-    importError.classList.remove("hidden")
-}
-
-function hideImportError() {
-    document.getElementById("importError").classList.add("hidden")
-}
-
-function exportGameData() {
-    hideImportError()
-    const importExportBox = document.getElementById("importExportBox")
-    importExportBox.value = window.btoa(JSON.stringify(serializeGameData()))
+// The current game as text the player can copy and import later
+function exportSave() {
+    return btoa(JSON.stringify(serializeGameData()))
 }
 
 // ---------------------------------------------------------------------------

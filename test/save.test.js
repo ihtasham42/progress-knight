@@ -231,3 +231,17 @@ test("bad automation settings in a save are ignored", () => {
     assert.deepEqual(Array.from(game.gameData.automation.skippedSkills), ["meditation"], "only real skills can be skipped")
     assert.equal(game.errors.length, 0, game.errors.join("\n"))
 })
+
+test("importSave and exportSave work with text only, not the page", () => {
+    const game = loadGame({ localStorage: { gameDataSave: legacyRaw } })
+    const exportString = game.run("exportSave()")
+    assert.equal(JSON.parse(Buffer.from(exportString, "base64").toString()).version, game.run("SAVE_VERSION"))
+
+    const other = loadGame()
+    other.run("saveGameData()")
+    const current = other.window.localStorage.getItem("gameDataSave")
+    assert.match(other.run("importSave('not a save!!')"), /doesn't look like a Progress Knight save/)
+    assert.equal(other.window.localStorage.getItem("gameDataSave"), current)
+    assert.equal(other.run(`importSave(${JSON.stringify(exportString)})`), undefined)
+    assert.equal(JSON.parse(other.window.localStorage.getItem("gameDataSave")).currentJob, "fisherman")
+})

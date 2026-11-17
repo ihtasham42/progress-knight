@@ -474,6 +474,36 @@ function setLightDarkMode() {
     body.classList.contains("dark") ? body.classList.remove("dark") : body.classList.add("dark")
 }
 
+function resetGameData() {
+    clearSave()
+    location.reload()
+}
+
+function importGameData() {
+    const importExportBox = document.getElementById("importExportBox")
+    const error = importSave(importExportBox.value)
+    if (error) {
+        showImportError(error)
+        return
+    }
+    location.reload()
+}
+
+function showImportError(message) {
+    const importError = document.getElementById("importError")
+    importError.textContent = message
+    importError.classList.remove("hidden")
+}
+
+function hideImportError() {
+    document.getElementById("importError").classList.add("hidden")
+}
+
+function exportGameData() {
+    hideImportError()
+    document.getElementById("importExportBox").value = exportSave()
+}
+
 function removeSpaces(string) {
     return string.replace(/ /g, "")
 }
