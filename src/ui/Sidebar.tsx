@@ -16,6 +16,7 @@ import { fillStyle } from "./fill.ts"
 
 export function Sidebar() {
     const game = useGame()
+    const glows = game.evil > 0
     const income = getIncome()
     const expense = getExpense()
     const sign = income > expense ? {text: "+", color: "var(--pk-gain)"} : expense > income ? {text: "-", color: "var(--pk-loss)"} : {text: "", color: "var(--pk-text-muted)"}
@@ -45,7 +46,8 @@ export function Sidebar() {
                     <span className="card-note">{getHappinessNote(game)}</span>
                 </div>
                 <div id="evilInfo" className={classNames("stat", !isUnlocked("evil_info") && "hidden")}>
-                    <span className="stat-line"><span className="stat-value" id="evilDisplay">{game.evil.toFixed(1)}</span> <span className="stat-name stat-evil">evil</span></span>
+                    {/* Once there is some evil, it smoulders (fx-anim: the effects setting can turn it off) */}
+                    <span className="stat-line"><span className={classNames("stat-value", glows && "evil-glow fx-anim")} id="evilDisplay">{game.evil.toFixed(1)}</span> <span className={classNames("stat-name stat-evil", glows && "evil-glow fx-anim")}>evil</span></span>
                     <span className="card-note">On dark magic XP</span>
                 </div>
                 <div id="timeWarping" className={classNames("stat", !isUnlocked("time_warping_info") && "hidden")}>

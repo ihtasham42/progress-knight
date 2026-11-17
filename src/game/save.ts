@@ -6,8 +6,18 @@ import type { Life, LifeEnd } from "./state.ts"
 import { Job, Skill } from "./classes.ts"
 import { getTaskById, getItemById, setAutoPromote, setAutoLearn, setSkillSkipped } from "./engine.ts"
 
+// When the game was last saved successfully, for the Settings tab. It isn't
+// part of the save.
+let lastSavedAt: number | null = null
+
+// Whole seconds since then, or null before the first save
+export function secondsSinceSave(): number | null {
+    return lastSavedAt === null ? null : Math.max(0, Math.floor((Date.now() - lastSavedAt) / 1000))
+}
+
 export function saveGameData() {
     localStorage.setItem("gameDataSave", JSON.stringify(serializeGameData()))
+    lastSavedAt = Date.now()
 }
 
 export function loadGameData() {
@@ -35,9 +45,12 @@ function backUpLegacySave(parsedSave: unknown, rawSave: string): void {
     }
 }
 
-// Deletes the save (and its backups). The page reloads afterwards.
+// Deletes the save (and its backups). The page reloads afterwards. The
+// player's display preferences are kept: this resets the game, not the settings.
 export function clearSave() {
-    localStorage.clear()
+    for (const key of ["gameDataSave", "gameDataSave_unreadable", "gameDataSave_legacyBackup"]) {
+        localStorage.removeItem(key)
+    }
 }
 
 // Checks an export string and, if it's a save the game can load, stores it

@@ -54,6 +54,15 @@ test("happiness and evil", async () => {
     assert.equal(text("evilDisplay"), "1.0")
 })
 
+test("evil glows only once there is some", async () => {
+    const game = await renderComponent("Sidebar.tsx", "Sidebar")
+    assert.ok(!byId("evilDisplay").classList.contains("fx-anim"))
+    game.engine.rebirthTwo()
+    game.ticks(1)
+    assert.ok(byId("evilDisplay").classList.contains("fx-anim"))
+    assert.ok(byId("evilInfo").querySelector(".stat-evil").classList.contains("fx-anim"))
+})
+
 test("happiness lists what multiplies it, leaving out what does nothing", async () => {
     const game = await renderComponent("Sidebar.tsx", "Sidebar")
     const note = () => text("happinessDisplay") && byId("happinessDisplay").closest(".stat").querySelector(".card-note").textContent

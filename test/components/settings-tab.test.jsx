@@ -6,7 +6,7 @@ import { test, vi } from "vitest"
 import assert from "node:assert/strict"
 import fs from "node:fs"
 import path from "node:path"
-import { fireEvent, screen } from "@testing-library/react"
+import { act, fireEvent, screen } from "@testing-library/react"
 import { renderComponent } from "../helpers/react.js"
 
 const legacyRaw = fs.readFileSync(path.join(import.meta.dirname, "..", "fixtures", "legacy-save.json"), "utf8")
@@ -65,20 +65,123 @@ test("pressing Enter in the box doesn't submit the page", async () => {
     assert.equal(event.defaultPrevented, true)
 })
 
-test("the theme switch sets dark or light mode", async () => {
+// A stand-in for matchMedia whose answers the test can change
+function mockMedia(initial = {}) {
+    const state = { "(prefers-color-scheme: dark)": false, "(prefers-reduced-motion: reduce)": false, ...initial }
+    const listeners = []
+    vi.stubGlobal("matchMedia", query => ({
+        get matches() { return state[query] },
+        addEventListener: (type, listener) => listeners.push({ query, listener }),
+        removeEventListener() {},
+    }))
+    return {
+        set(query, matches) {
+            state[query] = matches
+            act(() => listeners.filter(entry => entry.query == query).forEach(entry => entry.listener({ matches })))
+        },
+    }
+}
+
+const radio = name => screen.getByRole("radio", { name })
+
+test("the theme switch sets dark, light or system mode and remembers it", async () => {
     document.body.classList.add("dark")
+    const media = mockMedia()
     await renderComponent("SettingsTab.tsx", "SettingsTab")
-    const radio = name => screen.getByRole("radio", { name })
     assert.equal(radio("Dark").getAttribute("aria-checked"), "true")
     fireEvent.click(radio("Light"))
     assert.ok(!document.body.classList.contains("dark"))
     assert.equal(radio("Light").getAttribute("aria-checked"), "true")
     assert.equal(radio("Dark").getAttribute("aria-checked"), "false")
+    assert.equal(JSON.parse(localStorage.getItem("pk-preferences")).theme, "light")
     fireEvent.click(radio("Light"))
     assert.ok(!document.body.classList.contains("dark"), "choosing the same theme again keeps it")
     fireEvent.click(radio("Dark"))
     assert.ok(document.body.classList.contains("dark"))
     assert.equal(document.getElementById("lightDarkButton").textContent, "Light")
+
+    fireEvent.click(radio("System"))
+    assert.equal(radio("System").getAttribute("aria-checked"), "true")
+    assert.ok(!document.body.classList.contains("dark"), "the device is light")
+    media.set("(prefers-color-scheme: dark)", true)
+    assert.ok(document.body.classList.contains("dark"), "follows the device live")
+    media.set("(prefers-color-scheme: dark)", false)
+    assert.ok(!document.body.classList.contains("dark"))
+    // A fixed choice ignores the device
+    fireEvent.click(radio("Dark"))
+    media.set("(prefers-color-scheme: dark)", false)
+    assert.ok(document.body.classList.contains("dark"))
+})
+
+test("arrow keys move between themes", async () => {
+    document.body.classList.add("dark")
+    mockMedia()
+    await renderComponent("SettingsTab.tsx", "SettingsTab")
+    fireEvent.keyDown(radio("Dark"), { key: "ArrowRight" })
+    assert.equal(radio("Light").getAttribute("aria-checked"), "true")
+    fireEvent.keyDown(radio("Light"), { key: "ArrowLeft" })
+    assert.equal(radio("Dark").getAttribute("aria-checked"), "true")
+})
+
+test("the amulet effects toggle sets a class on the page and remembers it", async () => {
+    mockMedia()
+    await renderComponent("SettingsTab.tsx", "SettingsTab")
+    const toggle = screen.getByLabelText(/Amulet effects/)
+    assert.equal(toggle.checked, true)
+    assert.ok(screen.getByText("Off when your device asks for reduced motion"))
+    fireEvent.click(toggle)
+    assert.ok(document.body.classList.contains("effects-off"))
+    assert.equal(JSON.parse(localStorage.getItem("pk-preferences")).amuletEffects, false)
+    fireEvent.click(toggle)
+    assert.ok(!document.body.classList.contains("effects-off"))
+})
+
+test("with reduced motion the toggle is off and disabled, and effects stay off", async () => {
+    document.body.classList.remove("effects-off")
+    const media = mockMedia({ "(prefers-reduced-motion: reduce)": true })
+    await renderComponent("SettingsTab.tsx", "SettingsTab")
+    const toggle = screen.getByLabelText(/Amulet effects/)
+    assert.equal(toggle.checked, false)
+    assert.equal(toggle.disabled, true)
+    assert.ok(screen.getByText(/because your device asks for reduced motion/))
+    fireEvent.click(radio("Light"))
+    assert.ok(document.body.classList.contains("effects-off"))
+    media.set("(prefers-reduced-motion: reduce)", false)
+    assert.equal(toggle.disabled, false)
+    assert.equal(toggle.checked, true)
+    assert.ok(!document.body.classList.contains("effects-off"))
+})
+
+test("the save card says when the game was last saved", async () => {
+    vi.useFakeTimers()
+    try {
+        vi.setSystemTime(new Date("2026-01-01T00:00:00Z"))
+        const view = await renderComponent("SettingsTab.tsx", "SettingsTab")
+        const save = await import("../../src/game/save.ts")
+        assert.ok(screen.getByText("Saved automatically every 3 seconds"), "nothing saved yet")
+        save.saveGameData()
+        view.rerender()
+        assert.ok(screen.getByText("Saved automatically every 3 seconds · last saved just now"))
+        vi.setSystemTime(new Date("2026-01-01T00:00:07Z"))
+        view.rerender()
+        assert.ok(screen.getByText(/last saved 7 seconds ago$/))
+        vi.setSystemTime(new Date("2026-01-01T00:01:10Z"))
+        view.rerender()
+        assert.ok(screen.getByText(/last saved 1 minute ago$/))
+    } finally {
+        vi.useRealTimers()
+    }
+})
+
+test("a hard reset keeps the appearance settings", async () => {
+    await renderComponent("SettingsTab.tsx", "SettingsTab")
+    stubReload()
+    fireEvent.click(radio("Light"))
+    localStorage.setItem("gameDataSave", "{}")
+    fireEvent.click(screen.getByText("Reset everything…"))
+    fireEvent.click(screen.getByText("Yes, reset"))
+    assert.equal(localStorage.getItem("gameDataSave"), null)
+    assert.equal(JSON.parse(localStorage.getItem("pk-preferences")).theme, "light")
 })
 
 test("copy puts the save on the clipboard, and is off while the box is empty", async () => {

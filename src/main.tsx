@@ -1,14 +1,19 @@
 import { createRoot } from "react-dom/client"
+import "./fonts.css"
 import { advanceGameTime, initGameData, setSkillWithLowestMaxXp, update } from "./game/engine.ts"
 import { loadGameData, saveGameData } from "./game/save.ts"
 import { updateSpeed } from "./game/rules.ts"
 import { App } from "./ui/App.tsx"
 import { startRendering } from "./ui/gameStore.ts"
 import { setBackgroundInterval } from "./backgroundTimer.ts"
+import { applyPreferences } from "./ui/preferences.ts"
 
 initGameData()
 loadGameData()
 update()
+
+// The saved theme goes on before React renders, so it doesn't flash
+applyPreferences()
 
 // The one element outside React: where it renders the page
 createRoot(document.getElementById("root") as HTMLElement).render(<App />)
