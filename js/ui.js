@@ -161,6 +161,7 @@ function createRow(templates, name, categoryName, categoryType) {
             income: valueElement.getElementsByClassName("income")[0],
             effect: valueElement.getElementsByClassName("effect")[0],
             skipSkill: row.getElementsByClassName("skipSkill")[0],
+            skipCheckbox: categoryType == skillCategories ? row.getElementsByClassName("checkbox")[0] : null,
         }
     } else {
         itemRowElements[name] = {
@@ -439,11 +440,9 @@ function getElementsByClass(className) {
     return elements
 }
 
-// Browsers can restore ticked checkboxes when the page is reloaded, so start
-// from whatever the checkboxes show.
+// The settings themselves are saved with the game; the checkboxes only
+// change them (and are kept in step by updateAutomationControls)
 function setUpAutomationControls() {
-    setAutoPromote(autoPromoteElement.checked)
-    setAutoLearn(autoLearnElement.checked)
     autoPromoteElement.onchange = function() {setAutoPromote(autoPromoteElement.checked)}
     autoLearnElement.onchange = function() {setAutoLearn(autoLearnElement.checked)}
 }
@@ -482,6 +481,22 @@ function updateUI() {
     hideEntities()
     updateText()  
     updateTabAfterRebirth()
+    updateAutomationControls()
+}
+
+// Keeps the automation checkboxes showing the game state, e.g. after a save
+// is loaded. Compares with the checkbox itself because the player can tick it.
+function updateAutomationControls() {
+    setChecked(autoPromoteElement, gameData.automation.autoPromote)
+    setChecked(autoLearnElement, gameData.automation.autoLearn)
+    for (const name in taskRowElements) {
+        const checkbox = taskRowElements[name].skipCheckbox
+        if (checkbox) setChecked(checkbox, gameData.automation.skippedSkills.has(idsByName[name]))
+    }
+}
+
+function setChecked(checkbox, checked) {
+    if (checkbox.checked !== checked) checkbox.checked = checked
 }
 
 // About 10 frames per second is plenty for numbers and progress bars

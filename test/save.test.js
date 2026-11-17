@@ -9,6 +9,8 @@
 //
 // fixtures/v2-save.json is the same game state saved in version 2 of this
 // fork's format, which referred to everything by display name.
+// fixtures/v3-save.json is the same state again in version 3 (by id, before
+// automation settings were saved).
 
 const test = require("node:test")
 const assert = require("node:assert/strict")
@@ -19,6 +21,7 @@ const { loadGame } = require("./helpers/game")
 const legacyRaw = fs.readFileSync(path.join(__dirname, "fixtures", "legacy-save.json"), "utf8")
 const legacy = JSON.parse(legacyRaw)
 const v2Raw = fs.readFileSync(path.join(__dirname, "fixtures", "v2-save.json"), "utf8")
+const v3Raw = fs.readFileSync(path.join(__dirname, "fixtures", "v3-save.json"), "utf8")
 
 function savedState(game) {
     return JSON.parse(game.run("JSON.stringify(serializeGameData())"))
@@ -177,7 +180,7 @@ test("a version 2 save (by name) loads to the same state as the original save", 
 test("saves refer to jobs, skills, items and unlocks by id", () => {
     const game = loadGame({ localStorage: { gameDataSave: legacyRaw } })
     const saved = savedState(game)
-    assert.equal(saved.version, 3)
+    assert.equal(saved.version, game.run("SAVE_VERSION"))
     assert.equal(saved.currentJob, "fisherman")
     assert.equal(saved.currentSkill, "concentration")
     assert.equal(saved.currentProperty, "tent")
@@ -200,5 +203,33 @@ test("ids that look like object properties don't break loading", () => {
     assert.equal(game.gameData.currentSkill.name, "Concentration")
     assert.equal(game.gameData.currentProperty.name, "Homeless")
     assert.equal(game.gameData.currentMisc.length, 0)
+    assert.equal(game.errors.length, 0, game.errors.join("\n"))
+})
+
+test("a version 3 save loads to the same state, with automation switched off", () => {
+    const fromLegacy = loadGame({ localStorage: { gameDataSave: legacyRaw } })
+    const fromV3 = loadGame({ localStorage: { gameDataSave: v3Raw } })
+    assert.deepEqual(savedState(fromV3), savedState(fromLegacy))
+    assert.deepEqual(savedState(fromV3).automation, { autoPromote: false, autoLearn: false, skippedSkills: [] })
+})
+
+test("automation settings are saved and loaded", () => {
+    const game = loadGame()
+    game.run("setAutoPromote(true); setAutoLearn(true); setSkillSkipped('Bargaining', true); setSkillSkipped('Strength', true); saveGameData()")
+    const reloaded = loadGame({ localStorage: { gameDataSave: game.window.localStorage.getItem("gameDataSave") } })
+    const automation = reloaded.gameData.automation
+    assert.equal(automation.autoPromote, true)
+    assert.equal(automation.autoLearn, true)
+    assert.deepEqual(Array.from(automation.skippedSkills).sort(), ["bargaining", "strength"])
+})
+
+test("bad automation settings in a save are ignored", () => {
+    const save = JSON.parse(v3Raw)
+    save.version = 4
+    save.automation = { autoPromote: "yes", autoLearn: true, skippedSkills: ["farmer", "nonsense", "constructor", "meditation"] }
+    const game = loadGame({ localStorage: { gameDataSave: JSON.stringify(save) } })
+    assert.equal(game.gameData.automation.autoPromote, false)
+    assert.equal(game.gameData.automation.autoLearn, true)
+    assert.deepEqual(Array.from(game.gameData.automation.skippedSkills), ["meditation"], "only real skills can be skipped")
     assert.equal(game.errors.length, 0, game.errors.join("\n"))
 })

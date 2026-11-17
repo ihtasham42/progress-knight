@@ -38,10 +38,10 @@ test("auto-promote follows the state, not the checkbox", () => {
     game.ticks(1)
     assert.equal(game.gameData.currentJob.name, "Beggar", "off by default")
 
+    // Changing only the state (the checkbox is never touched) is enough
     game.run("setAutoPromote(true)")
     game.ticks(1)
     assert.equal(game.gameData.currentJob.name, "Farmer")
-    assert.equal(game.window.document.getElementById("autoPromote").checked, false)
 })
 
 test("auto-learn follows the state, including skipped skills", () => {
