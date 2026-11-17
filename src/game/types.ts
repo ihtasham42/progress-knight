@@ -57,11 +57,11 @@ export interface ItemDefinition extends Definition {
     readonly boosts?: readonly Boost[]
 }
 
-// Reveals either a category's rows or one page element
-export type UnlockDefinition = Definition & {readonly permanent?: boolean} & (
-    | {readonly category: string, readonly elementId?: never}
-    | {readonly elementId: string, readonly category?: never}
-)
+// Reveals a category's rows, or a part of the page the page chooses
+export interface UnlockDefinition extends Definition {
+    readonly category?: string
+    readonly permanent?: boolean
+}
 
 // Anything with its own unlock requirement
 export type AnyDefinition = JobDefinition | SkillDefinition | ItemDefinition | UnlockDefinition

@@ -388,6 +388,12 @@ export function rebirthReset() {
     }
 }
 
+// Whether an unlock (by id, see data.ts) has been reached. Only reads the
+// state; game steps record unlocks as they are reached.
+export function isUnlocked(unlockId: string): boolean {
+    return gameData.requirements[namesById[unlockId]].completed
+}
+
 // Like isAlive(), but never changes the game state
 export function isLifeOver() {
     return gameData.days >= getLifespan()

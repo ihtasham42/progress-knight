@@ -36,11 +36,10 @@ test("requirements only refer to tasks that exist", async () => {
     }
 })
 
-test("unlocks reveal something that exists on the page", async () => {
+test("category unlocks reveal a category that exists", async () => {
     const categories = new Set([...jobs, ...skills, ...items].map(definition => definition.category))
-    for (const unlock of unlocks) {
-        if (unlock.category) assert.ok(categories.has(unlock.category), unlock.name)
-        else assert.ok(game.window.document.getElementById(unlock.elementId), unlock.name)
+    for (const unlock of unlocks.filter(unlock => unlock.category)) {
+        assert.ok(categories.has(unlock.category), unlock.name)
     }
 })
 

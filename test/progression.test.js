@@ -145,3 +145,13 @@ test("automation and the quick task display also stay unlocked after a rebirth",
     assert.equal(isUnlocked(game, "Automation"), true)
     assert.equal(isUnlocked(game, "Quick task display"), true)
 })
+
+test("isUnlocked says whether an unlock has been reached, by id, without changing anything", async () => {
+    const game = await loadGame()
+    assert.equal(game.api.isUnlocked("shop"), false)
+    game.api.gameData.coins = 750
+    assert.equal(game.api.isUnlocked("shop"), false, "not until a game step records it")
+    game.fastTicks(1)
+    assert.equal(game.api.isUnlocked("shop"), true)
+    assert.equal(game.api.isUnlocked("dark_magic"), false)
+})

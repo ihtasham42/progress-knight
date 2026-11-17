@@ -372,13 +372,26 @@ export function writeCoins(coins, element) {
     })
 }
 
+// The page element each unlock (other than a category's) reveals
+export const unlockElementIds = {
+    shop: "shopTabButton",
+    rebirth_tab: "rebirthTabButton",
+    rebirth_note_1: "rebirthNote1",
+    rebirth_note_2: "rebirthNote2",
+    rebirth_note_3: "rebirthNote3",
+    evil_info: "evilInfo",
+    time_warping_info: "timeWarping",
+    automation: "automation",
+    quick_task_display: "quickTaskDisplay",
+}
+
 // Requirement key -> the page elements shown once it is completed
 export let requirementElements = {}
 
 export function createRequirementElements() {
     const elements = {}
     for (const unlock of unlocks) {
-        elements[unlock.name] = unlock.category ? Array.from(getElementsByClass(unlock.category)) : [document.getElementById(unlock.elementId)]
+        elements[unlock.name] = unlock.category ? Array.from(getElementsByClass(unlock.category)) : [document.getElementById(unlockElementIds[unlock.id])]
     }
     for (const definition of [...jobs, ...skills]) {
         elements[definition.name] = [getTaskElement(definition.name)]

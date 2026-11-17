@@ -192,3 +192,11 @@ test("the page's buttons run their actions", async () => {
     click("rebirthTwoButton")
     assert.equal(game.gameData.rebirthTwoCount, 1)
 })
+
+test("every unlock that isn't a category reveals a part of the page", async () => {
+    const game = await loadGame()
+    for (const unlock of game.api.unlocks.filter(unlock => !unlock.category)) {
+        const id = game.api.unlockElementIds[unlock.id]
+        assert.ok(id && game.window.document.getElementById(id), unlock.name)
+    }
+})
