@@ -167,7 +167,7 @@ export const SettingsTab = memo(function SettingsTab() {
             <section className="settings-card">
                 <h2>Community</h2>
                 <p className="settings-help">Share strategies and report bugs with other players.</p>
-                <a href="https://discord.gg/fTRS4pHGka" target="_blank" rel="noreferrer" className="quiet-button settings-link">
+                <a href="https://discord.gg/7QrW7AWRa" target="_blank" rel="noreferrer" className="quiet-button settings-link">
                     Join the Discord
                     <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg>
                 </a>

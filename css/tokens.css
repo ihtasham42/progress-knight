@@ -19,7 +19,7 @@
     --pk-space-12: 48px;
 
     /* Type */
-    --pk-font-sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --pk-font-sans: "Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --pk-font-display: Cinzel, Georgia, "Times New Roman", serif;
     --pk-text-xs: 12px;
     --pk-text-sm: 14px;
