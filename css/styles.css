@@ -2030,6 +2030,17 @@ table.w3-bordered tr.next-tr {
     .amulet-glare { animation: amulet-glare 6s ease-in-out infinite; }
 }
 
+/* The "Amulet effects" setting (and reduced motion) switches off every
+   decorative animation: the amulet's, and anything marked fx-anim */
+body.effects-off .amulet *,
+body.effects-off .amulet *::before,
+body.effects-off .amulet *::after,
+body.effects-off .fx-anim,
+body.effects-off .fx-anim::before,
+body.effects-off .fx-anim::after {
+    animation: none !important;
+}
+
 @media (max-width: 639px) {
     .amulet {
         gap: var(--pk-space-4);
@@ -2146,6 +2157,33 @@ table.w3-bordered tr.next-tr {
     font-weight: 600;
 }
 
+.settings-toggle {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--pk-space-3);
+    cursor: pointer;
+}
+
+.settings-toggle input {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin: 1px 0 0;
+    accent-color: var(--pk-accent);
+    cursor: inherit;
+}
+
+.settings-toggle-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-1);
+}
+
+.settings-toggle-name {
+    font-weight: 500;
+    color: var(--pk-text);
+}
+
 .settings-link {
     align-self: flex-start;
 }
@@ -2156,7 +2194,8 @@ table.w3-bordered tr.next-tr {
 
 .segmented {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
     gap: var(--pk-space-1);
     padding: var(--pk-space-1);
     border-radius: var(--pk-radius);

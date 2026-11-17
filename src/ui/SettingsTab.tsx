@@ -1,11 +1,72 @@
-// The Settings tab: importing and exporting saves, light/dark mode, the
-// Discord link and a hard reset.
+// The Settings tab: importing and exporting saves, the theme and amulet
+// effects, the Discord link and a hard reset.
 
 import { memo, useEffect, useRef, useState } from "react"
-import { clearSave, exportSave, importSave } from "../game/save.ts"
+import type { KeyboardEvent } from "react"
+import { clearSave, exportSave, secondsSinceSave, importSave } from "../game/save.ts"
 import { classNames } from "./classNames.ts"
+import { describeAge } from "./format.ts"
+import { useGame } from "./gameStore.ts"
+import { setPreferences, usePreferences } from "./preferences.ts"
+import type { Theme } from "./preferences.ts"
 
-type Theme = "dark" | "light"
+const themes: {value: Theme, label: string, id?: string}[] = [
+    {value: "dark", label: "Dark"},
+    {value: "light", label: "Light", id: "lightDarkButton"},
+    {value: "system", label: "System"},
+]
+
+// Renders with every frame (through useGame) so the age keeps counting; it's
+// a few words, so that costs nothing
+function SaveStatus() {
+    useGame()
+    const age = secondsSinceSave()
+    const note = "Saved automatically every 3 seconds"
+    return (
+        <span className="settings-note">
+            {age === null ? note : note + " · last saved " + describeAge(age)}
+        </span>
+    )
+}
+
+function ThemeSwitch() {
+    const {theme} = usePreferences()
+    // Arrow keys move between the options, as in any radio group
+    function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+        const step = event.key == "ArrowRight" || event.key == "ArrowDown" ? 1 : event.key == "ArrowLeft" || event.key == "ArrowUp" ? -1 : 0
+        if (step == 0) return
+        event.preventDefault()
+        const index = themes.findIndex(option => option.value == theme)
+        const next = themes[(index + step + themes.length) % themes.length]
+        setPreferences({theme: next.value})
+        const radios = event.currentTarget.querySelectorAll<HTMLElement>("[role=radio]")
+        radios[themes.indexOf(next)].focus()
+    }
+    return (
+        <div role="radiogroup" aria-label="Theme" className="segmented" onKeyDown={onKeyDown}>
+            {themes.map(option => (
+                <button key={option.value} type="button" role="radio" id={option.id} aria-checked={theme == option.value}
+                    tabIndex={theme == option.value ? 0 : -1} onClick={() => setPreferences({theme: option.value})}>{option.label}</button>
+            ))}
+        </div>
+    )
+}
+
+function EffectsToggle() {
+    const {amuletEffects, reducedMotion} = usePreferences()
+    return (
+        <label className="settings-toggle">
+            <input type="checkbox" id="amuletEffectsToggle" checked={amuletEffects && !reducedMotion} disabled={reducedMotion}
+                onChange={event => setPreferences({amuletEffects: event.target.checked})} />
+            <span className="settings-toggle-text">
+                <span className="settings-toggle-name">Amulet effects</span>
+                <span className="settings-note">
+                    {reducedMotion ? "Off because your device asks for reduced motion" : "Off when your device asks for reduced motion"}
+                </span>
+            </span>
+        </label>
+    )
+}
 
 // It doesn't show the game state, so it doesn't render again with every
 // frame (that would rewrite the save box each time)
@@ -18,8 +79,6 @@ export const SettingsTab = memo(function SettingsTab() {
     const [copyNote, setCopyNote] = useState("")
     const copyTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
     const boxRef = useRef<HTMLTextAreaElement>(null)
-    // The theme is the page's dark class; it isn't saved
-    const [theme, setThemeState] = useState<Theme>(() => document.body.classList.contains("dark") ? "dark" : "light")
     const [confirmingReset, setConfirmingReset] = useState(false)
     const resetStartRef = useRef<HTMLButtonElement>(null)
     const cancelRef = useRef<HTMLButtonElement>(null)
@@ -77,17 +136,12 @@ export const SettingsTab = memo(function SettingsTab() {
         }
     }
 
-    function setTheme(next: Theme) {
-        document.body.classList.toggle("dark", next == "dark")
-        setThemeState(next)
-    }
-
     return (
         <div className="settings-grid">
             <section className="settings-card settings-wide">
                 <div className="settings-line">
                     <h2>Your save</h2>
-                    <span className="settings-note">Saved automatically every 3 seconds</span>
+                    <SaveStatus />
                 </div>
                 <p className="settings-help">Export to back up or move your game. Paste a save here and import it to continue it.</p>
                 {/* Pressing Enter in the box mustn't submit (and reload) the page */}
@@ -106,10 +160,8 @@ export const SettingsTab = memo(function SettingsTab() {
 
             <section className="settings-card">
                 <h2>Appearance</h2>
-                <div role="radiogroup" aria-label="Theme" className="segmented">
-                    <button type="button" role="radio" aria-checked={theme == "dark"} onClick={() => setTheme("dark")}>Dark</button>
-                    <button type="button" role="radio" id="lightDarkButton" aria-checked={theme == "light"} onClick={() => setTheme("light")}>Light</button>
-                </div>
+                <ThemeSwitch />
+                <EffectsToggle />
             </section>
 
             <section className="settings-card">
@@ -125,7 +177,7 @@ export const SettingsTab = memo(function SettingsTab() {
                 <div className="settings-line">
                     <div className="settings-reset-text">
                         <h2 className="settings-danger">Hard reset</h2>
-                        <p className="settings-help">Deletes your save: every life, max level and point of evil. This can&apos;t be undone.</p>
+                        <p className="settings-help">Deletes your save: every life, max level and point of evil. Your appearance settings stay. This can&apos;t be undone.</p>
                     </div>
                     {confirmingReset ? (
                         <div className="settings-actions" role="group" aria-label="Confirm hard reset">
