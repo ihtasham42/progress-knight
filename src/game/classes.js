@@ -1,6 +1,8 @@
-"use strict"
+import { itemCategories } from "./data.js"
+import { gameData } from "./state.js"
+import { getBaseLog, applyMultipliers, applySpeed, daysToYears } from "./rules.js"
 
-class Task {
+export class Task {
     constructor(baseData) {
         this.baseData = baseData
         this.name = baseData.name
@@ -43,7 +45,7 @@ class Task {
     }
 }
 
-class Job extends Task {
+export class Job extends Task {
     constructor(baseData) {
         super(baseData)   
         this.incomeMultipliers = [
@@ -60,7 +62,7 @@ class Job extends Task {
     }
 }
 
-class Skill extends Task {
+export class Skill extends Task {
     constructor(baseData) {
         super(baseData)
     }
@@ -84,7 +86,7 @@ class Skill extends Task {
     }
 }
 
-class Item {
+export class Item {
     constructor(baseData) {  
         this.baseData = baseData
         this.name = baseData.name
@@ -111,7 +113,7 @@ class Item {
     }
 }
 
-class Requirement {
+export class Requirement {
     constructor(requirements) {
         this.requirements = requirements
         this.completed = false
@@ -129,7 +131,7 @@ class Requirement {
     }
 }
 
-class TaskRequirement extends Requirement {
+export class TaskRequirement extends Requirement {
     constructor(requirements) {
         super(requirements)
         this.type = "task"
@@ -140,7 +142,7 @@ class TaskRequirement extends Requirement {
     }
 }
 
-class CoinRequirement extends Requirement {
+export class CoinRequirement extends Requirement {
     constructor(requirements) {
         super(requirements)
         this.type = "coins"
@@ -151,7 +153,7 @@ class CoinRequirement extends Requirement {
     }
 }
 
-class AgeRequirement extends Requirement {
+export class AgeRequirement extends Requirement {
     constructor(requirements) {
         super(requirements)
         this.type = "age"
@@ -162,7 +164,7 @@ class AgeRequirement extends Requirement {
     }
 }
 
-class EvilRequirement extends Requirement {
+export class EvilRequirement extends Requirement {
     constructor(requirements) {
         super(requirements)
         this.type = "evil"

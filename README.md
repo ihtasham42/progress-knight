@@ -7,9 +7,18 @@ A continuation of [Progress Knight](https://github.com/ihtasham42/progress-knigh
 Saves and export strings from the original game can be imported and are upgraded automatically.
 
 ### Development
-The game runs straight from `index.html` with no build step. Game data (jobs, skills, items and unlocks) lives in `js/data.js`; the format is documented at the top of that file.
+The game is built with [Vite](https://vite.dev/). You need Node.js 22 or later.
 
-To run the checks: `npm install`, then `npm test` and `npm run lint`.
+- `npm install`: install the tools
+- `npm run dev`: run the game locally with live reloading (open the address it prints)
+- `npm test`: unit tests (Vitest)
+- `npm run test:e2e`: browser tests (Playwright); run `npx playwright install chromium` once first
+- `npm run lint`: lint
+- `npm run build`: build the site into `dist/`; `npm run preview` serves the build
+
+The game logic and data are in `src/game/` and don't touch the page; the page code is in `src/ui/`. Game data (jobs, skills, items and unlocks) lives in `src/game/data.js`; the format is documented at the top of that file.
+
+Pushes to `main` are published to GitHub Pages automatically.
 
 ---
 

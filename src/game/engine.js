@@ -1,73 +1,31 @@
-"use strict"
-
-// The game itself: its state, formulas, game steps, rebirths and automation.
+// The game itself: game steps, unlocks, rebirths and automation. The state
+// is in state.js and the formulas the classes share are in rules.js.
 // Nothing here touches the page (no document or window), so the game can
 // also run without a browser. ui.js shows this state on the page.
 
-const gameData = {
-    taskData: {},
-    itemData: {},
+import { jobs, skills, items, unlocks, startingItems, namesById, idsByName, jobBaseData, jobCategories, skillBaseData, itemBaseData } from "./data.js"
+import { gameData } from "./state.js"
+import { updateSpeed, getSourceEffect, applyStatBoosts, applySpeed, daysToYears, getLifespan } from "./rules.js"
+import { Job, Skill, Item, TaskRequirement, CoinRequirement, AgeRequirement, EvilRequirement } from "./classes.js"
 
-    coins: 0,
-    days: 365 * 14,
-    evil: 0,
-    paused: false,
-    timeWarpingEnabled: true,
-
-    rebirthOneCount: 0,
-    rebirthTwoCount: 0,
-
-    currentJob: null,
-    currentSkill: null,
-    currentProperty: null,
-    currentMisc: null,
-
-    // Not saved yet
-    automation: {
-        autoPromote: false,
-        autoLearn: false,
-        skippedSkills: new Set(), // skill ids
-    },
-}
-
-let skillWithLowestMaxXp = null
-
-const updateSpeed = 20
-
-const baseLifespan = 365 * 70
-
-const baseGameSpeed = 4
+export let skillWithLowestMaxXp = null
 
 // Unlocks that stay unlocked through rebirths
-const permanentUnlocks = unlocks.filter(unlock => unlock.permanent).map(unlock => unlock.name)
+export const permanentUnlocks = unlocks.filter(unlock => unlock.permanent).map(unlock => unlock.name)
 
-function getBaseLog(x, y) {
-    return Math.log(y) / Math.log(x);
-}
-
-function getTaskById(id) {
+export function getTaskById(id) {
     return gameData.taskData[namesById[id]]
 }
 
-function getItemById(id) {
+export function getItemById(id) {
     return gameData.itemData[namesById[id]]
-}
-
-function getBindedTaskEffect(taskName) {
-    const task = gameData.taskData[taskName]
-    return task.getEffect.bind(task)
-}
-
-function getBindedItemEffect(itemName) {
-    const item = gameData.itemData[itemName]
-    return item.getEffect.bind(item)
 }
 
 // Wires up every xp, income and expense multiplier from the boosts declared
 // in data.js. Multipliers are applied from the broadest to the most specific
 // ("all", then "jobs"/"skills"/"items", then a category or a single task),
 // each group in definition order with skills before items.
-function addMultipliers() {
+export function addMultipliers() {
     for (const taskName in gameData.taskData) {
         const task = gameData.taskData[taskName]
 
@@ -88,15 +46,15 @@ function addMultipliers() {
     }
 }
 
-const boostScopes = ["broad", "kind", "specific"]
+export const boostScopes = ["broad", "kind", "specific"]
 
-function getBoostScope(target) {
+export function getBoostScope(target) {
     if (target == "all") return "broad"
     if (["jobs", "skills", "items"].includes(target)) return "kind"
     return "specific"
 }
 
-function boostApplies(target, entity) {
+export function boostApplies(target, entity) {
     if (target == "all") return true
     if (target == "jobs") return entity instanceof Job
     if (target == "skills") return entity instanceof Skill
@@ -105,7 +63,7 @@ function boostApplies(target, entity) {
 }
 
 // Effect functions of every skill and item that boosts stat for entity
-function getBoostEffects(stat, entity) {
+export function getBoostEffects(stat, entity) {
     const effects = []
     for (const scope of boostScopes) {
         for (const source of [...skills, ...items]) {
@@ -119,55 +77,20 @@ function getBoostEffects(stat, entity) {
     return effects
 }
 
-function getSourceEffect(source) {
-    return source.name in gameData.taskData ? getBindedTaskEffect(source.name) : getBindedItemEffect(source.name)
-}
-
 // A property's effect is always happiness, applied after other boosts
-function getHappiness() {
+export function getHappiness() {
     return applyStatBoosts("happiness", 1) * gameData.currentProperty.getEffect()
 }
 
-// Multiplies value by the effect of every skill and item that boosts a
-// global stat (happiness, lifespan, gameSpeed, evilGain), in definition order
-function applyStatBoosts(stat, value) {
-    for (const source of [...skills, ...items]) {
-        for (const boost of source.boosts || []) {
-            if (boost.stat == stat) value *= getSourceEffect(source)()
-        }
-    }
-    return value
-}
-
-function getEvil() {
+export function getEvil() {
     return gameData.evil
 }
 
-function applyMultipliers(value, multipliers) {
-    let finalMultiplier = 1
-    multipliers.forEach(function(multiplierFunction) {
-        const multiplier = multiplierFunction()
-        finalMultiplier *= multiplier
-    })
-    const finalValue = Math.round(value * finalMultiplier)
-    return finalValue
-}
-
-function applySpeed(value) {
-    return value * getGameSpeed() / updateSpeed
-}
-
-function getEvilGain() {
+export function getEvilGain() {
     return applyStatBoosts("evilGain", 1)
 }
 
-function getGameSpeed() {
-    const timeWarpingSpeed = gameData.timeWarpingEnabled ? applyStatBoosts("gameSpeed", 1) : 1
-    const gameSpeed = baseGameSpeed * +!gameData.paused * +isAlive() * timeWarpingSpeed
-    return gameSpeed
-}
-
-function applyExpenses() {
+export function applyExpenses() {
     const coins = applySpeed(getExpense())
     gameData.coins -= coins
     if (gameData.coins < 0) {    
@@ -175,7 +98,7 @@ function applyExpenses() {
     }
 }
 
-function getExpense() {
+export function getExpense() {
     let expense = 0
     expense += gameData.currentProperty.getExpense()
     for (const misc of gameData.currentMisc) {
@@ -184,44 +107,44 @@ function getExpense() {
     return expense
 }
 
-function goBankrupt() {
+export function goBankrupt() {
     gameData.coins = 0
     gameData.currentProperty = getItemById(startingItems.property)
     gameData.currentMisc = []
 }
 
-function setPause() {
+export function setPause() {
     gameData.paused = !gameData.paused
 }
 
-function setTimeWarping() {
+export function setTimeWarping() {
     gameData.timeWarpingEnabled = !gameData.timeWarpingEnabled
 }
 
-function setAutoPromote(enabled) {
+export function setAutoPromote(enabled) {
     gameData.automation.autoPromote = enabled
 }
 
-function setAutoLearn(enabled) {
+export function setAutoLearn(enabled) {
     gameData.automation.autoLearn = enabled
 }
 
-function setSkillSkipped(skillName, skipped) {
+export function setSkillSkipped(skillName, skipped) {
     const id = idsByName[skillName]
     skipped ? gameData.automation.skippedSkills.add(id) : gameData.automation.skippedSkills.delete(id)
 }
 
-function setTask(taskName) {
+export function setTask(taskName) {
     const task = gameData.taskData[taskName]
     task instanceof Job ? gameData.currentJob = task : gameData.currentSkill = task
 }
 
-function setProperty(propertyName) {
+export function setProperty(propertyName) {
     const property = gameData.itemData[propertyName]
     gameData.currentProperty = property
 }
 
-function setMisc(miscName) {
+export function setMisc(miscName) {
     const misc = gameData.itemData[miscName]
     if (gameData.currentMisc.includes(misc)) {
         for (let i = 0; i < gameData.currentMisc.length; i++) {
@@ -234,56 +157,51 @@ function setMisc(miscName) {
     }
 }
 
-function createData(data, baseData) {
+export function createData(data, baseData) {
     for (const key in baseData) {
         const entity = baseData[key]
         createEntity(data, entity)
     }
 }
 
-function createEntity(data, entity) {
+export function createEntity(data, entity) {
     if ("income" in entity) {data[entity.name] = new Job(entity)}
     else if ("maxXp" in entity) {data[entity.name] = new Skill(entity)}
     else {data[entity.name] = new Item(entity)}
 }
 
-function getNet() {
+export function getNet() {
     const net = Math.abs(getIncome() - getExpense())
     return net
 }
 
 // Once reached, an unlock stays unlocked for the rest of the life (or for
 // good, for permanent unlocks), so every requirement is checked each step.
-function updateRequirements() {
+export function updateRequirements() {
     for (const key in gameData.requirements) {
         gameData.requirements[key].isCompleted()
     }
 }
 
-function doCurrentTask(task) {
+export function doCurrentTask(task) {
     task.increaseXp()
     if (task instanceof Job) {
         increaseCoins()
     }
 }
 
-function getIncome() {
+export function getIncome() {
     let income = 0
     income += gameData.currentJob.getIncome()
     return income
 }
 
-function increaseCoins() {
+export function increaseCoins() {
     const coins = applySpeed(getIncome())
     gameData.coins += coins
 }
 
-function daysToYears(days) {
-    const years = Math.floor(days / 365)
-    return years
-}
-
-function getCategoryFromEntityName(categoryType, entityName) {
+export function getCategoryFromEntityName(categoryType, entityName) {
     for (const categoryName in categoryType) {
         const category = categoryType[categoryName]
         if (category.includes(entityName)) {
@@ -292,7 +210,7 @@ function getCategoryFromEntityName(categoryType, entityName) {
     }
 }
 
-function getNextEntity(data, categoryType, entityName) {
+export function getNextEntity(data, categoryType, entityName) {
     const category = getCategoryFromEntityName(categoryType, entityName)
     const nextIndex = category.indexOf(entityName) + 1
     if (nextIndex > category.length - 1) return null
@@ -301,7 +219,7 @@ function getNextEntity(data, categoryType, entityName) {
     return nextEntity
 }
 
-function autoPromote() {
+export function autoPromote() {
     if (!gameData.automation.autoPromote) return
     const nextEntity = getNextEntity(gameData.taskData, jobCategories, gameData.currentJob.name)
     if (nextEntity == null) return
@@ -309,11 +227,11 @@ function autoPromote() {
     if (requirement.isCompleted()) gameData.currentJob = nextEntity
 }
 
-function checkSkillSkipped(skill) {
+export function checkSkillSkipped(skill) {
     return gameData.automation.skippedSkills.has(skill.baseData.id)
 }
 
-function setSkillWithLowestMaxXp() {
+export function setSkillWithLowestMaxXp() {
     const xpDict = {}
 
     for (const skillName in gameData.taskData) {
@@ -333,7 +251,7 @@ function setSkillWithLowestMaxXp() {
     skillWithLowestMaxXp = gameData.taskData[skillName]
 }
 
-function getKeyOfLowestValueFromDict(dict) {
+export function getKeyOfLowestValueFromDict(dict) {
     const values = []
     for (const key in dict) {
         const value = dict[key]
@@ -350,22 +268,22 @@ function getKeyOfLowestValueFromDict(dict) {
     }
 }
 
-function autoLearn() {
+export function autoLearn() {
     if (!gameData.automation.autoLearn || !skillWithLowestMaxXp) return
     gameData.currentSkill = skillWithLowestMaxXp
 }
 
-function yearsToDays(years) {
+export function yearsToDays(years) {
     const days = years * 365
     return days
 }
 
-function getDay() {
+export function getDay() {
     const day = Math.floor(gameData.days - daysToYears(gameData.days) * 365)
     return day
 }
 
-function increaseDays() {
+export function increaseDays() {
     const increase = applySpeed(1)
     gameData.days += increase
 }
@@ -373,7 +291,7 @@ function increaseDays() {
 // Builds every unlock requirement from the game data (see data.js).
 // Requirements are keyed by display name; specs in the data refer to
 // other entities by id.
-function createRequirements() {
+export function createRequirements() {
     const requirements = {}
     for (const definition of [...unlocks, ...jobs, ...skills, ...items]) {
         requirements[definition.name] = createRequirement(definition)
@@ -381,7 +299,7 @@ function createRequirements() {
     return requirements
 }
 
-function createRequirement(definition) {
+export function createRequirement(definition) {
     const specs = definition.requires
     const types = new Set(specs.map(spec => Object.keys(spec).find(key => key != "level")))
     if (types.size > 1) throw new Error(definition.name + " mixes different kinds of requirement")
@@ -399,7 +317,7 @@ function createRequirement(definition) {
 }
 
 // Builds the game state for a new game, before any save is applied
-function initGameData() {
+export function initGameData() {
     createData(gameData.taskData, jobBaseData)
     createData(gameData.taskData, skillBaseData)
     createData(gameData.itemData, itemBaseData) 
@@ -414,13 +332,13 @@ function initGameData() {
     addMultipliers()
 }
 
-function rebirthOne() {
+export function rebirthOne() {
     gameData.rebirthOneCount += 1
 
     rebirthReset()
 }
 
-function rebirthTwo() {
+export function rebirthTwo() {
     gameData.rebirthTwoCount += 1
     gameData.evil += getEvilGain()
 
@@ -432,7 +350,7 @@ function rebirthTwo() {
     }    
 }
 
-function rebirthReset() {
+export function rebirthReset() {
     gameData.coins = 0
     gameData.days = 365 * 14
     gameData.currentJob = getTaskById(startingItems.job)
@@ -454,25 +372,12 @@ function rebirthReset() {
     }
 }
 
-function getLifespan() {
-    return applyStatBoosts("lifespan", baseLifespan)
-}
-
-// Also stops the age going past the lifespan
-function isAlive() {
-    const condition = gameData.days < getLifespan()
-    if (!condition) {
-        gameData.days = getLifespan()
-    }
-    return condition
-}
-
 // Like isAlive(), but never changes the game state
-function isLifeOver() {
+export function isLifeOver() {
     return gameData.days >= getLifespan()
 }
 
-function update() {
+export function update() {
     increaseDays()
     autoPromote()
     autoLearn()
@@ -484,19 +389,19 @@ function update() {
 
 // The game always advances in fixed steps of 1 / updateSpeed seconds, however
 // often it is called, so the maths of each step never changes.
-const stepDuration = 1000 / updateSpeed
+export const stepDuration = 1000 / updateSpeed
 
 // After a long gap (a sleeping laptop, a throttled background tab) catch up
 // at most this much game time at once and drop the rest, so the page never
 // freezes.
-const MAX_CATCH_UP_MS = 20 * 1000
+export const MAX_CATCH_UP_MS = 20 * 1000
 
 // Real time (ms) that hasn't been turned into game steps yet
-let unsteppedTime = 0
+export let unsteppedTime = 0
 
 // Runs one game step for every step's worth of real time that has passed,
 // up to MAX_CATCH_UP_MS. Returns the number of steps run.
-function advanceGameTime(elapsedMs) {
+export function advanceGameTime(elapsedMs) {
     unsteppedTime += Math.max(elapsedMs, 0)
     let steps = Math.floor(unsteppedTime / stepDuration)
     const maxSteps = Math.floor(MAX_CATCH_UP_MS / stepDuration)

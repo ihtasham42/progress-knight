@@ -1,12 +1,15 @@
-"use strict"
-
 // Saving, loading, importing and exporting game data.
 
-function saveGameData() {
+import { namesById, idsByName } from "./data.js"
+import { gameData } from "./state.js"
+import { Job, Skill } from "./classes.js"
+import { getTaskById, getItemById, setAutoPromote, setAutoLearn, setSkillSkipped } from "./engine.js"
+
+export function saveGameData() {
     localStorage.setItem("gameDataSave", JSON.stringify(serializeGameData()))
 }
 
-function loadGameData() {
+export function loadGameData() {
     const rawSave = localStorage.getItem("gameDataSave")
     if (rawSave === null) return
 
@@ -24,54 +27,42 @@ function loadGameData() {
 
 // The first time a pre-version-2 save is loaded, keep an untouched copy so
 // the player can go back to the original game if they want to.
-function backUpLegacySave(parsedSave, rawSave) {
+export function backUpLegacySave(parsedSave, rawSave) {
     const isLegacy = parsedSave !== null && typeof parsedSave === "object" && parsedSave.version === undefined
     if (isLegacy && localStorage.getItem("gameDataSave_legacyBackup") === null) {
         localStorage.setItem("gameDataSave_legacyBackup", rawSave)
     }
 }
 
-function resetGameData() {
+// Deletes the save (and its backups). The page reloads afterwards.
+export function clearSave() {
     localStorage.clear()
-    location.reload()
 }
 
-function importGameData() {
-    const importExportBox = document.getElementById("importExportBox")
+// Checks an export string and, if it's a save the game can load, stores it
+// as the current save. Returns a message for the player if it can't be used
+// (the current save is then left alone), or nothing once it's stored.
+export function importSave(text) {
     let data
     try {
-        data = JSON.parse(window.atob(importExportBox.value.trim()))
-    } catch (error) {
-        showImportError("That doesn't look like a Progress Knight save. Paste the full text from Export.")
-        return
+        data = JSON.parse(atob(text.trim()))
+    } catch {
+        return "That doesn't look like a Progress Knight save. Paste the full text from Export."
     }
 
     let save
     try {
         save = migrateSave(data)
     } catch (error) {
-        showImportError("That save couldn't be loaded: " + error.message + ".")
-        return
+        return "That save couldn't be loaded: " + error.message + "."
     }
 
     localStorage.setItem("gameDataSave", JSON.stringify(save))
-    location.reload()
 }
 
-function showImportError(message) {
-    const importError = document.getElementById("importError")
-    importError.textContent = message
-    importError.classList.remove("hidden")
-}
-
-function hideImportError() {
-    document.getElementById("importError").classList.add("hidden")
-}
-
-function exportGameData() {
-    hideImportError()
-    const importExportBox = document.getElementById("importExportBox")
-    importExportBox.value = window.btoa(JSON.stringify(serializeGameData()))
+// The current game as text the player can copy and import later
+export function exportSave() {
+    return btoa(JSON.stringify(serializeGameData()))
 }
 
 // ---------------------------------------------------------------------------
@@ -89,9 +80,9 @@ function exportGameData() {
 //   4      - adds automation settings (auto-promote, auto-learn, skipped skills)
 // ---------------------------------------------------------------------------
 
-const SAVE_VERSION = 4
+export const SAVE_VERSION = 4
 
-function serializeGameData() {
+export function serializeGameData() {
     const tasks = {}
     for (const name in gameData.taskData) {
         const task = gameData.taskData[name]
@@ -128,7 +119,7 @@ function serializeGameData() {
 
 // Converts any supported save into the current format. Throws if the save
 // can't be understood.
-function migrateSave(save) {
+export function migrateSave(save) {
     if (save === null || typeof save !== "object" || Array.isArray(save)) {
         throw new Error("Save is not an object")
     }
@@ -148,7 +139,7 @@ function migrateSave(save) {
     return save
 }
 
-function migrateLegacySave(legacy) {
+export function migrateLegacySave(legacy) {
     if (typeof legacy.taskData !== "object" || legacy.taskData === null) {
         throw new Error("Legacy save has no task data")
     }
@@ -187,7 +178,7 @@ function migrateLegacySave(legacy) {
 
 // Version 2 referred to jobs, skills, items and unlocks by display name.
 // Names the game no longer has are dropped.
-function migrateV2ToV3(save) {
+export function migrateV2ToV3(save) {
     const toId = name => typeof name === "string" ? idsByName[name] : undefined
     const migrated = Object.assign({}, save, {version: 3})
 
@@ -207,14 +198,14 @@ function migrateV2ToV3(save) {
 }
 
 // Version 3 didn't save automation settings, so they start switched off
-function migrateV3ToV4(save) {
+export function migrateV3ToV4(save) {
     return Object.assign({}, save, {
         version: 4,
         automation: {autoPromote: false, autoLearn: false, skippedSkills: []},
     })
 }
 
-function validateSave(save) {
+export function validateSave(save) {
     for (const key of ["coins", "days"]) {
         if (!isFiniteNumber(save[key])) throw new Error("Save has an invalid " + key)
     }
@@ -223,14 +214,14 @@ function validateSave(save) {
     }
 }
 
-function isFiniteNumber(value) {
+export function isFiniteNumber(value) {
     return typeof value === "number" && isFinite(value)
 }
 
 // Applies a current-format save on top of freshly initialised gameData.
 // Anything the save doesn't have, or that no longer exists in the game,
 // keeps its default value.
-function applySaveData(save) {
+export function applySaveData(save) {
     for (const key of ["coins", "days", "evil", "rebirthOneCount", "rebirthTwoCount"]) {
         if (isFiniteNumber(save[key])) gameData[key] = save[key]
     }

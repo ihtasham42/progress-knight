@@ -1,17 +1,22 @@
-"use strict"
-
 // The page: building the rows, showing the game state, and the handlers
 // that turn clicks into changes to that state. Rendering only reads the
 // game state; it never changes it.
 
-const autoPromoteElement = document.getElementById("autoPromote")
-const autoLearnElement = document.getElementById("autoLearn")
+import { jobs, skills, items, unlocks, idsByName, jobCategories, skillCategories, itemCategories, headerRowColors, tooltips } from "../game/data.js"
+import { gameData } from "../game/state.js"
+import { daysToYears, getLifespan } from "../game/rules.js"
+import { Job, Skill, EvilRequirement } from "../game/classes.js"
+import { getTaskById, getHappiness, getEvilGain, getExpense, setPause, setTimeWarping, setAutoPromote, setAutoLearn, setSkillSkipped, setTask, setProperty, setMisc, getNet, getIncome, getDay, rebirthOne, rebirthTwo, isLifeOver } from "../game/engine.js"
+import { clearSave, importSave, exportSave } from "../game/save.js"
 
-const units = ["", "k", "M", "B", "T", "q", "Q", "Sx", "Sp", "Oc"];
+export const autoPromoteElement = document.getElementById("autoPromote")
+export const autoLearnElement = document.getElementById("autoLearn")
 
-const jobTabButton = document.getElementById("jobTabButton")
+export const units = ["", "k", "M", "B", "T", "q", "Q", "Sx", "Sp", "Oc"];
 
-function setTab(element, selectedTab) {
+export const jobTabButton = document.getElementById("jobTabButton")
+
+export function setTab(element, selectedTab) {
 
     const tabs = Array.prototype.slice.call(document.getElementsByClassName("tab"))
     tabs.forEach(function(tab) {
@@ -27,9 +32,9 @@ function setTab(element, selectedTab) {
 }
 
 // Rebirths seen by the page so far, so it can go back to the jobs tab after one
-let shownRebirthCount = null
+export let shownRebirthCount = null
 
-function updateTabAfterRebirth() {
+export function updateTabAfterRebirth() {
     const rebirthCount = gameData.rebirthOneCount + gameData.rebirthTwoCount
     if (shownRebirthCount !== null && rebirthCount != shownRebirthCount) {
         setTab(jobTabButton, "jobs")
@@ -38,14 +43,14 @@ function updateTabAfterRebirth() {
 }
 
 // Elements that rendering writes to, looked up once when the page is built
-const taskRowElements = {} // task name -> elements in its row
-const itemRowElements = {} // item name -> elements in its row
-const headerRowElements = {} // job or skill category name -> elements in its header
-const requiredRowElements = {} // category name -> its "Required:" row and parts
-let sidebarElements = null
-let quickTaskElements = null
+export const taskRowElements = {} // task name -> elements in its row
+export const itemRowElements = {} // item name -> elements in its row
+export const headerRowElements = {} // job or skill category name -> elements in its header
+export const requiredRowElements = {} // category name -> its "Required:" row and parts
+export let sidebarElements = null
+export let quickTaskElements = null
 
-function findSidebarElements() {
+export function findSidebarElements() {
     const ids = ["ageDisplay", "dayDisplay", "lifespanDisplay", "pauseButton", "coinDisplay", "signDisplay",
         "netDisplay", "incomeDisplay", "expenseDisplay", "happinessDisplay", "evilDisplay", "evilGainDisplay",
         "timeWarpingDisplay", "timeWarpingButton", "deathText"]
@@ -54,7 +59,7 @@ function findSidebarElements() {
     return elements
 }
 
-function findQuickTaskElements() {
+export function findQuickTaskElements() {
     const quickTaskDisplayElement = document.getElementById("quickTaskDisplay")
     const elements = {}
     for (const taskType of ["job", "skill"]) {
@@ -70,9 +75,9 @@ function findQuickTaskElements() {
 // Rendering runs about 10 times a second, but most values change far less
 // often, so the page is only written to when a value has changed. Each
 // element remembers what was last written to it.
-const shownValues = new WeakMap()
+export const shownValues = new WeakMap()
 
-function hasChanged(element, key, value) {
+export function hasChanged(element, key, value) {
     let shown = shownValues.get(element)
     if (shown === undefined) {
         shown = {}
@@ -83,24 +88,24 @@ function hasChanged(element, key, value) {
     return true
 }
 
-function setText(element, text) {
+export function setText(element, text) {
     text = String(text)
     if (hasChanged(element, "text", text)) element.textContent = text
 }
 
-function setStyle(element, property, value) {
+export function setStyle(element, property, value) {
     if (hasChanged(element, "style " + property, value)) element.style[property] = value
 }
 
-function setClass(element, className, on) {
+export function setClass(element, className, on) {
     if (hasChanged(element, "class " + className, on)) element.classList.toggle(className, on)
 }
 
-function setDisabled(element, disabled) {
+export function setDisabled(element, disabled) {
     if (hasChanged(element, "disabled", disabled)) element.disabled = disabled
 }
 
-function createRequiredRow(categoryName) {
+export function createRequiredRow(categoryName) {
     const requiredRow = document.getElementsByClassName("requiredRowTemplate")[0].content.firstElementChild.cloneNode(true)
     requiredRow.classList.add("requiredRow")
     requiredRow.classList.add(removeSpaces(categoryName))
@@ -114,7 +119,7 @@ function createRequiredRow(categoryName) {
     return requiredRow
 }
 
-function createHeaderRow(templates, categoryType, categoryName) {
+export function createHeaderRow(templates, categoryType, categoryName) {
     const headerRow = templates.headerRow.content.firstElementChild.cloneNode(true)
     headerRow.getElementsByClassName("category")[0].textContent = categoryName
     if (categoryType != itemCategories) {
@@ -135,7 +140,7 @@ function createHeaderRow(templates, categoryType, categoryName) {
     return headerRow
 }
 
-function createRow(templates, name, categoryName, categoryType) {
+export function createRow(templates, name, categoryName, categoryType) {
     const row = templates.row.content.firstElementChild.cloneNode(true)
     row.getElementsByClassName("name")[0].textContent = name
     row.getElementsByClassName("tooltipText")[0].textContent = tooltips[name]
@@ -175,7 +180,7 @@ function createRow(templates, name, categoryName, categoryType) {
     return row
 }
 
-function createAllRows(categoryType, tableId) {
+export function createAllRows(categoryType, tableId) {
     const templates = {
         headerRow: document.getElementsByClassName(categoryType == itemCategories ? "headerRowItemTemplate" : "headerRowTaskTemplate")[0],
         row: document.getElementsByClassName(categoryType == itemCategories ? "rowItemTemplate" : "rowTaskTemplate")[0],
@@ -198,14 +203,14 @@ function createAllRows(categoryType, tableId) {
     }
 }
 
-function updateQuickTaskDisplay(taskType) {
+export function updateQuickTaskDisplay(taskType) {
     const currentTask = taskType == "job" ? gameData.currentJob : gameData.currentSkill
     const elements = quickTaskElements[taskType]
     setText(elements.name, currentTask.name + " lvl " + currentTask.level)
     setStyle(elements.progressFill, "width", currentTask.xp / currentTask.getMaxXp() * 100 + "%")
 }
 
-function updateRequiredRows(data, categoryType) {
+export function updateRequiredRows(data, categoryType) {
     for (const categoryName in categoryType) {
         const requiredRow = requiredRowElements[categoryName].row
         let nextEntity = null
@@ -267,7 +272,7 @@ function updateRequiredRows(data, categoryType) {
     }
 }
 
-function updateTaskRows() {
+export function updateTaskRows() {
     for (const key in gameData.taskData) {
         const task = gameData.taskData[key]
         const row = taskRowElements[task.name]
@@ -291,7 +296,7 @@ function updateTaskRows() {
     }
 }
 
-function updateItemRows() {
+export function updateItemRows() {
     for (const key in gameData.itemData) {
         const item = gameData.itemData[key]
         const row = itemRowElements[item.name]
@@ -303,7 +308,7 @@ function updateItemRows() {
     }
 }
 
-function updateHeaderRows(categories) {
+export function updateHeaderRows(categories) {
     for (const categoryName in categories) {
         const headerRow = headerRowElements[categoryName]
         setClass(headerRow.maxLevel, "hidden", !(gameData.rebirthOneCount > 0))
@@ -311,7 +316,7 @@ function updateHeaderRows(categories) {
     }
 }
 
-function updateText() {
+export function updateText() {
     //Sidebar
     const sidebar = sidebarElements
     setText(sidebar.ageDisplay, daysToYears(gameData.days))
@@ -336,7 +341,7 @@ function updateText() {
     setClass(sidebar.deathText, "hidden", !isLifeOver())
 }
 
-function setSignDisplay() {
+export function setSignDisplay() {
     const signDisplay = sidebarElements.signDisplay
     if (getIncome() > getExpense()) {
         setText(signDisplay, "+")
@@ -350,7 +355,7 @@ function setSignDisplay() {
     }
 }
 
-function hideEntities() {
+export function hideEntities() {
     for (const key in requirementElements) {
         const completed = gameData.requirements[key].completed
         for (const element of requirementElements[key]) {
@@ -359,7 +364,7 @@ function hideEntities() {
     }
 }
 
-function format(number) {
+export function format(number) {
     number = Number(number)
     if (!isFinite(number)) return String(number)
 
@@ -386,7 +391,7 @@ function format(number) {
     return sign + scaled.toFixed(1) + units[tier]
 }
 
-function formatCoins(coins, element) {
+export function formatCoins(coins, element) {
     const tiers = ["p", "g", "s"]
     const colors = {
         "p": "#79b9c7",
@@ -411,9 +416,9 @@ function formatCoins(coins, element) {
 }
 
 // Requirement key -> the page elements shown once it is completed
-let requirementElements = {}
+export let requirementElements = {}
 
-function createRequirementElements() {
+export function createRequirementElements() {
     const elements = {}
     for (const unlock of unlocks) {
         elements[unlock.name] = unlock.category ? Array.from(getElementsByClass(unlock.category)) : [document.getElementById(unlock.elementId)]
@@ -427,48 +432,101 @@ function createRequirementElements() {
     return elements
 }
 
-function getTaskElement(taskName) {
+export function getTaskElement(taskName) {
     return document.getElementById("row " + taskName)
 }
 
-function getItemElement(itemName) {
+export function getItemElement(itemName) {
     return document.getElementById("row " + itemName)
 }
 
-function getElementsByClass(className) {
+export function getElementsByClass(className) {
     const elements = document.getElementsByClassName(removeSpaces(className))
     return elements
 }
 
+// Wires the page's buttons to the functions they run
+export function setUpButtons() {
+    for (const tabButton of document.getElementsByClassName("tabButton")) {
+        tabButton.onclick = function() {setTab(tabButton, tabButton.dataset.tab)}
+    }
+    const buttonActions = {
+        pauseButton: function() {setPause()},
+        timeWarpingButton: function() {setTimeWarping()},
+        rebirthOneButton: function() {rebirthOne()},
+        rebirthTwoButton: function() {rebirthTwo()},
+        importButton: function() {importGameData()},
+        exportButton: function() {exportGameData()},
+        lightDarkButton: function() {setLightDarkMode()},
+        resetButton: function() {resetGameData()},
+    }
+    for (const id in buttonActions) {
+        document.getElementById(id).onclick = buttonActions[id]
+    }
+    // Pressing Enter in the import box mustn't submit (and reload) the page
+    document.getElementById("importExportForm").onsubmit = function() {return false}
+}
+
 // The settings themselves are saved with the game; the checkboxes only
 // change them (and are kept in step by updateAutomationControls)
-function setUpAutomationControls() {
+export function setUpAutomationControls() {
     autoPromoteElement.onchange = function() {setAutoPromote(autoPromoteElement.checked)}
     autoLearnElement.onchange = function() {setAutoLearn(autoLearnElement.checked)}
 }
 
-function setLightDarkMode() {
+export function setLightDarkMode() {
     const body = document.getElementById("body")
     body.classList.contains("dark") ? body.classList.remove("dark") : body.classList.add("dark")
 }
 
-function removeSpaces(string) {
+export function resetGameData() {
+    clearSave()
+    location.reload()
+}
+
+export function importGameData() {
+    const importExportBox = document.getElementById("importExportBox")
+    const error = importSave(importExportBox.value)
+    if (error) {
+        showImportError(error)
+        return
+    }
+    location.reload()
+}
+
+export function showImportError(message) {
+    const importError = document.getElementById("importError")
+    importError.textContent = message
+    importError.classList.remove("hidden")
+}
+
+export function hideImportError() {
+    document.getElementById("importError").classList.add("hidden")
+}
+
+export function exportGameData() {
+    hideImportError()
+    document.getElementById("importExportBox").value = exportSave()
+}
+
+export function removeSpaces(string) {
     return string.replace(/ /g, "")
 }
 
 // Builds the page
-function initUI() {
+export function initUI() {
     createAllRows(jobCategories, "jobTable")
     createAllRows(skillCategories, "skillTable")
     createAllRows(itemCategories, "itemTable")
     sidebarElements = findSidebarElements()
     quickTaskElements = findQuickTaskElements()
+    setUpButtons()
     setUpAutomationControls()
     requirementElements = createRequirementElements()
     setTab(jobTabButton, "jobs")
 }
 
-function updateUI() {
+export function updateUI() {
     updateTaskRows()
     updateItemRows()
     updateRequiredRows(gameData.taskData, jobCategories)
@@ -486,7 +544,7 @@ function updateUI() {
 
 // Keeps the automation checkboxes showing the game state, e.g. after a save
 // is loaded. Compares with the checkbox itself because the player can tick it.
-function updateAutomationControls() {
+export function updateAutomationControls() {
     setChecked(autoPromoteElement, gameData.automation.autoPromote)
     setChecked(autoLearnElement, gameData.automation.autoLearn)
     for (const name in taskRowElements) {
@@ -495,15 +553,15 @@ function updateAutomationControls() {
     }
 }
 
-function setChecked(checkbox, checked) {
+export function setChecked(checkbox, checked) {
     if (checkbox.checked !== checked) checkbox.checked = checked
 }
 
 // About 10 frames per second is plenty for numbers and progress bars
-const renderInterval = 100
-let lastRenderTime = -Infinity
+export const renderInterval = 100
+export let lastRenderTime = -Infinity
 
-function renderFrame(now) {
+export function renderFrame(now) {
     if (now - lastRenderTime >= renderInterval) {
         lastRenderTime = now
         updateUI()

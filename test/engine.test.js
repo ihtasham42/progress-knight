@@ -1,28 +1,27 @@
-"use strict"
-
 // The game logic runs without a page at all.
 
-const test = require("node:test")
-const assert = require("node:assert/strict")
-const fs = require("node:fs")
-const path = require("node:path")
-const { loadEngine } = require("./helpers/engine")
-const { playLife } = require("./helpers/golden-strategy")
+import { test } from "vitest"
+import assert from "node:assert/strict"
+import fs from "node:fs"
+import path from "node:path"
+import { loadEngine } from "./helpers/engine.js"
+import { playLife } from "./helpers/golden-strategy.js"
 
-const GOLDEN_FILE = path.join(__dirname, "fixtures", "golden-run.json")
+const GOLDEN_FILE = path.join(import.meta.dirname, "fixtures", "golden-run.json")
 
-test("the game logic loads with no page, document or window", () => {
-    const game = loadEngine()
-    assert.equal(game.run("typeof document"), "undefined")
-    assert.equal(game.run("typeof window"), "undefined")
+test("the game logic loads with no page, document or window", async () => {
+    const game = await loadEngine()
+    assert.equal(typeof globalThis.document, "undefined")
+    assert.equal(typeof globalThis.window, "undefined")
     assert.equal(game.gameData.currentJob.name, "Beggar")
 })
 
-test("without a page, the golden run's two lives play out exactly as recorded", () => {
-    const game = loadEngine()
-    game.run("setAutoPromote(true); setAutoLearn(true)")
+test("without a page, the golden run's two lives play out exactly as recorded", async () => {
+    const game = await loadEngine()
+    game.api.setAutoPromote(true)
+    game.api.setAutoLearn(true)
     const lives = [playLife(game)]
-    game.run("rebirthOne()")
+    game.api.rebirthOne()
     lives.push(playLife(game))
 
     const golden = JSON.parse(fs.readFileSync(GOLDEN_FILE, "utf8"))
