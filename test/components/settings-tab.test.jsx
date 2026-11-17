@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-// The Settings tab: import/export, light/dark mode and reset.
+// The Settings tab: import/export, the theme switch, copy and reset.
 
 import { test, vi } from "vitest"
 import assert from "node:assert/strict"
@@ -65,20 +65,62 @@ test("pressing Enter in the box doesn't submit the page", async () => {
     assert.equal(event.defaultPrevented, true)
 })
 
-test("the toggle switches between dark and light mode", async () => {
-    await renderComponent("SettingsTab.tsx", "SettingsTab")
+test("the theme switch sets dark or light mode", async () => {
     document.body.classList.add("dark")
-    fireEvent.click(screen.getByText("Toggle"))
+    await renderComponent("SettingsTab.tsx", "SettingsTab")
+    const radio = name => screen.getByRole("radio", { name })
+    assert.equal(radio("Dark").getAttribute("aria-checked"), "true")
+    fireEvent.click(radio("Light"))
     assert.ok(!document.body.classList.contains("dark"))
-    fireEvent.click(screen.getByText("Toggle"))
+    assert.equal(radio("Light").getAttribute("aria-checked"), "true")
+    assert.equal(radio("Dark").getAttribute("aria-checked"), "false")
+    fireEvent.click(radio("Light"))
+    assert.ok(!document.body.classList.contains("dark"), "choosing the same theme again keeps it")
+    fireEvent.click(radio("Dark"))
     assert.ok(document.body.classList.contains("dark"))
+    assert.equal(document.getElementById("lightDarkButton").textContent, "Light")
 })
 
-test("reset deletes the save and reloads", async () => {
+test("copy puts the save on the clipboard, and is off while the box is empty", async () => {
+    await renderComponent("SettingsTab.tsx", "SettingsTab")
+    const writeText = vi.fn(async () => {})
+    vi.stubGlobal("navigator", { clipboard: { writeText } })
+    const copy = document.getElementById("copyButton")
+    assert.equal(copy.disabled, true)
+    fireEvent.click(screen.getByText("Export"))
+    assert.equal(copy.disabled, false)
+    fireEvent.click(copy)
+    assert.deepEqual(writeText.mock.calls, [[box().value]])
+    await screen.findByText("Copied")
+})
+
+test("copy doesn't break without a clipboard", async () => {
+    await renderComponent("SettingsTab.tsx", "SettingsTab")
+    vi.stubGlobal("navigator", {})
+    fireEvent.click(screen.getByText("Export"))
+    fireEvent.click(document.getElementById("copyButton"))
+    await screen.findByText("Not copied")
+})
+
+test("reset asks first, and cancel keeps the save", async () => {
     await renderComponent("SettingsTab.tsx", "SettingsTab")
     localStorage.setItem("gameDataSave", "{}")
     const reload = stubReload()
-    fireEvent.click(screen.getByText("Reset"))
+    assert.equal(document.getElementById("resetButton"), null)
+    fireEvent.click(screen.getByText("Reset everything…"))
+    assert.ok(screen.getByText("Are you sure?"))
+    fireEvent.click(screen.getByText("Cancel"))
+    assert.equal(document.getElementById("resetButton"), null)
+    assert.equal(localStorage.getItem("gameDataSave"), "{}")
+    assert.equal(reload.mock.calls.length, 0)
+})
+
+test("confirmed reset deletes the save and reloads", async () => {
+    await renderComponent("SettingsTab.tsx", "SettingsTab")
+    localStorage.setItem("gameDataSave", "{}")
+    const reload = stubReload()
+    fireEvent.click(screen.getByText("Reset everything…"))
+    fireEvent.click(screen.getByText("Yes, reset"))
     assert.equal(localStorage.getItem("gameDataSave"), null)
     assert.equal(reload.mock.calls.length, 1)
 })

@@ -20,6 +20,15 @@ body.dark {
     --pk-accent-text: #e3a83b;
     --pk-gain-text: #7fd47a;
 
+    --pk-danger-text: #ed7379;
+    --pk-evil-breath: #2c2128;
+    --pk-emblem-light: #ebe7df;
+    --pk-emblem-dark: #111318;
+    --pk-shine: rgba(255, 255, 255, 0.4);
+    --pk-hint-bg: #2b303b;
+    --pk-segment-track: #181b22;
+    --pk-segment-on: #2b303b;
+
     --pk-gain: #7fd47a;
     --pk-loss: #ed7379;
     --pk-info: #6fb2f2;

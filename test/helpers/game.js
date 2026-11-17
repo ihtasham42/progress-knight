@@ -108,7 +108,9 @@ async function loadGame(options = {}) {
         },
         // Replaces the text in a text box, as a player typing would
         type(element, text) {
-            const setValue = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set
+            // React watches the element's own setter, so use the native one (an input's or a text area's)
+            const prototype = element instanceof window.HTMLTextAreaElement ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype
+            const setValue = Object.getOwnPropertyDescriptor(prototype, "value").set
             playerAction(() => {
                 setValue.call(element, text)
                 element.dispatchEvent(new window.Event("input", { bubbles: true }))

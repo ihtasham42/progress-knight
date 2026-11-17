@@ -71,6 +71,18 @@ body {
     --pk-accent-text: #835c00;
     --pk-gain-text: #1f6e1e;
 
+    /* Amulet: the card's slow crimson breath, the emblems' parts, the sweep
+       over the primary button. Settings: the theme switch and the hint box */
+    /* Loss or evil as text on a quiet button (--pk-line), a little deeper to pass 4.5:1 */
+    --pk-danger-text: #9a2d31;
+    --pk-evil-breath: #f4e6e6;
+    --pk-emblem-light: #ffffff;
+    --pk-emblem-dark: #1d1f24;
+    --pk-shine: rgba(255, 255, 255, 0.35);
+    --pk-hint-bg: #ffffff;
+    --pk-segment-track: #dcdad4;
+    --pk-segment-on: #ffffff;
+
     /* Meaning */
     --pk-gain: #257d24;
     --pk-loss: #af3c3a;

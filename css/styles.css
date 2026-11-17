@@ -319,16 +319,19 @@ body .tab-bar .tabButton {
     padding-bottom: 0;
 }
 
+/* The save box: a monospace text area on the card */
 #importExportBox {
     box-sizing: border-box;
+    display: block;
     width: 100%;
-    max-width: var(--pk-measure);
-    height: var(--pk-control-height);
-    padding: 0 var(--pk-space-3);
+    padding: var(--pk-space-3);
     background: var(--pk-panel);
     color: var(--pk-text);
-    border: 1px solid var(--pk-line);
+    border: 0;
     border-radius: var(--pk-radius);
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: var(--pk-text-xs);
+    resize: vertical;
 }
 
 th {
@@ -1532,4 +1535,644 @@ table.w3-bordered tr.next-tr {
     margin: var(--pk-space-5) 0 0;
     font-size: var(--pk-text-xs);
     color: var(--pk-text-muted);
+}
+
+#importExportBox:focus-visible {
+    outline: 2px solid var(--pk-accent);
+    outline-offset: 2px;
+}
+
+/* Quiet buttons, for everything that isn't the one primary action: one step
+   up the ramp from the card they sit on, and one more on hover */
+.quiet-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--pk-space-2);
+    box-sizing: border-box;
+    height: var(--pk-control-height);
+    margin: 0;
+    padding: 0 var(--pk-space-4);
+    border: 0;
+    border-radius: var(--pk-radius);
+    background-color: var(--pk-line);
+    color: var(--pk-text);
+    font-family: inherit;
+    font-size: var(--pk-text-sm);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.quiet-button:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--pk-text) 8%, var(--pk-line));
+}
+
+.quiet-button:disabled {
+    color: var(--pk-text-muted);
+    cursor: not-allowed;
+}
+
+/* The Amulet tab. Its motion is all below, and all of it stops for people
+   who ask their device for less */
+
+.amulet {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-6);
+    padding: var(--pk-space-4) 0;
+}
+
+.amulet-head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-1);
+}
+
+.amulet .amulet-title {
+    margin: 0;
+    font-family: var(--pk-font-display);
+    font-size: var(--pk-text-2xl);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    line-height: 1.25;
+}
+
+.amulet-subtitle {
+    margin: 0;
+    color: var(--pk-text-muted);
+}
+
+.amulet-story {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-2);
+    max-width: var(--pk-measure);
+    color: var(--pk-text-muted);
+}
+
+.amulet-story p {
+    margin: 0;
+}
+
+.amulet-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--pk-space-5);
+    align-items: stretch;
+}
+
+.amulet-card {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-4);
+    min-width: 0;
+    padding: var(--pk-space-5);
+    border-radius: var(--pk-radius);
+    background-color: var(--pk-raised);
+}
+
+.amulet-card-head {
+    display: flex;
+    align-items: center;
+    gap: var(--pk-space-4);
+}
+
+.amulet-card-title {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.amulet .amulet-card h2 {
+    margin: 0;
+    font-family: var(--pk-font-display);
+    font-size: var(--pk-text-xl);
+    font-weight: 700;
+    color: var(--pk-text);
+}
+
+.amulet .amulet-locked h2 {
+    color: var(--pk-text-secondary);
+}
+
+.amulet-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--pk-text-xs);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--pk-text-muted);
+}
+
+.amulet-kicker-gold {
+    color: var(--pk-accent-text);
+}
+
+.amulet-kicker-evil {
+    color: var(--pk-stat-evil);
+}
+
+.amulet-emblem {
+    display: block;
+    flex-shrink: 0;
+}
+
+.amulet-gold-line {
+    fill: none;
+    stroke: var(--pk-accent);
+}
+
+.amulet-gold-fill {
+    fill: var(--pk-accent);
+}
+
+.amulet-eye-white {
+    fill: var(--pk-emblem-light);
+    stroke: var(--pk-accent);
+}
+
+.amulet-dark-fill {
+    fill: var(--pk-emblem-dark);
+}
+
+.amulet-evil-line {
+    fill: none;
+    stroke: var(--pk-stat-evil);
+}
+
+.amulet-evil-fill {
+    fill: var(--pk-stat-evil);
+}
+
+.amulet-mouth {
+    fill: var(--pk-emblem-dark);
+    stroke: var(--pk-stat-evil);
+}
+
+/* The story under a card's heading: muted, with the key words in the text colour */
+.amulet-flavour {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-2);
+    margin: 0;
+    color: var(--pk-text-muted);
+}
+
+.amulet-flavour p {
+    margin: 0;
+}
+
+.amulet-flavour b {
+    font-weight: 600;
+    color: var(--pk-text-secondary);
+}
+
+.amulet-evil-hint {
+    color: var(--pk-stat-evil);
+}
+
+.amulet-evil-hint b {
+    color: inherit;
+}
+
+.amulet-bonuses {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-2);
+}
+
+.amulet-none {
+    margin: 0;
+    color: var(--pk-text-muted);
+}
+
+.amulet-bonus {
+    display: flex;
+    align-items: center;
+    gap: var(--pk-space-3);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--pk-line);
+}
+
+.amulet-swatch {
+    width: var(--pk-space-2);
+    height: var(--pk-space-2);
+    background-color: var(--cat);
+}
+
+.amulet-bonus-name {
+    flex: 1;
+    min-width: 0;
+}
+
+.amulet-bonus-max {
+    color: var(--pk-text-muted);
+}
+
+.amulet-bonus-gain {
+    width: 64px;
+    text-align: right;
+    color: var(--pk-gain-text);
+}
+
+/* The one gold button of the tab */
+.amulet-cta {
+    position: relative;
+    overflow: hidden;
+    height: 46px;
+    margin-top: auto;
+    border: 0;
+    border-radius: var(--pk-radius);
+    background-color: var(--pk-accent);
+    color: var(--pk-on-accent);
+    font-family: inherit;
+    font-size: var(--pk-text-base);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.amulet-cta:hover {
+    background-color: color-mix(in srgb, var(--pk-text) 12%, var(--pk-accent));
+}
+
+.amulet-cta::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 35%, var(--pk-shine) 50%, transparent 65%);
+    transform: translateX(-120%);
+    pointer-events: none;
+}
+
+.amulet-fine {
+    margin: 0;
+    font-size: var(--pk-text-xs);
+    text-align: center;
+    color: var(--pk-text-muted);
+}
+
+.amulet-reward {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: var(--pk-space-3);
+    border-top: 1px solid var(--pk-line);
+    color: var(--pk-text-muted);
+}
+
+.amulet-reward strong {
+    color: var(--pk-stat-evil);
+}
+
+.amulet-evil-button {
+    color: var(--pk-danger-text);
+}
+
+.amulet-road {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.amulet-road-line {
+    display: flex;
+    justify-content: space-between;
+}
+
+.amulet-road-age {
+    color: var(--pk-text-muted);
+}
+
+.amulet-road-age strong {
+    color: var(--pk-text);
+}
+
+.amulet-track {
+    height: 6px;
+    border-radius: var(--pk-radius);
+    background-color: var(--pk-line);
+    overflow: hidden;
+}
+
+.amulet-track > div {
+    height: 100%;
+    background-color: var(--pk-stat-evil);
+}
+
+.amulet-hint {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-2);
+    padding: var(--pk-space-4);
+    border-radius: var(--pk-radius);
+    background-color: var(--pk-hint-bg);
+}
+
+.amulet-hint p {
+    margin: 0;
+}
+
+.amulet-hint .amulet-hint-note {
+    color: var(--pk-text-muted);
+}
+
+.amulet-hint b {
+    font-weight: 600;
+    color: var(--pk-text);
+}
+
+.amulet-ripple {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+}
+
+.amulet-ember {
+    position: absolute;
+    bottom: -4px;
+    width: 4px;
+    height: 4px;
+    background-color: var(--pk-stat-evil);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.amulet-ember.small {
+    width: 3px;
+    height: 3px;
+}
+
+.amulet-lid {
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.amulet-turn {
+    transform-box: view-box;
+    transform-origin: 28px 28px;
+}
+
+.amulet-sneer {
+    transform-box: view-box;
+    transform-origin: 28px 32px;
+}
+
+.amulet-glare {
+    transform-box: view-box;
+    transform-origin: 28px 22px;
+}
+
+@keyframes amulet-ripple {
+    0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--pk-accent) 55%, transparent); }
+    70% { box-shadow: 0 0 0 18px color-mix(in srgb, var(--pk-accent) 0%, transparent); }
+    100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--pk-accent) 0%, transparent); }
+}
+
+@keyframes amulet-blink {
+    0%, 91%, 100% { transform: scaleY(1); }
+    94% { transform: scaleY(0.08); }
+    97% { transform: scaleY(1); }
+}
+
+@keyframes amulet-glance {
+    0%, 20% { transform: translateX(0); }
+    30%, 45% { transform: translateX(-4px); }
+    55%, 70% { transform: translateX(4px); }
+    80%, 100% { transform: translateX(0); }
+}
+
+@keyframes amulet-shine {
+    0%, 55% { transform: translateX(-120%); }
+    100% { transform: translateX(120%); }
+}
+
+@keyframes amulet-breathe {
+    0%, 100% { background-color: var(--pk-raised); }
+    50% { background-color: var(--pk-evil-breath); }
+}
+
+@keyframes amulet-flicker {
+    0%, 100% { opacity: 1; }
+    7% { opacity: 0.55; }
+    10% { opacity: 0.95; }
+    38% { opacity: 0.8; }
+    41% { opacity: 1; }
+    68% { opacity: 0.5; }
+    71% { opacity: 0.9; }
+}
+
+@keyframes amulet-ember {
+    0% { transform: translateY(0); opacity: 0; }
+    15% { opacity: 0.85; }
+    100% { transform: translateY(-160px); opacity: 0; }
+}
+
+@keyframes amulet-throb {
+    0%, 100% { text-shadow: 0 0 0 color-mix(in srgb, var(--pk-stat-evil) 0%, transparent); }
+    50% { text-shadow: 0 0 12px color-mix(in srgb, var(--pk-stat-evil) 70%, transparent); }
+}
+
+@keyframes amulet-turn {
+    to { transform: rotate(-360deg); }
+}
+
+@keyframes amulet-sneer {
+    0%, 35%, 100% { transform: scale(1, 1); }
+    55%, 70% { transform: scale(1.07, 1.12); }
+}
+
+@keyframes amulet-glare {
+    0%, 35%, 100% { transform: scaleY(1); }
+    55%, 70% { transform: scaleY(0.55); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .amulet-ripple { animation: amulet-ripple 2.8s ease-out infinite; }
+    .amulet-lid { animation: amulet-blink 6s ease-in-out infinite; }
+    .amulet-iris { animation: amulet-glance 9s ease-in-out infinite; }
+    .amulet-cta::after { animation: amulet-shine 4s ease-in-out infinite; }
+    .amulet-locked { animation: amulet-breathe 5s ease-in-out infinite; }
+    .amulet-flicker { animation: amulet-flicker 2.6s linear infinite; }
+    .amulet-ember { animation: amulet-ember 4.8s linear infinite; }
+    .amulet-throb { animation: amulet-throb 2.4s ease-in-out infinite; }
+    .amulet-turn { animation: amulet-turn 40s linear infinite; }
+    .amulet-sneer { animation: amulet-sneer 6s ease-in-out infinite; }
+    .amulet-glare { animation: amulet-glare 6s ease-in-out infinite; }
+}
+
+@media (max-width: 639px) {
+    .amulet {
+        gap: var(--pk-space-4);
+    }
+
+    .amulet-card {
+        gap: var(--pk-space-3);
+    }
+
+    .amulet-card-head {
+        gap: var(--pk-space-3);
+    }
+
+    .amulet-bonus-max {
+        display: none;
+    }
+
+    .amulet-cta {
+        height: 48px;
+    }
+
+    .quiet-button {
+        height: var(--pk-touch);
+    }
+}
+
+/* The Settings tab: cards in a responsive grid */
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--pk-space-4);
+    align-items: start;
+    padding: var(--pk-space-4) 0;
+}
+
+.settings-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-3);
+    min-width: 0;
+    padding: var(--pk-space-5);
+    border-radius: var(--pk-radius);
+    background-color: var(--pk-raised);
+}
+
+.settings-wide {
+    grid-column: 1 / -1;
+}
+
+.settings-grid .settings-card h2 {
+    margin: 0;
+    font-size: var(--pk-text-base);
+    font-weight: 600;
+    color: var(--pk-text);
+}
+
+.settings-grid .settings-card h2.settings-danger {
+    color: var(--pk-loss);
+}
+
+.settings-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--pk-space-3) var(--pk-space-4);
+}
+
+.settings-reset-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-1);
+}
+
+.settings-note {
+    font-size: var(--pk-text-xs);
+    color: var(--pk-text-muted);
+}
+
+.settings-help {
+    margin: 0;
+    color: var(--pk-text-muted);
+}
+
+.settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-3);
+    margin: 0;
+}
+
+.settings-label {
+    font-size: var(--pk-text-xs);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--pk-text-muted);
+}
+
+.settings-error {
+    color: var(--pk-loss);
+}
+
+.settings-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--pk-space-2);
+}
+
+.settings-confirm {
+    padding: 0 var(--pk-space-2);
+    font-weight: 600;
+}
+
+.settings-link {
+    align-self: flex-start;
+}
+
+.settings-danger-button {
+    color: var(--pk-danger-text);
+}
+
+.segmented {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--pk-space-1);
+    padding: var(--pk-space-1);
+    border-radius: var(--pk-radius);
+    background-color: var(--pk-segment-track);
+}
+
+.segmented button {
+    height: 36px;
+    border: 0;
+    border-radius: var(--pk-radius);
+    background-color: transparent;
+    color: var(--pk-text-secondary);
+    font-family: inherit;
+    font-size: var(--pk-text-sm);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.segmented button[aria-checked="true"] {
+    background-color: var(--pk-segment-on);
+    color: var(--pk-text);
+    font-weight: 600;
+}
+
+.segmented button:focus-visible {
+    outline-offset: -2px;
+}
+
+@media (min-width: 640px) {
+    .amulet .amulet-title {
+        font-size: var(--pk-text-3xl);
+    }
+
+    .amulet .amulet-card h2 {
+        font-size: var(--pk-text-2xl);
+    }
+
+    .amulet-card {
+        padding: var(--pk-space-6);
+    }
 }
