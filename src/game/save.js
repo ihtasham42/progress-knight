@@ -46,7 +46,7 @@ export function importSave(text) {
     let data
     try {
         data = JSON.parse(atob(text.trim()))
-    } catch (error) {
+    } catch {
         return "That doesn't look like a Progress Knight save. Paste the full text from Export."
     }
 

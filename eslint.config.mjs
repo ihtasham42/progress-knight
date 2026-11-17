@@ -15,11 +15,6 @@ export default [
         },
         rules: {
             ...js.configs.recommended.rules,
-            // Functions and data are shared between script files as globals,
-            // and many are only called from onClick attributes in index.html.
-            // Revisit once the game moves to ES modules.
-            "no-undef": "off",
-            "no-unused-vars": "off",
             "no-var": "error",
             "prefer-const": "error",
         },
