@@ -227,7 +227,7 @@ button:focus-visible {
     gap: var(--pk-space-4);
 }
 
-.layout > .sidebar {
+.layout .sidebar {
     box-sizing: border-box;
     padding: var(--pk-space-2) var(--pk-space-4);
 }
@@ -344,7 +344,7 @@ th {
         align-items: flex-start;
     }
 
-    .layout > .sidebar {
+    .layout .sidebar {
         flex: 1 1 var(--pk-sidebar-min);
         max-width: var(--pk-sidebar-max);
     }
@@ -422,9 +422,164 @@ th {
         height: auto;
     }
 
-    .layout > .sidebar,
+    .layout .sidebar,
     .tab-panel {
         padding-left: var(--pk-space-3);
         padding-right: var(--pk-space-3);
+    }
+}
+
+/* Phone header and the sidebar disclosure. From 640px up the header is gone
+   and the details wrapper adds no box of its own, so the sidebar lays out as
+   before (its summary is hidden and the details is always open, see App). */
+.phone-header {
+    display: none;
+}
+
+.sidebar-details {
+    display: contents;
+}
+
+.sidebar-details > summary {
+    display: none;
+}
+
+@media (max-width: 639px) {
+    .phone-header {
+        display: block;
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        padding: var(--pk-space-4);
+        background-color: var(--pk-ground);
+        border-bottom: 1px solid var(--pk-line);
+    }
+
+    .phone-header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--pk-space-3);
+    }
+
+    .phone-header-row + .phone-header-row {
+        margin-top: var(--pk-space-2);
+    }
+
+    .phone-header-title {
+        font-family: var(--pk-font-display);
+        font-size: var(--pk-text-lg);
+        font-weight: 600;
+    }
+
+    .phone-header-pause {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: none;
+        width: var(--pk-touch);
+        height: var(--pk-touch);
+        padding: 0;
+        border: 0;
+        border-radius: var(--pk-radius);
+        background-color: var(--pk-raised);
+        color: var(--pk-text);
+        cursor: pointer;
+    }
+
+    .phone-header-coins {
+        font-size: var(--pk-text-xl);
+        font-weight: 600;
+    }
+
+    .phone-header-net,
+    .phone-header-muted {
+        font-size: var(--pk-text-sm);
+        color: var(--pk-text-muted);
+        white-space: nowrap;
+    }
+
+    .phone-header-muted b {
+        font-weight: 400;
+        color: var(--pk-text);
+    }
+
+    .life-bar {
+        height: 6px;
+        margin-top: var(--pk-space-2);
+        border-radius: var(--pk-radius);
+        background-color: var(--pk-raised);
+        overflow: hidden;
+    }
+
+    .life-bar-fill {
+        height: 100%;
+        background-color: var(--pk-accent);
+    }
+
+    .phone-header-death {
+        margin-top: var(--pk-space-2);
+        font-size: var(--pk-text-sm);
+        color: var(--pk-loss);
+    }
+
+    .page h1 {
+        display: none;
+    }
+
+    .page {
+        padding-top: var(--pk-space-3);
+    }
+
+    .sidebar-details {
+        display: block;
+    }
+
+    .sidebar-details > summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-sizing: border-box;
+        min-height: var(--pk-touch);
+        padding: 0 var(--pk-space-3);
+        border-radius: var(--pk-radius);
+        background-color: var(--pk-panel);
+        color: var(--pk-text);
+        cursor: pointer;
+        list-style: none;
+    }
+
+    .sidebar-details > summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .sidebar-details > summary::after {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-right: 2px solid currentColor;
+        border-bottom: 2px solid currentColor;
+        transform: rotate(45deg);
+    }
+
+    .sidebar-details[open] > summary::after {
+        transform: rotate(-135deg);
+    }
+
+    .sidebar-details > summary:focus-visible {
+        outline: 2px solid var(--pk-accent);
+        outline-offset: 2px;
+    }
+
+    .sidebar-details[open] > .sidebar {
+        margin-top: var(--pk-space-2);
+    }
+
+    /* Already in the header */
+    .sidebar-age,
+    .sidebar-pause,
+    .sidebar-coins,
+    .sidebar-death {
+        display: none !important;
     }
 }

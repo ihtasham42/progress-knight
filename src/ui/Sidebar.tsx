@@ -20,7 +20,7 @@ export function Sidebar() {
     return (
         <div className="panel sidebar">
             {" "}
-            <span id="deathText" className={classNames(!isLifeOver() && "hidden")}>
+            <span id="deathText" className={classNames("sidebar-death", !isLifeOver() && "hidden")}>
                 {" "}
                 <div style={{fontSize: "large", color: "var(--pk-loss)"}}>Age has caught up to you</div>
                 {" "}
@@ -28,11 +28,11 @@ export function Sidebar() {
                 {" "}
             </span>
             {" "}
-            <div className="" style={{fontSize: "large"}}>Age <span id="ageDisplay">{daysToYears(game.days)}</span> Day <span id="dayDisplay">{getDay()}</span></div>
+            <div className="sidebar-age" style={{fontSize: "large"}}>Age <span id="ageDisplay">{daysToYears(game.days)}</span> Day <span id="dayDisplay">{getDay()}</span></div>
             {" "}
-            <div className="sidebar-element" style={{color: "var(--pk-text-muted)"}}>Lifespan: <span id="lifespanDisplay">{daysToYears(getLifespan())}</span> years</div>
+            <div className="sidebar-element sidebar-age" style={{color: "var(--pk-text-muted)"}}>Lifespan: <span id="lifespanDisplay">{daysToYears(getLifespan())}</span> years</div>
             {" "}
-            <button id="pauseButton" className="w3-button button sidebar-element" onClick={() => {setPause(); requestRender()}}>
+            <button id="pauseButton" className="w3-button button sidebar-element sidebar-pause" onClick={() => {setPause(); requestRender()}}>
                 {game.paused ? "Play" : "Pause"}
             </button>
             {" "}
@@ -58,9 +58,9 @@ export function Sidebar() {
                 {" "}
             </span>
             {" "}
-            <div style={{fontSize: "large"}} id="coinDisplay"><CoinParts coins={game.coins} /></div>
+            <div className="sidebar-coins" style={{fontSize: "large"}} id="coinDisplay"><CoinParts coins={game.coins} /></div>
             {" "}
-            <div style={{color: "var(--pk-text-muted)"}}>Balance (in coins)</div>
+            <div className="sidebar-coins" style={{color: "var(--pk-text-muted)"}}>Balance (in coins)</div>
             {" "}
             <ul className="sidebar-element" style={{paddingLeft: "20px"}}>
                 {" "}
