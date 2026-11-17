@@ -1,3 +1,18 @@
+# Progress Knight Evolved
+
+A continuation of [Progress Knight](https://github.com/ihtasham42/progress-knight) by Ihtasham42.
+
+**Play it here: https://a-crawley.github.io/progress-knight-evolved/**
+
+Saves and export strings from the original game can be imported and are upgraded automatically.
+
+### Development
+The game runs straight from `index.html` with no build step. Game data (jobs, skills, items and unlocks) lives in `js/data.js`; the format is documented at the top of that file.
+
+To run the checks: `npm install`, then `npm test` and `npm run lint`.
+
+---
+
 # Progress Knight
 
 ### Introduction
@@ -12,8 +27,8 @@ Will you decide to take the easy route of doing simple commoner work? Or will yo
 
 Eventually, your age will catch up to you. You will be given an option to prestige and gain xp multipliers (based on the performance of your current life) for your next life at the cost of losing all your levels and assets. Fear not though, as you will re-gain your levels much, much more quickly than in your previous life...
 
-### Where can I play Progress Knight?
-Progress Knight can be played on the following sites:  
+### Where can I play the original Progress Knight?
+The original game can be played on the following sites:  
 - [Github Pages](https://ihtasham42.github.io/progress-knight/)  
 - [Armor Games](https://armorgames.com/progress-knight-game/19095)
 - [Crazy Games](https://www.crazygames.com/game/progress-knight)
