@@ -440,11 +440,9 @@ function getElementsByClass(className) {
     return elements
 }
 
-// Browsers can restore ticked checkboxes when the page is reloaded, so start
-// from whatever the checkboxes show.
+// The settings themselves are saved with the game; the checkboxes only
+// change them (and are kept in step by updateAutomationControls)
 function setUpAutomationControls() {
-    setAutoPromote(autoPromoteElement.checked)
-    setAutoLearn(autoLearnElement.checked)
     autoPromoteElement.onchange = function() {setAutoPromote(autoPromoteElement.checked)}
     autoLearnElement.onchange = function() {setAutoLearn(autoLearnElement.checked)}
 }

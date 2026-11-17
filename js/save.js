@@ -86,9 +86,10 @@ function exportGameData() {
 //   (none) - legacy format: the whole gameData object passed to JSON.stringify
 //   2      - only mutable state, referring to jobs/skills/items by name
 //   3      - the same, referring to everything by id (see data.js)
+//   4      - adds automation settings (auto-promote, auto-learn, skipped skills)
 // ---------------------------------------------------------------------------
 
-const SAVE_VERSION = 3
+const SAVE_VERSION = 4
 
 function serializeGameData() {
     const tasks = {}
@@ -117,6 +118,11 @@ function serializeGameData() {
         currentMisc: gameData.currentMisc.map(function(item) {return item.baseData.id}),
         tasks: tasks,
         completedRequirements: completedRequirements,
+        automation: {
+            autoPromote: gameData.automation.autoPromote,
+            autoLearn: gameData.automation.autoLearn,
+            skippedSkills: Array.from(gameData.automation.skippedSkills),
+        },
     }
 }
 
@@ -129,6 +135,7 @@ function migrateSave(save) {
 
     if (save.version === undefined) save = migrateLegacySave(save)
     if (save.version === 2) save = migrateV2ToV3(save)
+    if (save.version === 3) save = migrateV3ToV4(save)
 
     if (save.version > SAVE_VERSION) {
         throw new Error("Save is from a newer version of the game")
@@ -199,6 +206,14 @@ function migrateV2ToV3(save) {
     return migrated
 }
 
+// Version 3 didn't save automation settings, so they start switched off
+function migrateV3ToV4(save) {
+    return Object.assign({}, save, {
+        version: 4,
+        automation: {autoPromote: false, autoLearn: false, skippedSkills: []},
+    })
+}
+
 function validateSave(save) {
     for (const key of ["coins", "days"]) {
         if (!isFiniteNumber(save[key])) throw new Error("Save has an invalid " + key)
@@ -255,6 +270,17 @@ function applySaveData(save) {
         for (const id of save.completedRequirements) {
             const requirement = gameData.requirements[namesById[id]]
             if (requirement) requirement.completed = true
+        }
+    }
+
+    const automation = save.automation
+    if (automation && typeof automation === "object") {
+        if (typeof automation.autoPromote === "boolean") setAutoPromote(automation.autoPromote)
+        if (typeof automation.autoLearn === "boolean") setAutoLearn(automation.autoLearn)
+        if (Array.isArray(automation.skippedSkills)) {
+            for (const id of automation.skippedSkills) {
+                if (getTaskById(id) instanceof Skill) setSkillSkipped(namesById[id], true)
+            }
         }
     }
 }
