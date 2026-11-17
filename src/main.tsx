@@ -1,11 +1,10 @@
-// HackTimer first: it keeps the timers below running in background tabs
-import "./vendor/hacktimer.js"
 import { createRoot } from "react-dom/client"
 import { advanceGameTime, initGameData, setSkillWithLowestMaxXp, update } from "./game/engine.ts"
 import { loadGameData, saveGameData } from "./game/save.ts"
 import { updateSpeed } from "./game/rules.ts"
 import { App } from "./ui/App.tsx"
 import { startRendering } from "./ui/gameStore.ts"
+import { setBackgroundInterval } from "./backgroundTimer.ts"
 
 initGameData()
 loadGameData()
@@ -24,7 +23,9 @@ function gameLoop() {
     lastLoopTime = now
 }
 
-setInterval(gameLoop, 1000 / updateSpeed)
+// The game keeps running in a background tab (see backgroundTimer.ts);
+// rendering only happens while the page is shown
+setBackgroundInterval(gameLoop, 1000 / updateSpeed)
 startRendering()
-setInterval(saveGameData, 3000)
-setInterval(setSkillWithLowestMaxXp, 1000)
+setBackgroundInterval(saveGameData, 3000)
+setBackgroundInterval(setSkillWithLowestMaxXp, 1000)

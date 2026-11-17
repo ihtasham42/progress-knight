@@ -5,7 +5,7 @@ import reactHooks from "eslint-plugin-react-hooks"
 
 export default [
     {
-        ignores: ["node_modules/", "dist/", "src/vendor/", "css/"],
+        ignores: ["node_modules/", "dist/", "css/"],
     },
     ...tseslint.configs.recommended.map(config => ({ ...config, files: ["src/**/*.{ts,tsx}", "test/types/**/*.ts"] })),
     {
