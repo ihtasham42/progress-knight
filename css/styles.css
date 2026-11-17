@@ -1,5 +1,25 @@
-body {
-    background-color: rgb(243, 243, 243);
+/* Page styles. Colours, sizes and fonts come from the tokens in tokens.css
+   (and dark.css), never raw values. w3.css loads after this file, so the
+   rules that restyle w3 classes are written to outrank it. */
+
+html body {
+    background-color: var(--pk-ground);
+    color: var(--pk-text);
+    font-family: var(--pk-font-sans);
+    font-size: var(--pk-text-sm);
+    font-variant-numeric: tabular-nums;
+}
+
+/* The page has no doctype (quirks mode), where tables don't inherit the
+   body's colour and font, so they are set here too */
+table {
+    color: var(--pk-text);
+    font-size: inherit;
+}
+
+h1 {
+    font-family: var(--pk-font-display);
+    letter-spacing: 0.03em;
 }
 
 .w3-bar-item {
@@ -12,28 +32,34 @@ td {
     vertical-align: middle !important;
 }
 
+table.w3-bordered tr {
+    border-bottom: 1px solid var(--pk-line);
+}
+
 .current {
-    background-color: orange !important;
+    background-color: var(--pk-bar-current) !important;
 }
 
 .progress-text {
     position: absolute;
     top: 0px;
     bottom: 0px;
-    padding: 5px;
-    color: white
+    padding: 5px var(--pk-space-3);
+    color: var(--pk-bar-text);
 }
 
 .progress-bar {
     position: relative;
-    background-color: rgb(12, 101, 173);
+    background-color: var(--pk-bar-track);
+    border-radius: var(--pk-radius);
     cursor: pointer;
     width: 200px;
 }
 
 .progress-fill {
     height: 30px;
-    background-color: rgb(46, 148, 231)
+    border-radius: var(--pk-radius);
+    background-color: var(--pk-bar-fill);
 }
 
 .hidden {
@@ -45,24 +71,54 @@ td {
 }
 
 .button {
-    border: 1px solid black !important;
+    border: 0 !important;
+    border-radius: var(--pk-radius);
+    background-color: var(--pk-raised);
+    color: var(--pk-text) !important;
+}
+
+body .w3-button:hover {
+    background-color: var(--pk-line) !important;
+    color: var(--pk-text) !important;
+}
+
+/* The selected tab */
+body .tabButton.w3-blue-gray {
+    background-color: var(--pk-raised) !important;
+    color: var(--pk-text) !important;
+    box-shadow: inset 0 -2px 0 var(--pk-accent);
+}
+
+body .w3-red {
+    background-color: var(--pk-loss) !important;
+    color: var(--pk-panel) !important;
+}
+
+body .w3-text-gray {
+    color: var(--pk-text-muted) !important;
 }
 
 .item-button {
-    background-color: white;
+    background-color: var(--pk-panel);
+    border-radius: var(--pk-radius);
     text-align: center;
     width: 200px;
     height: 40px;
-    padding: 8px;
+    padding: var(--pk-space-2);
 }
 
 .item-button:hover {
     cursor: pointer;
-    background-color: rgb(192, 192, 192);
+    background-color: var(--pk-raised);
 }
 
 button:focus {
     outline: none;
+}
+
+button:focus-visible {
+    outline: 2px solid var(--pk-accent);
+    outline-offset: 2px;
 }
 
 .scroll {
@@ -73,15 +129,15 @@ button:focus {
     position: relative;
     display: inline-block;
 }
-  
+
 .tooltip .tooltipText {
     visibility: hidden;
     width: 240px;
-    background-color: black;
-    color: #fff;
+    background-color: var(--pk-tooltip-bg);
+    color: var(--pk-tooltip-text);
     text-align: center;
-    border-radius: 6px;
-    padding: 10px 0;
+    border-radius: var(--pk-radius);
+    padding: var(--pk-space-3) var(--pk-space-2);
 
     /* Position the tooltip */
     position: absolute;
@@ -92,14 +148,14 @@ button:focus {
     opacity: 0;
     transition: opacity 0.5s;
 }
-  
+
 .tooltip:hover .tooltipText {
     visibility: visible;
-    opacity: 0.8;
+    opacity: 1;
 }
 
 .sidebar-element {
-    margin-bottom: 16px;
+    margin-bottom: var(--pk-space-4);
 }
 
 .slidecontainer {
@@ -110,8 +166,8 @@ button:focus {
     -webkit-appearance: none;
     width: 50%;
     height: 15px;
-    border-radius: 5px;
-    background: #d3d3d3;
+    border-radius: var(--pk-radius);
+    background: var(--pk-raised);
     outline: none;
     opacity: 0.7;
     -webkit-transition: .2s;
@@ -128,7 +184,7 @@ button:focus {
     width: 25px;
     height: 25px;
     border-radius: 50%;
-    background: #4CAF50;
+    background: var(--pk-accent);
     cursor: pointer;
 }
 
@@ -136,7 +192,7 @@ button:focus {
     width: 25px;
     height: 25px;
     border-radius: 50%;
-    background: #4CAF50;
+    background: var(--pk-accent);
     cursor: pointer;
 }
 
@@ -145,7 +201,8 @@ button:focus {
 }
 
 .panel {
-    background-color: white;
+    background-color: var(--pk-panel);
+    border-radius: var(--pk-radius);
 }
 
 .small-margin  {

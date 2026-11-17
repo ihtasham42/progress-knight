@@ -16,8 +16,8 @@ const requiredRow = category => document.getElementById(category)
 test("each category has a header row in its colour", async () => {
     await renderComponent("TaskTable.tsx", "TaskTable", { kind: "jobs" })
     const commonWork = header("Common work")
-    assert.equal(commonWork.style.backgroundColor, "rgb(85, 166, 48)")
-    assert.equal(commonWork.style.color, "rgb(255, 255, 255)")
+    assert.equal(commonWork.style.backgroundColor, "var(--pk-cat-common-work)")
+    assert.equal(commonWork.style.color, "var(--pk-on-category)")
     assert.deepEqual([...commonWork.children].map(th => th.textContent).slice(0, 5), ["Common work", "Level", "Income/day", "Xp/day", "Xp left"])
 })
 

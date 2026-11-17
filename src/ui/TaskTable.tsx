@@ -43,7 +43,7 @@ function TaskHeaderRow({kind, categoryName}: {kind: TaskKind, categoryName: stri
     const game = useGame()
     return (
         <tr className={classNames(removeSpaces(categoryName), "headerRow", isCategoryHidden(categoryName) && "hidden")}
-            style={{backgroundColor: headerRowColors[categoryName as keyof typeof headerRowColors], color: "#ffffff"}}>
+            style={{backgroundColor: headerRowColors[categoryName as keyof typeof headerRowColors], color: "var(--pk-on-category)"}}>
             <th className="category" style={{width: "250px"}}>{categoryName}</th>
             <th>Level</th>
             <th className="valueType">{kind == "jobs" ? "Income/day" : "Effect"}</th>

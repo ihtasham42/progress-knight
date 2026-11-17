@@ -47,7 +47,7 @@ export const SettingsTab = memo(function SettingsTab() {
                     {" "}
                 </form>
                 {" "}
-                <div id="importError" className={classNames(!showImportError && "hidden")} style={{color: "rgb(200, 0, 0)", marginTop: "8px"}}>{importError}</div>
+                <div id="importError" className={classNames(!showImportError && "hidden")} style={{color: "var(--pk-loss)", marginTop: "8px"}}>{importError}</div>
                 {" "}
             </li>
             {" "}

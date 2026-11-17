@@ -24,17 +24,17 @@ test("properties and misc items with their effect and expense", async () => {
 
 test("the active property and items are marked in their category colour", async () => {
     const game = await renderComponent("ShopTable.tsx", "ShopTable")
-    assert.equal(active("Homeless"), "rgb(33, 158, 188)")
-    assert.equal(active("Tent"), "white")
-    assert.equal(active("Book"), "white")
+    assert.equal(active("Homeless"), "var(--pk-cat-properties)")
+    assert.equal(active("Tent"), "var(--pk-raised)")
+    assert.equal(active("Book"), "var(--pk-raised)")
     game.gameData.coins = 100
     game.rerender()
     fireEvent.click(button("Tent"))
     fireEvent.click(button("Book"))
     assert.equal(game.gameData.currentProperty.name, "Tent")
-    assert.equal(active("Tent"), "rgb(33, 158, 188)")
-    assert.equal(active("Homeless"), "white")
-    assert.equal(active("Book"), "rgb(181, 101, 118)")
+    assert.equal(active("Tent"), "var(--pk-cat-properties)")
+    assert.equal(active("Homeless"), "var(--pk-raised)")
+    assert.equal(active("Book"), "var(--pk-cat-misc)")
     fireEvent.click(button("Book"))
     assert.equal(game.gameData.currentMisc.length, 0, "clicking an item again takes it off")
 })

@@ -18,7 +18,7 @@ export function ShopTable() {
                 {Object.entries(itemCategories).map(([categoryName, names]) => (
                     <Fragment key={categoryName}>
                         <tr className={classNames(removeSpaces(categoryName), "headerRow", isCategoryHidden(categoryName) && "hidden")}
-                            style={{backgroundColor: headerRowColors[categoryName as keyof typeof headerRowColors], color: "#ffffff"}}>
+                            style={{backgroundColor: headerRowColors[categoryName as keyof typeof headerRowColors], color: "var(--pk-on-category)"}}>
                             <th className="category" style={{width: "250px"}}>{categoryName}</th>
                             <th style={{width: "100px"}}>Active</th>
                             <th style={{width: "250px"}}>Effect</th>
@@ -54,7 +54,7 @@ function ItemRow({item, isProperty}: {item: Item, isProperty: boolean}) {
             </td>
             <td>
                 <div className="w3-border w3-circle" style={{width: "40px", height: "40px", padding: "7px"}}>
-                    <div className="active w3-circle" style={{width: "24px", height: "24px", backgroundColor: isActive ? color : "white"}}></div>
+                    <div className="active w3-circle" style={{width: "24px", height: "24px", backgroundColor: isActive ? color : "var(--pk-raised)"}}></div>
                 </div>
             </td>
             <td className="effect">{item.getEffectDescription()}</td>

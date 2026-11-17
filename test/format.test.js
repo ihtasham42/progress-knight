@@ -54,7 +54,7 @@ test("very large platinum amounts are abbreviated", async () => {
 })
 
 test("each coin part has its colour; copper has none when there is no copper", async () => {
-    assert.deepEqual(formatCoins(123456789).map(part => part.color), ["#79b9c7", "#E5C100", "#a8a8a8", "#a15c2f"])
+    assert.deepEqual(formatCoins(123456789).map(part => part.color), ["var(--pk-coin-p)", "var(--pk-coin-g)", "var(--pk-coin-s)", "var(--pk-coin-c)"])
     assert.equal(formatCoins(100)[3].color, undefined)
-    assert.equal(formatCoins(0)[3].color, "#a15c2f")
+    assert.equal(formatCoins(0)[3].color, "var(--pk-coin-c)")
 })
