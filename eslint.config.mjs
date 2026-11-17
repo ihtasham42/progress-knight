@@ -32,6 +32,8 @@ export default [
             "prefer-const": "error",
             // A @ts-expect-error must say why
             "@typescript-eslint/ban-ts-comment": ["error", { "ts-expect-error": "allow-with-description" }],
+            // The game uses `condition ? a() : b()` as a statement in places
+            "@typescript-eslint/no-unused-expressions": ["error", { allowTernary: true }],
         },
     },
     {

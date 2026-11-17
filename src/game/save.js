@@ -3,7 +3,7 @@
 import { namesById, idsByName } from "./data.ts"
 import { gameData } from "./state.ts"
 import { Job, Skill } from "./classes.ts"
-import { getTaskById, getItemById, setAutoPromote, setAutoLearn, setSkillSkipped } from "./engine.js"
+import { getTaskById, getItemById, setAutoPromote, setAutoLearn, setSkillSkipped } from "./engine.ts"
 
 export function saveGameData() {
     localStorage.setItem("gameDataSave", JSON.stringify(serializeGameData()))
@@ -70,7 +70,7 @@ export function exportSave() {
 //
 // A save only holds the state that changes during play. Static game data
 // (job/skill/item definitions and requirement definitions) is rebuilt by
-// initGameData() in engine.js on every load, and the save is then applied on
+// initGameData() in engine.ts on every load, and the save is then applied on
 // top.
 //
 // Version history:

@@ -6,7 +6,7 @@ import { jobs, skills, items, unlocks, idsByName, jobCategories, skillCategories
 import { gameData } from "../game/state.ts"
 import { daysToYears, getLifespan } from "../game/rules.ts"
 import { Job, Skill, EvilRequirement } from "../game/classes.ts"
-import { getTaskById, getHappiness, getEvilGain, getExpense, setPause, setTimeWarping, setAutoPromote, setAutoLearn, setSkillSkipped, setTask, setProperty, setMisc, getNet, getIncome, getDay, rebirthOne, rebirthTwo, isLifeOver } from "../game/engine.js"
+import { getTaskById, getHappiness, getEvilGain, getExpense, setPause, setTimeWarping, setAutoPromote, setAutoLearn, setSkillSkipped, setTask, setProperty, setMisc, getNet, getIncome, getDay, rebirthOne, rebirthTwo, isLifeOver } from "../game/engine.ts"
 import { clearSave, importSave, exportSave } from "../game/save.js"
 
 export const autoPromoteElement = document.getElementById("autoPromote")
