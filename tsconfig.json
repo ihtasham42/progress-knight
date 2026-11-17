@@ -12,6 +12,6 @@
         "skipLibCheck": true,
         "types": []
     },
-    "include": ["src"],
+    "include": ["src", "test/types"],
     "exclude": ["src/vendor"]
 }

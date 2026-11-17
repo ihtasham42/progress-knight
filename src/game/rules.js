@@ -2,7 +2,7 @@
 // and multipliers. The job, skill and item classes use these, so they live
 // apart from the rest of the engine.
 
-import { skills, items } from "./data.js"
+import { skills, items } from "./data.ts"
 import { gameData } from "./state.js"
 
 export const updateSpeed = 20

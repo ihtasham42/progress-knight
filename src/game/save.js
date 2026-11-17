@@ -1,6 +1,6 @@
 // Saving, loading, importing and exporting game data.
 
-import { namesById, idsByName } from "./data.js"
+import { namesById, idsByName } from "./data.ts"
 import { gameData } from "./state.js"
 import { Job, Skill } from "./classes.js"
 import { getTaskById, getItemById, setAutoPromote, setAutoLearn, setSkillSkipped } from "./engine.js"
@@ -76,7 +76,7 @@ export function exportSave() {
 // Version history:
 //   (none) - legacy format: the whole gameData object passed to JSON.stringify
 //   2      - only mutable state, referring to jobs/skills/items by name
-//   3      - the same, referring to everything by id (see data.js)
+//   3      - the same, referring to everything by id (see data.ts)
 //   4      - adds automation settings (auto-promote, auto-learn, skipped skills)
 // ---------------------------------------------------------------------------
 

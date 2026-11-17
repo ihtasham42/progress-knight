@@ -1,4 +1,4 @@
-import { itemCategories } from "./data.js"
+import { itemCategories } from "./data.ts"
 import { gameData } from "./state.js"
 import { getBaseLog, applyMultipliers, applySpeed, daysToYears } from "./rules.js"
 

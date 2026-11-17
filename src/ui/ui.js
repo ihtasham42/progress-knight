@@ -2,7 +2,7 @@
 // that turn clicks into changes to that state. Rendering only reads the
 // game state; it never changes it.
 
-import { jobs, skills, items, unlocks, idsByName, jobCategories, skillCategories, itemCategories, headerRowColors, tooltips } from "../game/data.js"
+import { jobs, skills, items, unlocks, idsByName, jobCategories, skillCategories, itemCategories, headerRowColors, tooltips } from "../game/data.ts"
 import { gameData } from "../game/state.js"
 import { daysToYears, getLifespan } from "../game/rules.js"
 import { Job, Skill, EvilRequirement } from "../game/classes.js"

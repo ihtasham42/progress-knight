@@ -20,10 +20,10 @@ export default [
             "prefer-const": "error",
         },
     },
-    ...tseslint.configs.recommended.map(config => ({ ...config, files: ["src/**/*.ts"] })),
+    ...tseslint.configs.recommended.map(config => ({ ...config, files: ["src/**/*.ts", "test/types/**/*.ts"] })),
     {
-        // The game's TypeScript modules
-        files: ["src/**/*.ts"],
+        // The game's TypeScript modules, and type tests
+        files: ["src/**/*.ts", "test/types/**/*.ts"],
         languageOptions: {
             globals: globals.browser,
         },

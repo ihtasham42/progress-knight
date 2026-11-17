@@ -1,4 +1,4 @@
-// Checks the game data definitions in data.js are consistent.
+// Checks the game data definitions in data.ts are consistent.
 
 import { test } from "vitest"
 import assert from "node:assert/strict"

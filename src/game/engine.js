@@ -3,7 +3,7 @@
 // Nothing here touches the page (no document or window), so the game can
 // also run without a browser. ui.js shows this state on the page.
 
-import { jobs, skills, items, unlocks, startingItems, namesById, idsByName, jobBaseData, jobCategories, skillBaseData, itemBaseData } from "./data.js"
+import { jobs, skills, items, unlocks, startingItems, namesById, idsByName, jobBaseData, jobCategories, skillBaseData, itemBaseData } from "./data.ts"
 import { gameData } from "./state.js"
 import { updateSpeed, getSourceEffect, applyStatBoosts, applySpeed, daysToYears, getLifespan } from "./rules.js"
 import { Job, Skill, Item, TaskRequirement, CoinRequirement, AgeRequirement, EvilRequirement } from "./classes.js"
@@ -22,7 +22,7 @@ export function getItemById(id) {
 }
 
 // Wires up every xp, income and expense multiplier from the boosts declared
-// in data.js. Multipliers are applied from the broadest to the most specific
+// in data.ts. Multipliers are applied from the broadest to the most specific
 // ("all", then "jobs"/"skills"/"items", then a category or a single task),
 // each group in definition order with skills before items.
 export function addMultipliers() {
@@ -288,7 +288,7 @@ export function increaseDays() {
     gameData.days += increase
 }
 
-// Builds every unlock requirement from the game data (see data.js).
+// Builds every unlock requirement from the game data (see data.ts).
 // Requirements are keyed by display name; specs in the data refer to
 // other entities by id.
 export function createRequirements() {
