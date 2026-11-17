@@ -64,3 +64,17 @@ test("rendering without a rebirth leaves the chosen tab alone", async () => {
     game.ticks(3)
     assert.equal(tab("rebirth").style.display, "block")
 })
+
+test("rendering again with nothing changed doesn't touch the page", async () => {
+    const game = await renderComponent("App.tsx", "App")
+    game.engine.setAutoLearn(true)
+    game.ticks(5)
+    const observer = new MutationObserver(() => {})
+    observer.observe(document.body, { subtree: true, childList: true, attributes: true, characterData: true })
+    game.rerender()
+    assert.equal(observer.takeRecords().length, 0)
+
+    game.ticks(1)
+    assert.ok(observer.takeRecords().length > 0, "values that changed are still written")
+    observer.disconnect()
+})

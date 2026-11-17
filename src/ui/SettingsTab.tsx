@@ -1,11 +1,13 @@
 // The Settings tab: importing and exporting saves, light/dark mode and a
 // hard reset.
 
-import { useState } from "react"
+import { memo, useState } from "react"
 import { clearSave, exportSave, importSave } from "../game/save.ts"
 import { classNames } from "./classNames.ts"
 
-export function SettingsTab() {
+// It doesn't show the game state, so it doesn't render again with every
+// frame (that would rewrite the save box each time)
+export const SettingsTab = memo(function SettingsTab() {
     const [saveText, setSaveText] = useState("")
     // The last import error; hidden again by an export
     const [importError, setImportError] = useState("")
@@ -79,4 +81,4 @@ export function SettingsTab() {
             {" "}
         </ul>
     )
-}
+})

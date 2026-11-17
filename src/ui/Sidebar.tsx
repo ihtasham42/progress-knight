@@ -7,6 +7,7 @@ import { getDay, getExpense, getHappiness, getIncome, getNet, getTaskById, isLif
     setAutoLearn, setAutoPromote, setPause, setTimeWarping } from "../game/engine.ts"
 import { requestRender, useGame } from "./gameStore.ts"
 import { CoinParts } from "./CoinParts.tsx"
+import { Checkbox } from "./Checkbox.tsx"
 import { classNames } from "./classNames.ts"
 
 export function Sidebar() {
@@ -41,8 +42,7 @@ export function Sidebar() {
                     {" "}
                     <div className="inline">Auto-promote</div>
                     {" "}
-                    <input type="checkbox" className="inline" id="autoPromote" checked={game.automation.autoPromote}
-                        onChange={event => {setAutoPromote(event.target.checked); requestRender()}} />
+                    <Checkbox className="inline" id="autoPromote" checked={game.automation.autoPromote} onToggle={setAutoPromote} />
                     {" "}
                 </span>
                 {" "}
@@ -52,8 +52,7 @@ export function Sidebar() {
                     {" "}
                     <div className="inline">Auto-learn</div>
                     {" "}
-                    <input type="checkbox" className="inline sidebar-element" id="autoLearn" checked={game.automation.autoLearn}
-                        onChange={event => {setAutoLearn(event.target.checked); requestRender()}} />
+                    <Checkbox className="inline sidebar-element" id="autoLearn" checked={game.automation.autoLearn} onToggle={setAutoLearn} />
                     {" "}
                 </span>
                 {" "}

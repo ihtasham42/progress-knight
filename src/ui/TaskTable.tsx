@@ -7,11 +7,19 @@ import { Job, Skill } from "../game/classes.ts"
 import { setSkillSkipped, setTask } from "../game/engine.ts"
 import { requestRender, useGame } from "./gameStore.ts"
 import { CoinParts, EmptyCoinParts } from "./CoinParts.tsx"
+import { Checkbox } from "./Checkbox.tsx"
 import { RequiredRow, isCategoryHidden } from "./RequiredRow.tsx"
 import { classNames, removeSpaces } from "./classNames.ts"
 import { format } from "./format.ts"
 
 export type TaskKind = "jobs" | "skills"
+
+// Skill name -> skips or unskips it (one function per skill, so it stays the
+// same between renders)
+const skipSkill: Record<string, (skipped: boolean) => void> = {}
+for (const name of Object.values(skillCategories).flat()) {
+    skipSkill[name] = skipped => setSkillSkipped(name, skipped)
+}
 
 export function TaskTable({kind}: {kind: TaskKind}) {
     const game = useGame()
@@ -71,12 +79,8 @@ function TaskRow({task}: {task: Job | Skill}) {
             <td className={classNames("maxLevel", !(game.rebirthOneCount > 0) && "hidden")}>{task.maxLevel}</td>
             <td className="skipSkill" style={{display: task instanceof Skill && game.automation.autoLearn ? "block" : "none"}}>
                 {" "}
-                <input className="checkbox" type="checkbox"
-                    checked={task instanceof Skill && game.automation.skippedSkills.has(idsByName[name])}
-                    onChange={event => {
-                        if (task instanceof Skill) setSkillSkipped(name, event.target.checked)
-                        requestRender()
-                    }} />
+                <Checkbox className="checkbox" checked={task instanceof Skill && game.automation.skippedSkills.has(idsByName[name])}
+                    onToggle={task instanceof Skill ? skipSkill[name] : undefined} />
                 {" "}
             </td>
         </tr>
