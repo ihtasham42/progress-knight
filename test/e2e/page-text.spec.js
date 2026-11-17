@@ -18,6 +18,14 @@ const ROOT = path.join(import.meta.dirname, "..", "..")
 const FIXTURE = path.join(ROOT, "test", "fixtures", "page-text.json")
 const GAME_URL = "http://localhost:5174/progress-knight-evolved/"
 
+// The page as it was built before React, and the React page being built to
+// replace it. Both must show exactly the recorded text. ui is the module
+// with the function that renders the game state straight away.
+const PAGES = [
+    { name: "the original page", path: "", ui: "ui/ui.js", render: "updateUI" },
+    { name: "the React page", path: "react.html", ui: "ui/gameStore.ts", render: "renderNow" },
+]
+
 // Blocks anything that isn't the game (e.g. the Discord icon) so the run
 // never needs the network
 async function blockOtherSites(page) {
@@ -38,14 +46,14 @@ function stopTimers() {
 
 // Gives the test the game functions it drives, as window.pk. The dev server
 // serves each module at one URL, so these are the page's own copies.
-async function exposeGame(page) {
-    await page.evaluate(async base => {
-        const [state, rules, engine, ui] = await Promise.all(["game/state.ts", "game/rules.ts", "game/engine.ts", "ui/ui.js"]
+async function exposeGame(page, pageUnderTest) {
+    await page.evaluate(async ({ base, uiModule, render }) => {
+        const [state, rules, engine, ui] = await Promise.all(["game/state.ts", "game/rules.ts", "game/engine.ts", uiModule]
             .map(name => import(base + "src/" + name)))
         window.pk = {
             gameData: state.gameData,
             update: engine.update,
-            updateUI: ui.updateUI,
+            updateUI: ui[render],
             setAutoPromote: engine.setAutoPromote,
             setAutoLearn: engine.setAutoLearn,
             setSkillWithLowestMaxXp: engine.setSkillWithLowestMaxXp,
@@ -56,7 +64,7 @@ async function exposeGame(page) {
             getLifespan: rules.getLifespan,
             daysToYears: rules.daysToYears,
         }
-    }, new URL(GAME_URL).pathname)
+    }, { base: new URL(GAME_URL).pathname, uiModule: pageUnderTest.ui, render: pageUnderTest.render })
 }
 
 // Runs game steps the way the timers would, including the once-a-second
@@ -78,11 +86,19 @@ async function pageText(page) {
     return page.evaluate(() => document.body.innerText)
 }
 
-test("the page shows exactly the recorded text through a scripted game", async ({ page }) => {
+for (const pageUnderTest of PAGES) test(`${pageUnderTest.name} shows exactly the recorded text through a scripted game`, async ({ page }) => {
+    // Errors and warnings (e.g. from React) fail the test; the blocked
+    // Discord icon is reported as a failed load and doesn't count
+    const errors = []
+    page.on("pageerror", error => errors.push(error.message))
+    page.on("console", message => {
+        if (["error", "warning"].includes(message.type()) && !message.text().includes("net::ERR_FAILED")) errors.push(message.text())
+    })
     await blockOtherSites(page)
     await page.addInitScript(stopTimers)
-    await page.goto(GAME_URL)
-    await exposeGame(page)
+    await page.goto(GAME_URL + pageUnderTest.path)
+    await page.waitForSelector("#ageDisplay")
+    await exposeGame(page, pageUnderTest)
 
     const checkpoints = []
     const record = async name => checkpoints.push({ name, text: await pageText(page) })
@@ -122,10 +138,12 @@ test("the page shows exactly the recorded text through a scripted game", async (
     await render(page)
     await record("embraced evil, then 1500 ticks on the Skills tab")
 
-    if (process.env.UPDATE_PAGE_TEXT) {
+    // Only the original page can make the recording
+    if (process.env.UPDATE_PAGE_TEXT && pageUnderTest.path == "") {
         fs.writeFileSync(FIXTURE, JSON.stringify(checkpoints, null, 2) + "\n")
         return
     }
+    expect(errors).toEqual([])
     const recorded = JSON.parse(fs.readFileSync(FIXTURE, "utf8"))
     expect(checkpoints.map(c => c.name)).toEqual(recorded.map(c => c.name))
     for (let i = 0; i < recorded.length; i++) {

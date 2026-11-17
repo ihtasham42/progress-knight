@@ -5,6 +5,7 @@
 // whenever the player does something.
 
 import { useSyncExternalStore } from "react"
+import { flushSync } from "react-dom"
 import { gameData } from "../game/state.ts"
 import type { GameData } from "../game/state.ts"
 
@@ -24,6 +25,12 @@ export function getSnapshot(): number {
 export function requestRender(): void {
     frame++
     for (const listener of listeners) listener()
+}
+
+// Shows the current game state before returning, for tests that read the
+// page straight after a game step
+export function renderNow(): void {
+    flushSync(requestRender)
 }
 
 // About 10 frames per second is plenty for numbers and progress bars
