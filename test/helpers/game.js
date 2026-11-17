@@ -10,7 +10,7 @@ import path from "node:path"
 import { JSDOM, VirtualConsole } from "jsdom"
 
 const ROOT = path.join(import.meta.dirname, "..", "..")
-const SKIPPED_SCRIPTS = new Set(["js/HackTimer.js"])
+const SKIPPED_SCRIPTS = new Set(["src/vendor/hacktimer.js"])
 
 function loadGame(options = {}) {
     const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8")

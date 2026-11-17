@@ -39,7 +39,7 @@ jobs:
       # Publish only the game itself, not the tests or tooling
       - run: |
           mkdir _site
-          cp -r index.html css js LICENSE _site/
+          cp -r index.html css src LICENSE _site/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

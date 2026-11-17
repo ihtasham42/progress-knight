@@ -7,7 +7,7 @@ import path from "node:path"
 import vm from "node:vm"
 
 const ROOT = path.join(import.meta.dirname, "..", "..")
-const ENGINE_SCRIPTS = ["js/classes.js", "js/data.js", "js/engine.js"]
+const ENGINE_SCRIPTS = ["src/game/classes.js", "src/game/data.js", "src/game/engine.js"]
 
 function loadEngine() {
     const context = vm.createContext({})

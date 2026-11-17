@@ -7,7 +7,7 @@ A continuation of [Progress Knight](https://github.com/ihtasham42/progress-knigh
 Saves and export strings from the original game can be imported and are upgraded automatically.
 
 ### Development
-The game runs straight from `index.html` with no build step. Game data (jobs, skills, items and unlocks) lives in `js/data.js`; the format is documented at the top of that file.
+The game runs straight from `index.html` with no build step. Game data (jobs, skills, items and unlocks) lives in `src/game/data.js`; the format is documented at the top of that file.
 
 To run the checks: `npm install`, then `npm test` and `npm run lint`.
 

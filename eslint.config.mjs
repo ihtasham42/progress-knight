@@ -3,11 +3,11 @@ import globals from "globals"
 
 export default [
     {
-        ignores: ["node_modules/", "js/HackTimer.js", "css/"],
+        ignores: ["node_modules/", "src/vendor/", "css/"],
     },
     {
         // The game: classic browser scripts that share globals across files
-        files: ["js/**/*.js"],
+        files: ["src/**/*.js"],
         languageOptions: {
             sourceType: "script",
             ecmaVersion: 2020,
