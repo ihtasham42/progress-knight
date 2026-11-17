@@ -12,6 +12,7 @@ import { CoinParts } from "./CoinParts.tsx"
 import { Checkbox } from "./Checkbox.tsx"
 import { classNames } from "./classNames.ts"
 import { format } from "./format.ts"
+import { fillStyle } from "./fill.ts"
 
 export function Sidebar() {
     const game = useGame()
@@ -88,7 +89,8 @@ function QuickTask({task, kind, className}: {task: Job | Skill, kind: string, cl
     return (
         <div className="quick-task">
             <div className={classNames("quick-bar", className)}>
-                <div className="quick-fill" style={{width: task.xp / task.getMaxXp() * 100 + "%"}}></div>
+                {/* Keyed so a level-up or a new task resets the bar instead of sliding it back */}
+                <div key={task.name + " " + task.level} className="quick-fill" style={fillStyle(task.xp / task.getMaxXp())}></div>
                 <div className="quick-text">
                     <span className="name">{task.name}</span>
                     <span className="quick-level">{"lvl " + task.level}</span>

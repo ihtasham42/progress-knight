@@ -7,6 +7,7 @@ import { getDay, isLifeOver, setPause } from "../game/engine.ts"
 import { requestRender, useGame } from "./gameStore.ts"
 import { classNames } from "./classNames.ts"
 import { getLifeShare } from "./life.ts"
+import { fillStyle } from "./fill.ts"
 
 export function Header() {
     const game = useGame()
@@ -29,7 +30,7 @@ export function Header() {
                         <span className="life-left"><b>{Math.max(0, lifespan - age)} years</b> left of <span id="lifespanDisplay">{lifespan}</span></span>
                     </div>
                     <div className="life-bar" role="img" aria-label={"Life progress: age " + age + " of " + lifespan}>
-                        <div className="life-bar-fill" style={{width: getLifeShare(game.days) * 100 + "%"}}></div>
+                        <div className="life-bar-fill" style={fillStyle(getLifeShare(game.days))}></div>
                     </div>
                 </div>
                 <div className="speed-block">

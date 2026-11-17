@@ -33,6 +33,10 @@
     /* Shape */
     --pk-radius: 6px;
 
+    /* How long a progress bar eases between renders. Matches renderInterval
+       in src/ui/gameStore.ts, so each step ends as the next one starts */
+    --pk-tick: 100ms;
+
     /* Layout. The breakpoints (640px and 1024px) can't be variables, so
        they're written out in the media queries in styles.css */
     --pk-page-max: 1376px;

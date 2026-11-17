@@ -63,9 +63,19 @@ button.progress-bar:hover {
     --pk-bar-base: var(--pk-line);
 }
 
+.progress-track {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--pk-radius);
+    overflow: hidden;
+}
+
 .progress-fill {
     display: block;
-    height: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
     border-radius: var(--pk-radius);
     background-color: color-mix(in srgb, var(--cat) var(--pk-bar-tint), var(--pk-bar-base));
 }
@@ -869,6 +879,18 @@ th {
     bottom: 0;
     left: 0;
     background-color: var(--pk-bar-current);
+}
+
+/* Progress fills are full width and slid into place (see src/ui/fill.ts):
+   a transform eases between renders without laying out the page again. The
+   bar around each fill clips it. */
+.progress-fill,
+.quick-fill,
+.life-bar-fill {
+    width: 100%;
+    transform: translateX(calc((var(--fill, 0) - 1) * 100%));
+    transition: transform var(--pk-tick) linear;
+    will-change: transform;
 }
 
 .quick-text {
