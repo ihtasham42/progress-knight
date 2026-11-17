@@ -40,8 +40,9 @@ export function Sidebar() {
                 <QuickTask task={game.currentJob} kind="Job" className="job" />
                 <QuickTask task={game.currentSkill} kind="Skill" className="skill" />
             </section>
-            <section className="card card-stats">
-                <div className="stat">
+            {/* Out of sight until something in it has been unlocked */}
+            <section className={classNames("card card-stats", !["happiness_info", "evil_info", "time_warping_info", "automation"].some(isUnlocked) && "hidden")}>
+                <div id="happinessInfo" className={classNames("stat", !isUnlocked("happiness_info") && "hidden")}>
                     <span className="stat-line"><span className="stat-value" id="happinessDisplay">{"×" + getHappiness().toFixed(1)}</span> <span className="stat-name stat-happiness">happiness</span></span>
                     <span className="card-note">{getHappinessNote(game)}</span>
                 </div>

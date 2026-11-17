@@ -60,6 +60,10 @@ test("the eye lists the four strongest bonuses of the next life, from max levels
 test("the locked teaser shows the road to 200 and what Immortality needs", async () => {
     const game = await renderComponent("AmuletTab.tsx", "AmuletTab")
     const teaser = document.getElementById("rebirthTeaser")
+    assert.ok(teaser.classList.contains("hidden"), "it talks about magic, so waits until magic has been glimpsed")
+    game.task("Concentration").level = 100
+    game.task("Meditation").level = 100
+    game.ticks(1)
     assert.ok(!teaser.classList.contains("hidden"))
     assert.match(teaser.textContent, /Your lifespan is 70\. Immortality is what stretches it\./)
     assert.match(teaser.textContent, /Immortality unlocks with Apprentice mage 10, through the Arcane Association\./)

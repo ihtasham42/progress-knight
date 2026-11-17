@@ -126,7 +126,8 @@ export function AmuletTab() {
                         onClick={() => {rebirthTwo(); requestRender()}}>Embrace evil</button>
                 </section>
 
-                <EvilTeaser hidden={evilReady} />
+                {/* Kept back until magic has been glimpsed, as it talks about it */}
+                <EvilTeaser hidden={evilReady || !isUnlocked("arcane_glimpse")} />
             </div>
             <PastLives />
         </div>

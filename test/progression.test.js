@@ -32,6 +32,17 @@ test("The Arcane Association needs Concentration 200 and Meditation 200", async 
     assert.equal(isUnlocked(game, "The Arcane Association"), true)
 })
 
+test("magic is glimpsed at Concentration 100 and Meditation 100, and stays glimpsed", async () => {
+    const game = await loadGame()
+    game.task("Concentration").level = 100
+    assert.equal(isUnlocked(game, "Arcane glimpse"), false)
+    game.task("Meditation").level = 100
+    assert.equal(isUnlocked(game, "Arcane glimpse"), true)
+    assert.equal(isUnlocked(game, "The Arcane Association"), false)
+    game.api.rebirthOne()
+    assert.equal(isUnlocked(game, "Arcane glimpse"), true)
+})
+
 test("the shop unlocks at 50 times the cost of a tent, and stays unlocked", async () => {
     const game = await loadGame()
     assert.equal(isUnlocked(game, "Shop"), false)

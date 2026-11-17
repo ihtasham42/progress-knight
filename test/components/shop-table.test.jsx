@@ -52,9 +52,27 @@ test("items you can't afford can't be bought", async () => {
 })
 
 test("the required row says how many coins the next item needs", async () => {
-    await renderComponent("ShopTable.tsx", "ShopTable")
+    const game = await renderComponent("ShopTable.tsx", "ShopTable")
     assert.equal(text(document.getElementById("Properties")), "Next: Wooden hut · shows up once you've held Coins 1c / 1g")
-    assert.equal(text(document.getElementById("Misc")), "Next: Dumbbells · shows up once you've held Coins 1c / 50s")
+    game.gameData.coins = 1000
+    game.ticks(1)
+    assert.match(text(document.getElementById("Misc")), /^Next: Dumbbells · shows up once you've held Coins 10s .*\/ 50s$/)
+})
+
+test("misc items stay out of sight until 10s has been held, then stay", async () => {
+    const game = await renderComponent("ShopTable.tsx", "ShopTable")
+    const header = () => document.querySelector(".headerRow.Misc")
+    assert.ok(header().classList.contains("hidden"))
+    assert.ok(row("Book").classList.contains("hidden"))
+    assert.equal(document.getElementById("Misc"), null)
+    assert.ok(!row("Tent").classList.contains("hidden"), "properties are there from the start")
+    game.gameData.coins = 1000
+    game.ticks(1)
+    assert.ok(!header().classList.contains("hidden"))
+    assert.ok(!row("Book").classList.contains("hidden"))
+    game.engine.rebirthOne()
+    game.ticks(1)
+    assert.ok(!header().classList.contains("hidden"))
 })
 
 test("the check mark is labelled, and a free item says so", async () => {

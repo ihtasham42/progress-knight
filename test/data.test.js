@@ -43,6 +43,14 @@ test("category unlocks reveal a category that exists", async () => {
     }
 })
 
+test("reveals unlocks only reveal categories that exist", async () => {
+    const categories = new Set([...jobs, ...skills, ...items].map(definition => definition.category))
+    for (const unlock of unlocks.filter(unlock => unlock.reveals)) {
+        assert.ok(unlock.reveals.length > 0, unlock.name)
+        for (const category of unlock.reveals) assert.ok(categories.has(category), unlock.name + " reveals " + category)
+    }
+})
+
 test("boosts use known stats and only target things that exist", async () => {
     const stats = new Set(["xp", "income", "expense", "happiness", "lifespan", "gameSpeed", "evilGain"])
     const targets = new Set(["all", "jobs", "skills", "items",
