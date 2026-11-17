@@ -1,10 +1,11 @@
-// The whole page: the sidebar, the tab bar and the selected tab.
+// The whole page: the header, the sidebar, the tab bar and the selected tab.
 
 import { useEffect, useState } from "react"
 import type { ReactNode } from "react"
 import { isUnlocked } from "../game/engine.ts"
 import { useGame } from "./gameStore.ts"
 import { Sidebar } from "./Sidebar.tsx"
+import { Header } from "./Header.tsx"
 import { PhoneHeader } from "./PhoneHeader.tsx"
 import { TaskTable } from "./TaskTable.tsx"
 import { ShopTable } from "./ShopTable.tsx"
@@ -54,10 +55,9 @@ export function App() {
 
     return (
         <>
+            <Header />
             <PhoneHeader />
             <div className="page">
-                {" "}
-                <h1>Progress Knight</h1>
                 {" "}
                 <div className="layout">
                     {" "}
@@ -67,12 +67,12 @@ export function App() {
                     </details>
                     {" "}
                     <div className="main">
-                        <div className="panel tab-bar" style={{"--tab-count": tabs.filter(tab => !tab.unlock || isUnlocked(tab.unlock)).length} as React.CSSProperties}>
+                        <nav aria-label="Sections" className="panel tab-bar" style={{"--tab-count": tabs.filter(tab => !tab.unlock || isUnlocked(tab.unlock)).length} as React.CSSProperties}>
                             {" "}
                             {tabs.map(tab => (
                                 <TabButton key={tab.name} tab={tab} selected={tab.name == selectedTab} onSelect={() => setSelectedTab(tab.name)} />
                             ))}
-                        </div>
+                        </nav>
                         {" "}
                         <div className="panel tab-panel">
                             {" "}
@@ -99,10 +99,10 @@ export function App() {
 function TabButton({tab, selected, onSelect}: {tab: typeof tabs[number], selected: boolean, onSelect: () => void}) {
     return (
         <>
-            <div id={tab.id} data-tab={tab.name} onClick={onSelect}
+            <button type="button" id={tab.id} data-tab={tab.name} onClick={onSelect} aria-current={selected ? "page" : undefined}
                 className={classNames("w3-button w3-bar-item tabButton", tab.end && "tab-end", tab.unlock && !isUnlocked(tab.unlock) && "hidden", selected && "w3-blue-gray")}>
                 {tab.label}
-            </div>
+            </button>
             {" "}
         </>
     )

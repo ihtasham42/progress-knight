@@ -11,7 +11,7 @@ import { CoinParts, EmptyCoinParts } from "./CoinParts.tsx"
 import { Checkbox } from "./Checkbox.tsx"
 import { RequiredRow, isCategoryHidden } from "./RequiredRow.tsx"
 import { classNames, removeSpaces } from "./classNames.ts"
-import { format } from "./format.ts"
+import { format, splitEffect } from "./format.ts"
 
 export type TaskKind = "jobs" | "skills"
 
@@ -27,12 +27,12 @@ export function TaskTable({kind}: {kind: TaskKind}) {
     const categories = kind == "jobs" ? jobCategories : skillCategories
     return (
         <div className="table-scroll">
-            <table id={kind == "jobs" ? "jobTable" : "skillTable"} className="w3-table w3-bordered">
+            <table id={kind == "jobs" ? "jobTable" : "skillTable"} className="w3-table w3-bordered task-table">
                 <tbody>
                     {Object.entries(categories).map(([categoryName, names]) => (
                         <Fragment key={categoryName}>
                             <TaskHeaderRow kind={kind} categoryName={categoryName} />
-                            {names.map(name => <TaskRow key={name} task={game.taskData[name]} />)}
+                            {names.map(name => <TaskRow key={name} task={game.taskData[name]} categoryName={categoryName} />)}
                             <RequiredRow categoryName={categoryName} category={names} items={false} />
                         </Fragment>
                     ))}
@@ -45,44 +45,53 @@ export function TaskTable({kind}: {kind: TaskKind}) {
 function TaskHeaderRow({kind, categoryName}: {kind: TaskKind, categoryName: string}) {
     const game = useGame()
     return (
-        <tr className={classNames(removeSpaces(categoryName), "headerRow", isCategoryHidden(categoryName) && "hidden")}
-            style={{"--cat": headerRowColors[categoryName as keyof typeof headerRowColors], backgroundColor: headerRowColors[categoryName as keyof typeof headerRowColors], color: "var(--pk-on-category)"} as CSSProperties}>
+        <tr className={classNames(removeSpaces(categoryName), "headerRow", isCategoryHidden(categoryName) && "locked-header")}
+            style={{"--cat": headerRowColors[categoryName as keyof typeof headerRowColors]} as CSSProperties}>
             <th className="category">{categoryName}</th>
             <th>Level</th>
-            <th className="valueType">{kind == "jobs" ? "Income/day" : "Effect"}</th>
-            <th>Xp/day</th>
-            <th>Xp left</th>
-            <th className={classNames("maxLevel", !(game.rebirthOneCount > 0) && "hidden")}>Max level</th>
-            <th className="skipSkill" style={{display: kind == "skills" && game.automation.autoLearn ? "block" : "none"}}>Skip</th>
+            <th className="valueType">{kind == "jobs" ? "Income / day" : "Effect"}</th>
+            <th>XP / day</th>
+            <th>XP left</th>
+            <th className={classNames("maxLevel", !(game.rebirthOneCount > 0) && "hidden")}>Max lvl</th>
+            <th className="skipSkill" style={{display: kind == "skills" && game.automation.autoLearn ? "table-cell" : "none"}}>Skip</th>
         </tr>
     )
 }
 
-function TaskRow({task}: {task: Job | Skill}) {
+function TaskRow({task, categoryName}: {task: Job | Skill, categoryName: string}) {
     const game = useGame()
     const name = task.name
     const isCurrent = task == game.currentJob || task == game.currentSkill
+    const effect = task instanceof Skill ? splitEffect(task.getEffectDescription()) : null
+    const tooltipId = "tip-" + removeSpaces(name)
+    // A locked category keeps its rows out of sight, whatever they need
+    const hidden = !game.requirements[name].completed || isCategoryHidden(categoryName)
     return (
-        <tr id={"row " + name} className={classNames(!game.requirements[name].completed && "hidden")}>
+        <tr id={"row " + name} className={classNames(hidden && "hidden")}
+            style={{"--cat": headerRowColors[categoryName as keyof typeof headerRowColors]} as CSSProperties}>
             <td>
-                <div className="progress-bar progressBar tooltip" onClick={() => {setTask(name); requestRender()}}>
-                    <div className={classNames("progress-fill progressFill", isCurrent && "current")}
-                        style={{width: task.xp / task.getMaxXp() * 100 + "%"}}></div>
-                    <div className="progress-text name">{name}</div>
-                    {/* Phones show the level inside the bar (hidden from 640px) */}
-                    <span className="phone-level">{"lvl " + task.level}</span>
-                    <span className="tooltipText">{tooltips[name]}</span>
-                </div>
+                {/* A real button, so the keyboard can start the task too */}
+                <button type="button" className="progress-bar progressBar tooltip" aria-describedby={tooltipId} onClick={() => {setTask(name); requestRender()}}>
+                    <span className={classNames("progress-fill progressFill", isCurrent && "current")}
+                        style={{width: task.xp / task.getMaxXp() * 100 + "%"}}></span>
+                    <span className="progress-text name">{name}</span>
+                    <span className="bar-end">
+                        {isCurrent && <span className="active-badge">Active</span>}
+                        {/* Phones show the level inside the bar (hidden from 640px) */}
+                        <span className="phone-level">{"lvl " + task.level}</span>
+                    </span>
+                    <span className="tooltipText" id={tooltipId} aria-hidden="true">{tooltips[name]}</span>
+                </button>
             </td>
             <td className="level">{task.level}</td>
             <td className="value">
-                <div className="effect">{task instanceof Skill ? task.getEffectDescription() : ""}</div>
+                <div className="effect">{effect && <><strong>{effect.multiplier}</strong> <span>{effect.what}</span></>}</div>
                 <div className="income">{task instanceof Job ? <CoinParts coins={task.getIncome()} /> : <EmptyCoinParts />}</div>
             </td>
             <td className="xpGain">{format(task.getXpGain())}</td>
             <td className="xpLeft">{format(task.getXpLeft())}</td>
             <td className={classNames("maxLevel", !(game.rebirthOneCount > 0) && "hidden")}>{task.maxLevel}</td>
-            <td className="skipSkill" style={{display: task instanceof Skill && game.automation.autoLearn ? "block" : "none"}}>
+            <td className="skipSkill" style={{display: task instanceof Skill && game.automation.autoLearn ? "table-cell" : "none"}}>
                 {" "}
                 {/* The label makes the whole 44px cell on phones tap to toggle */}
                 <label className="skip-label"><Checkbox className="checkbox" ariaLabel={"Skip " + name} checked={task instanceof Skill && game.automation.skippedSkills.has(idsByName[name])}

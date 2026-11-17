@@ -66,3 +66,9 @@ export function formatCoins(coins: number): CoinPart[] {
     parts.push({text: copperText, color: coinColors["c"]})
     return parts
 }
+
+// "x1.86 Military pay" -> "×1.86" and "military pay", so the number leads
+export function splitEffect(description: string): {multiplier: string, what: string} {
+    const [multiplier, ...rest] = description.split(" ")
+    return {multiplier: multiplier.replace(/^x/, "×"), what: rest.join(" ").toLowerCase()}
+}

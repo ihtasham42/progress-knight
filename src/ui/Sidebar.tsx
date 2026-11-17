@@ -1,14 +1,17 @@
-// The panel on the left: age, coins, income, happiness, evil, time warping,
-// automation and the current job and skill.
+// The cards on the left: purse, the current job and skill, happiness, evil,
+// time warping and automation.
 
 import type { Job, Skill } from "../game/classes.ts"
-import { daysToYears, getLifespan } from "../game/rules.ts"
-import { getDay, getExpense, getHappiness, getIncome, getNet, getTaskById, isLifeOver, isUnlocked,
-    setAutoLearn, setAutoPromote, setPause, setTimeWarping } from "../game/engine.ts"
+import type { GameData } from "../game/state.ts"
+import { items, skills } from "../game/data.ts"
+import { getSourceEffect } from "../game/rules.ts"
+import { getExpense, getHappiness, getIncome, getNet, getTaskById, isUnlocked,
+    setAutoLearn, setAutoPromote, setTimeWarping } from "../game/engine.ts"
 import { requestRender, useGame } from "./gameStore.ts"
 import { CoinParts } from "./CoinParts.tsx"
 import { Checkbox } from "./Checkbox.tsx"
 import { classNames } from "./classNames.ts"
+import { format } from "./format.ts"
 
 export function Sidebar() {
     const game = useGame()
@@ -18,111 +21,80 @@ export function Sidebar() {
     // Time warping is a skill (data.ts)
     const timeWarping = getTaskById("time_warping") as Skill
     return (
-        <div className="panel sidebar">
-            {" "}
-            <span id="deathText" className={classNames("sidebar-death", !isLifeOver() && "hidden")}>
-                {" "}
-                <div style={{fontSize: "large", color: "var(--pk-loss)"}}>Age has caught up to you</div>
-                {" "}
-                <div className="sidebar-element" style={{color: "var(--pk-text-muted)"}}>Your age has met your lifespan, use the amulet to rebirth before you pass away</div>
-                {" "}
-            </span>
-            {" "}
-            <div className="sidebar-age" style={{fontSize: "large"}}>Age <span id="ageDisplay">{daysToYears(game.days)}</span> Day <span id="dayDisplay">{getDay()}</span></div>
-            {" "}
-            <div className="sidebar-element sidebar-age" style={{color: "var(--pk-text-muted)"}}>Lifespan: <span id="lifespanDisplay">{daysToYears(getLifespan())}</span> years</div>
-            {" "}
-            <button id="pauseButton" className="w3-button button sidebar-element sidebar-pause" onClick={() => {setPause(); requestRender()}}>
-                {game.paused ? "Play" : "Pause"}
-            </button>
-            {" "}
-            <span id="automation" className={classNames("inline", !isUnlocked("automation") && "hidden")} style={{marginLeft: "8px"}}>
-                {" "}
-                <span>
-                    {" "}
-                    <div className="inline">Auto-promote</div>
-                    {" "}
-                    <Checkbox className="inline" id="autoPromote" checked={game.automation.autoPromote} onToggle={setAutoPromote} />
-                    {" "}
-                </span>
-                {" "}
-                <br />
-                {" "}
-                <span>
-                    {" "}
-                    <div className="inline">Auto-learn</div>
-                    {" "}
-                    <Checkbox className="inline sidebar-element" id="autoLearn" checked={game.automation.autoLearn} onToggle={setAutoLearn} />
-                    {" "}
-                </span>
-                {" "}
-            </span>
-            {" "}
-            <div className="sidebar-coins" style={{fontSize: "large"}} id="coinDisplay"><CoinParts coins={game.coins} /></div>
-            {" "}
-            <div className="sidebar-coins" style={{color: "var(--pk-text-muted)"}}>Balance (in coins)</div>
-            {" "}
-            <ul className="sidebar-element" style={{paddingLeft: "20px"}}>
-                {" "}
-                <li><span style={{color: "var(--pk-info)"}}>Net/day: </span><b id="signDisplay" style={{color: sign.color}}>{sign.text}</b><span id="netDisplay"><CoinParts coins={getNet()} /></span></li>
-                {" "}
-                <li><span style={{color: "var(--pk-gain)"}}>Income/day: </span><span id="incomeDisplay"><CoinParts coins={income} /></span></li>
-                {" "}
-                <li><span style={{color: "var(--pk-loss)"}}>Expense/day: </span><span id="expenseDisplay"><CoinParts coins={expense} /></span></li>
-                {" "}
-            </ul>
-            {" "}
-            <span id="quickTaskDisplay" className={classNames(!isUnlocked("quick_task_display") && "hidden")}>
-                {" "}
-                <QuickTask task={game.currentJob} className="small-margin inline job progress-bar progressBar quick-task" />
-                {" "}
-                <div className="sidebar-element" style={{color: "var(--pk-text-muted)"}}>Current job</div>
-                {" "}
-                <QuickTask task={game.currentSkill} className="small-margin skill progress-bar progressBar quick-task" />
-                {" "}
-                <div className="sidebar-element" style={{color: "var(--pk-text-muted)"}}>Current skill</div>
-                {" "}
-            </span>
-            {" "}
-            <div style={{fontSize: "large"}}><span style={{color: "var(--pk-stat-happiness)"}}>Happiness: </span><span id="happinessDisplay">{getHappiness().toFixed(1)}</span></div>
-            {" "}
-            <div style={{color: "var(--pk-text-muted)"}} className="sidebar-element">Affects all xp gain</div>
-            {" "}
-            <span id="evilInfo" className={classNames(!isUnlocked("evil_info") && "hidden")}>
-                {" "}
-                <div style={{fontSize: "large"}}><span style={{color: "var(--pk-stat-evil)"}}>Evil: </span><span id="evilDisplay">{game.evil.toFixed(1)}</span></div>
-                {" "}
-                <div style={{color: "var(--pk-text-muted)"}} className="sidebar-element">Affects dark magic xp gain</div>
-                {" "}
-            </span>
-            {" "}
-            <span id="timeWarping" className={classNames(!isUnlocked("time_warping_info") && "hidden")}>
-                {" "}
-                <div style={{fontSize: "large"}}><span style={{color: "var(--pk-stat-time)"}}>Time warping: </span><span id="timeWarpingDisplay">{"x" + timeWarping.getEffect().toFixed(2)}</span></div>
-                {" "}
-                <div style={{color: "var(--pk-text-muted)"}}>Affects game speed</div>
-                {" "}
-                <button id="timeWarpingButton" className="w3-button button sidebar-element" style={{marginTop: "5px", width: "150px"}}
-                    onClick={() => {setTimeWarping(); requestRender()}}>
-                    {game.timeWarpingEnabled ? "Disable warp" : "Enable warp"}
-                </button>
-                {" "}
-            </span>
-            {" "}
-        </div>
+        <aside className="sidebar">
+            <section className="card">
+                <h2 className="card-label purse-label">Purse</h2>
+                <div className="purse-main">
+                    <div className="purse-coins" id="coinDisplay"><CoinParts coins={game.coins} /></div>
+                    <div className="purse-net"><b id="signDisplay" style={{color: sign.color}}>{sign.text}</b><b id="netDisplay"><CoinParts coins={getNet()} /></b>a day</div>
+                </div>
+                <div className="card-note-list purse-notes">
+                    <span><span id="incomeDisplay"><CoinParts coins={income} /></span>earned from {game.currentJob.name}</span>
+                    <span><span id="expenseDisplay"><CoinParts coins={expense} /></span>upkeep · {[game.currentProperty, ...game.currentMisc].map(item => item.name).join(", ")}</span>
+                </div>
+            </section>
+            <section id="quickTaskDisplay" className={classNames("card", !isUnlocked("quick_task_display") && "hidden")}>
+                <h2 className="card-label">Working on</h2>
+                <QuickTask task={game.currentJob} kind="Job" className="job" />
+                <QuickTask task={game.currentSkill} kind="Skill" className="skill" />
+            </section>
+            <section className="card card-stats">
+                <div className="stat">
+                    <span className="stat-line"><span className="stat-value" id="happinessDisplay">{"×" + getHappiness().toFixed(1)}</span> <span className="stat-name stat-happiness">happiness</span></span>
+                    <span className="card-note">{getHappinessNote(game)}</span>
+                </div>
+                <div id="evilInfo" className={classNames("stat", !isUnlocked("evil_info") && "hidden")}>
+                    <span className="stat-line"><span className="stat-value" id="evilDisplay">{game.evil.toFixed(1)}</span> <span className="stat-name stat-evil">evil</span></span>
+                    <span className="card-note">On dark magic XP</span>
+                </div>
+                <div id="timeWarping" className={classNames("stat", !isUnlocked("time_warping_info") && "hidden")}>
+                    <span className="stat-line"><span className="stat-value" id="timeWarpingDisplay">{"×" + timeWarping.getEffect().toFixed(2)}</span> <span className="stat-name stat-time">time warping</span></span>
+                    <span className="card-note">On game speed</span>
+                    <button type="button" id="timeWarpingButton" className="w3-button button warp-button" onClick={() => {setTimeWarping(); requestRender()}}>
+                        {game.timeWarpingEnabled ? "Disable warp" : "Enable warp"}
+                    </button>
+                </div>
+                <div id="automation" className={classNames("automation", !isUnlocked("automation") && "hidden")}>
+                    <h2 className="card-label">Automation</h2>
+                    <label className="automation-row">Auto-promote <Checkbox className="automation-check" id="autoPromote" checked={game.automation.autoPromote} onToggle={setAutoPromote} /></label>
+                    <label className="automation-row">Auto-learn <Checkbox className="automation-check" id="autoLearn" checked={game.automation.autoLearn} onToggle={setAutoLearn} /></label>
+                </div>
+            </section>
+        </aside>
     )
 }
 
-// The current job or skill with its level and progress
-function QuickTask({task, className}: {task: Job | Skill, className: string}) {
+// "On all XP · Cottage ×3.5, Meditation ×1.2": the property and every skill
+// or item that boosts happiness, left out when it does nothing (×1)
+function getHappinessNote(game: GameData): string {
+    const factors: [string, number][] = [[game.currentProperty.name, game.currentProperty.getEffect()]]
+    for (const source of [...skills, ...items]) {
+        if (source.boosts?.some(boost => boost.stat == "happiness")) factors.push([source.name, getSourceEffect(source)()])
+    }
+    const shown = factors.filter(([, effect]) => effect != 1).map(([name, effect]) => name + " ×" + Number(effect.toFixed(2)))
+    return shown.length ? "On all XP · " + shown.join(", ") : "On all XP"
+}
+
+// How long the current job or skill needs for its next level, in game days
+function getNextLevelText(task: Job | Skill): string {
+    const gain = task.getXpGain()
+    if (gain <= 0) return "paused"
+    const days = Math.max(1, Math.ceil(task.getXpLeft() / gain))
+    return "next level in " + format(days) + (days == 1 ? " day" : " days")
+}
+
+// The current job or skill: a bar with its level and progress, and a muted line under it
+function QuickTask({task, kind, className}: {task: Job | Skill, kind: string, className: string}) {
     return (
-        <div className={className}>
-            {" "}
-            <div className="progress-fill progressFill" style={{backgroundColor: "var(--pk-bar-current)", width: task.xp / task.getMaxXp() * 100 + "%"}}></div>
-            {" "}
-            <div className="progress-text name">{task.name + " lvl " + task.level}</div>
-            {" "}
+        <div className="quick-task">
+            <div className={classNames("quick-bar", className)}>
+                <div className="quick-fill" style={{width: task.xp / task.getMaxXp() * 100 + "%"}}></div>
+                <div className="quick-text">
+                    <span className="name">{task.name}</span>
+                    <span className="quick-level">{"lvl " + task.level}</span>
+                </div>
+            </div>
+            <span className="card-note">{kind + " · " + getNextLevelText(task)}</span>
         </div>
     )
 }
-

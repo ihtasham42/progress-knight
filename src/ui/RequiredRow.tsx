@@ -1,12 +1,13 @@
-// The "Required: ..." line under a category: what the next locked job, skill
-// or item in it needs.
+// The row under a category: what the next locked job, skill or item in it
+// needs, or, while the whole category is locked, what unlocks it.
 
+import { Fragment } from "react"
 import { unlocks } from "../game/data.ts"
 import { gameData } from "../game/state.ts"
-import { EvilRequirement } from "../game/classes.ts"
-import type { Job, Skill, Item, TaskCondition } from "../game/classes.ts"
+import type { Job, Skill, Item, Requirement, TaskCondition } from "../game/classes.ts"
+import { daysToYears } from "../game/rules.ts"
 import { isUnlocked } from "../game/engine.ts"
-import { CoinParts, EmptyCoinParts } from "./CoinParts.tsx"
+import { CoinParts } from "./CoinParts.tsx"
 import { classNames, removeSpaces } from "./classNames.ts"
 import { format } from "./format.ts"
 
@@ -36,18 +37,57 @@ function nextLocked(data: Record<string, Entity>, category: string[]): Entity | 
     return null
 }
 
-function levelsText(conditions: TaskCondition[]): string {
-    let finalText = ""
-    for (const requirement of conditions) {
-        const task = gameData.taskData[requirement.task]
-        if (task.level >= requirement.requirement) continue
-        const text = " " + requirement.task + " level " + format(task.level) + "/" + format(requirement.requirement) + ","
-        finalText += text
-    }
-    return finalText.substring(0, finalText.length - 1)
+// One thing a requirement asks for, with how far along it is
+interface Need {
+    kind: Requirement["type"]
+    label: string
+    have: number
+    need: number
 }
 
-// Hidden while the category itself is locked (e.g. Dark magic)
+function needsOf(requirement: Requirement): Need[] {
+    const kind = requirement.type
+    return requirement.requirements.map(condition => {
+        if (kind == "task") {
+            const task = (condition as TaskCondition).task
+            return {kind, label: task, have: gameData.taskData[task].level, need: condition.requirement}
+        }
+        if (kind == "evil") return {kind, label: "Evil", have: gameData.evil, need: condition.requirement}
+        if (kind == "age") return {kind, label: "Age", have: Math.floor(daysToYears(gameData.days)), need: condition.requirement}
+        return {kind, label: "Coins", have: gameData.coins, need: condition.requirement}
+    })
+}
+
+function NeedChip({need}: {need: Need}) {
+    const met = need.have >= need.need
+    const progress = Math.min(100, Math.max(0, need.have / need.need * 100))
+    return (
+        <span className={classNames("need-chip", met && "met", need.kind == "evil" && "need-evil")}>
+            {need.label && <span className="need-label">{need.label}</span>}
+            {" "}
+            <strong className="need-value">
+                {need.kind == "coins"
+                    ? <><CoinParts coins={need.have} /> / <CoinParts coins={need.need} /></>
+                    : format(need.have) + " / " + format(need.need)}
+            </strong>
+            {/* The numbers carry the meaning; the bar is only a glance */}
+            {" "}
+            <span className="need-bar" aria-hidden="true"><span style={{width: progress + "%"}} /></span>
+        </span>
+    )
+}
+
+function LockIcon() {
+    return (
+        <svg className="lock-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="5" y="11" width="14" height="10" rx="2" />
+            <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+        </svg>
+    )
+}
+
+// A locked category (e.g. Dark magic) shows its header and what unlocks it;
+// its rows stay out of sight until then
 export function isCategoryHidden(categoryName: string): boolean {
     const unlock = unlocks.find(unlock => unlock.category == categoryName)
     return unlock !== undefined && !isUnlocked(unlock.id)
@@ -55,41 +95,27 @@ export function isCategoryHidden(categoryName: string): boolean {
 
 export function RequiredRow({categoryName, category, items}: {categoryName: string, category: string[], items: boolean}) {
     const data: Record<string, Entity> = items ? gameData.itemData : gameData.taskData
-    const nextEntity = nextLocked(data, category)
+    const locked = isCategoryHidden(categoryName)
+    const unlock = unlocks.find(unlock => unlock.category == categoryName)
+    const nextEntity = locked ? null : nextLocked(data, category)
+    const requirement = locked && unlock ? gameData.requirements[unlock.name] : nextEntity ? gameData.requirements[nextEntity.name] : null
+    const needs = requirement ? needsOf(requirement) : []
+    const evilUnlock = locked && requirement?.type == "evil"
 
-    let showLevels = false, showCoins = false, showEvil = false
-    let levels = "", coins = 0, evil = ""
-    if (nextEntity) {
-        const requirement = gameData.requirements[nextEntity.name]
-        showEvil = !items && requirement instanceof EvilRequirement
-        showLevels = !items && !showEvil
-        showCoins = items
-        if (showEvil) evil = format(requirement.requirements[0].requirement) + " evil"
-        // Jobs and skills need task levels unless they need evil
-        else if (showLevels) levels = levelsText(requirement.requirements as TaskCondition[])
-        else coins = requirement.requirements[0].requirement
-    }
-
-    // The cell sits straight in the table with no row box of its own, as it
-    // always has, so the page reads "Required: ...", then the next category
+    // Its own row, so the table keeps one row per line; the cell spans every column
     return (
-        <tr style={{display: "contents"}}>
-            <td id={categoryName} colSpan={5} style={{paddingLeft: "16px"}}
-                className={classNames("w3-text-gray requiredRow", removeSpaces(categoryName),
-                    isCategoryHidden(categoryName) && "hidden", !nextEntity && "hiddenTask")}>
-                {" "}Required:{" "}
-                <span className="value">
-                    {" "}
-                    <span className={classNames("levels", !showLevels && "hiddenTask")}>{levels}</span>
-                    {" "}
-                    <span className={classNames("coins", !showCoins && "hiddenTask")}>
-                        {showCoins ? <CoinParts coins={coins} /> : <EmptyCoinParts />}
+        <tr className="next-tr">
+            <td id={categoryName} colSpan={7}
+                className={classNames("requiredRow", removeSpaces(categoryName), locked && "locked", !locked && !nextEntity && "hiddenTask")}>
+                <div className="next-row">
+                    <span className={classNames("next-lead", evilUnlock && "need-evil")}>
+                        <LockIcon />
+                        {locked
+                            ? <span>{evilUnlock ? "Embrace evil at the Amulet to unlock" : "Unlocks with"}</span>
+                            : <span>Next: <strong>{nextEntity?.name}</strong>{items && " · shows up once you've held"}</span>}
                     </span>
-                    {" "}
-                    <span style={{color: "var(--pk-stat-evil)"}} className={classNames("evil", !showEvil && "hiddenTask")}>{evil}</span>
-                    {" "}
-                </span>
-                {" "}
+                    {needs.map((need, i) => <Fragment key={i}>{" "}<NeedChip need={need} /></Fragment>)}
+                </div>
             </td>
         </tr>
     )

@@ -47,7 +47,7 @@ test("the built game loads a save from the original game", async ({ page }) => {
         }
     }, LEGACY_SAVE)
     const errors = await openSite(page)
-    await expect(page.locator("#quickTaskDisplay .job .name")).toHaveText(/^Fisherman lvl/)
+    await expect(page.locator("#quickTaskDisplay .job .name")).toHaveText(/^Fisherman/)
     await expect(page.locator("#evilDisplay")).toHaveText("1.0")
     expect(errors).toEqual([])
 })
