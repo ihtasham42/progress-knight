@@ -1,4 +1,5 @@
 import { createRoot } from "react-dom/client"
+import "./fonts.css"
 import { advanceGameTime, initGameData, setSkillWithLowestMaxXp, update } from "./game/engine.ts"
 import { loadGameData, saveGameData } from "./game/save.ts"
 import { updateSpeed } from "./game/rules.ts"
