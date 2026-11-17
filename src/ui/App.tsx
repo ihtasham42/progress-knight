@@ -6,6 +6,7 @@ import { isUnlocked } from "../game/engine.ts"
 import { useGame } from "./gameStore.ts"
 import { Sidebar } from "./Sidebar.tsx"
 import { TaskTable } from "./TaskTable.tsx"
+import { ShopTable } from "./ShopTable.tsx"
 import { classNames } from "./classNames.ts"
 
 export type TabName = "jobs" | "skills" | "shop" | "rebirth" | "settings"
@@ -52,7 +53,7 @@ export function App() {
                     {" "}
                     <Tab name="skills" selected={selectedTab}><TaskTable kind="skills" /></Tab>
                     {" "}
-                    <Tab name="shop" selected={selectedTab}>{null}</Tab>
+                    <Tab name="shop" selected={selectedTab}><ShopTable /></Tab>
                     {" "}
                     <Tab name="rebirth" selected={selectedTab}>{null}</Tab>
                     {" "}
