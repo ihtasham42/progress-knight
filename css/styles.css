@@ -934,6 +934,17 @@ th {
     color: var(--pk-stat-evil);
 }
 
+/* Only the glow moves: an irregular, slow pulse like the amulet's, kept faint
+   so it never pulls the eye from the numbers. Nothing changes size. */
+@keyframes evil-glow {
+    0%, 100% { text-shadow: 0 0 0 transparent; }
+    12% { text-shadow: 0 0 6px color-mix(in srgb, var(--pk-stat-evil) 35%, transparent); }
+    19% { text-shadow: 0 0 2px color-mix(in srgb, var(--pk-stat-evil) 15%, transparent); }
+    47% { text-shadow: 0 0 8px color-mix(in srgb, var(--pk-stat-evil) 45%, transparent); }
+    53% { text-shadow: 0 0 3px color-mix(in srgb, var(--pk-stat-evil) 20%, transparent); }
+    78% { text-shadow: 0 0 5px color-mix(in srgb, var(--pk-stat-evil) 30%, transparent); }
+}
+
 .stat-time {
     color: var(--pk-stat-time);
 }
@@ -2027,6 +2038,7 @@ table.w3-bordered tr.next-tr {
     .amulet-throb { animation: amulet-throb 2.4s ease-in-out infinite; }
     .amulet-turn { animation: amulet-turn 40s linear infinite; }
     .amulet-sneer { animation: amulet-sneer 6s ease-in-out infinite; }
+    .evil-glow { animation: evil-glow 3.6s ease-in-out infinite; }
     .amulet-glare { animation: amulet-glare 6s ease-in-out infinite; }
 }
 
