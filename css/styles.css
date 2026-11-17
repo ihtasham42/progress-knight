@@ -228,9 +228,19 @@ button:focus-visible {
 }
 
 .tooltip:hover .tooltipText,
-.tooltip:focus-visible .tooltipText {
+.tooltip:focus-visible .tooltipText,
+.tooltip.tooltip-open .tooltipText {
     visibility: visible;
     opacity: 1;
+}
+
+/* Without hover, a long press opens the tooltip (see useLongPressTooltip), so
+   the browser's own long-press menu and text selection must stay out of it */
+@media (hover: none) {
+    .tooltip {
+        -webkit-touch-callout: none;
+        user-select: none;
+    }
 }
 
 .slidecontainer {

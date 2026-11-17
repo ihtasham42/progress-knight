@@ -13,6 +13,7 @@ import { RequiredRow, isCategoryHidden } from "./RequiredRow.tsx"
 import { classNames, removeSpaces } from "./classNames.ts"
 import { format, splitEffect } from "./format.ts"
 import { fillStyle } from "./fill.ts"
+import { useLongPressTooltip } from "./useLongPressTooltip.ts"
 
 export type TaskKind = "jobs" | "skills"
 
@@ -65,6 +66,7 @@ function TaskRow({task, categoryName}: {task: Job | Skill, categoryName: string}
     const isCurrent = task == game.currentJob || task == game.currentSkill
     const effect = task instanceof Skill ? splitEffect(task.getEffectDescription()) : null
     const tooltipId = "tip-" + removeSpaces(name)
+    const longPress = useLongPressTooltip()
     // A locked category keeps its rows out of sight, whatever they need
     const hidden = !game.requirements[name].completed || isCategoryHidden(categoryName)
     return (
@@ -72,7 +74,7 @@ function TaskRow({task, categoryName}: {task: Job | Skill, categoryName: string}
             style={{"--cat": headerRowColors[categoryName as keyof typeof headerRowColors]} as CSSProperties}>
             <td>
                 {/* A real button, so the keyboard can start the task too */}
-                <button type="button" className="progress-bar progressBar tooltip" aria-describedby={tooltipId} onClick={() => {setTask(name); requestRender()}}>
+                <button type="button" className={classNames("progress-bar progressBar tooltip", longPress.shown && "tooltip-open")} aria-describedby={tooltipId} {...longPress.handlers} onClick={() => {setTask(name); requestRender()}}>
                     {/* Keyed by level so a level-up resets the bar instead of sliding it back */}
                     {/* The track clips the sliding fill; the tooltip stays outside it */}
                     <span className="progress-track">
