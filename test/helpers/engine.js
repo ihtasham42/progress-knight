@@ -5,6 +5,7 @@
 import fs from "node:fs"
 import path from "node:path"
 import vm from "node:vm"
+import { gameApi } from "./game.js"
 
 const ROOT = path.join(import.meta.dirname, "..", "..")
 const ENGINE_SCRIPTS = ["src/game/classes.js", "src/game/data.js", "src/game/engine.js"]
@@ -26,6 +27,7 @@ function loadEngine() {
     return {
         context,
         run,
+        api: gameApi(run),
         get gameData() { return run("gameData") },
         fastTicks(count) {
             for (let i = 0; i < count; i++) run("update()")

@@ -18,9 +18,10 @@ test("the game logic loads with no page, document or window", () => {
 
 test("without a page, the golden run's two lives play out exactly as recorded", () => {
     const game = loadEngine()
-    game.run("setAutoPromote(true); setAutoLearn(true)")
+    game.api.setAutoPromote(true)
+    game.api.setAutoLearn(true)
     const lives = [playLife(game)]
-    game.run("rebirthOne()")
+    game.api.rebirthOne()
     lives.push(playLife(game))
 
     const golden = JSON.parse(fs.readFileSync(GOLDEN_FILE, "utf8"))

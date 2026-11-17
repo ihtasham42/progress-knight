@@ -5,7 +5,7 @@ import assert from "node:assert/strict"
 import { loadGame } from "./helpers/game.js"
 
 function isUnlocked(game, key) {
-    return game.run(`gameData.requirements[${JSON.stringify(key)}].isCompleted()`)
+    return game.api.gameData.requirements[key].isCompleted()
 }
 
 test("each job needs level 10 in the previous job", () => {
@@ -35,9 +35,9 @@ test("The Arcane Association needs Concentration 200 and Meditation 200", () => 
 test("the shop unlocks at 50 times the cost of a tent, and stays unlocked", () => {
     const game = loadGame()
     assert.equal(isUnlocked(game, "Shop"), false)
-    game.run("gameData.coins = 750")
+    game.api.gameData.coins = 750
     assert.equal(isUnlocked(game, "Shop"), true)
-    game.run("gameData.coins = 0")
+    game.api.gameData.coins = 0
     assert.equal(isUnlocked(game, "Shop"), true)
 })
 
@@ -65,13 +65,13 @@ test("auto-learn picks the lowest level unlocked skill that isn't skipped", () =
     game.task("Productivity").level = 15 // keeps Meditation (needs Productivity 20) locked
     game.task("Bargaining").level = 2
     game.task("Strength").level = 1 // Battle tactics (needs Concentration 20) is still level 0
-    game.run("setSkillWithLowestMaxXp()")
+    game.api.setSkillWithLowestMaxXp()
     game.ticks(1)
     assert.equal(game.gameData.currentSkill.name, "Battle tactics")
 
     const skip = game.window.document.getElementById("row Battle tactics").getElementsByClassName("checkbox")[0]
     skip.checked = true
-    game.run("setSkillWithLowestMaxXp()")
+    game.api.setSkillWithLowestMaxXp()
     game.ticks(1)
     assert.equal(game.gameData.currentSkill.name, "Strength")
 })
@@ -80,16 +80,20 @@ test("touching the eye resets the life but keeps max levels as an xp bonus", () 
     const game = loadGame()
     game.task("Beggar").level = 20
     game.task("Concentration").level = 15
-    game.run("gameData.coins = 1000; gameData.days = 365 * 40; setTask('Farmer'); setProperty('Tent'); setMisc('Book')")
+    game.api.gameData.coins = 1000
+    game.api.gameData.days = 365 * 40
+    game.api.setTask('Farmer')
+    game.api.setProperty('Tent')
+    game.api.setMisc('Book')
     assert.equal(isUnlocked(game, "Shop"), true)
     assert.equal(isUnlocked(game, "Farmer"), true)
 
-    game.run("rebirthOne()")
+    game.api.rebirthOne()
 
     const data = game.gameData
     assert.equal(data.rebirthOneCount, 1)
     assert.equal(data.coins, 0)
-    assert.equal(game.run("daysToYears(gameData.days)"), 14)
+    assert.equal(game.api.daysToYears(game.api.gameData.days), 14)
     assert.equal(data.currentJob.name, "Beggar")
     assert.equal(data.currentSkill.name, "Concentration")
     assert.equal(data.currentProperty.name, "Homeless")
@@ -105,7 +109,7 @@ test("a rebirth never lowers a max level", () => {
     const game = loadGame()
     game.task("Beggar").maxLevel = 50
     game.task("Beggar").level = 10
-    game.run("rebirthOne()")
+    game.api.rebirthOne()
     assert.equal(game.task("Beggar").maxLevel, 50)
 })
 
@@ -115,7 +119,7 @@ test("embracing evil gives evil, unlocks dark magic and also resets max levels",
     game.task("Beggar").maxLevel = 40
     assert.equal(isUnlocked(game, "Dark magic"), false)
 
-    game.run("rebirthTwo()")
+    game.api.rebirthTwo()
 
     assert.equal(game.gameData.evil, 1)
     assert.equal(game.gameData.rebirthTwoCount, 1)
@@ -126,18 +130,18 @@ test("embracing evil gives evil, unlocks dark magic and also resets max levels",
 
 test("dark magic skill xp is multiplied by evil", () => {
     const game = loadGame()
-    game.run("gameData.evil = 5")
+    game.api.gameData.evil = 5
     assert.equal(game.task("Dark influence").getXpGain(), 50)
     assert.equal(game.task("Concentration").getXpGain(), 10)
 })
 
 test("automation and the quick task display also stay unlocked after a rebirth", () => {
     const game = loadGame()
-    game.run("gameData.days = 365 * 20")
+    game.api.gameData.days = 365 * 20
     assert.equal(isUnlocked(game, "Automation"), true)
     assert.equal(isUnlocked(game, "Quick task display"), true)
     assert.equal(isUnlocked(game, "Rebirth tab"), false)
-    game.run("rebirthOne()")
+    game.api.rebirthOne()
     assert.equal(isUnlocked(game, "Automation"), true)
     assert.equal(isUnlocked(game, "Quick task display"), true)
 })

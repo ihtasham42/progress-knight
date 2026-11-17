@@ -54,9 +54,11 @@ function loadGame(options = {}) {
     return {
         window,
         errors,
-        // Evaluates an expression in the game's global scope. Needed because
-        // top-level let/const (e.g. gameData) aren't properties of window.
-        run: code => window.eval(code),
+        // The game's functions and data by name, e.g. api.setTask("Farmer")
+        // or api.gameData.coins. Values are looked up each time, so they are
+        // always current. (window.eval because top-level let/const, e.g.
+        // gameData, aren't properties of window.)
+        api: gameApi(name => window.eval(name)),
         get gameData() { return window.eval("gameData") },
         task: name => window.eval("gameData.taskData")[name],
         item: name => window.eval("gameData.itemData")[name],
@@ -72,6 +74,16 @@ function loadGame(options = {}) {
             for (let i = 0; i < count; i++) window.update()
         },
     }
+}
+
+// An object whose properties are the game's top-level names, read with lookup
+function gameApi(lookup) {
+    return new Proxy({}, {
+        get(target, name) {
+            if (typeof name != "string" || !/^[A-Za-z_$][\w$]*$/.test(name)) return undefined
+            return lookup(name)
+        },
+    })
 }
 
 // Tests tick checkboxes by setting `checked`. A player clicking a checkbox
@@ -92,4 +104,4 @@ function fireChangeWhenCheckboxesAreSet(window) {
     })
 }
 
-export { loadGame }
+export { loadGame, gameApi }

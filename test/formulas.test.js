@@ -18,9 +18,9 @@ test("base xp gain is 10 per day, and the game runs at 4 days per second", () =>
     const game = loadGame()
     assert.equal(game.task("Beggar").getXpGain(), 10)
     assert.equal(game.task("Concentration").getXpGain(), 10)
-    assert.equal(game.run("getGameSpeed()"), 4)
+    assert.equal(game.api.getGameSpeed(), 4)
     // 20 ticks per second, so each tick is 4 / 20 = 0.2 days and 2 xp
-    assert.equal(game.run("applySpeed(10)"), 2)
+    assert.equal(game.api.applySpeed(10), 2)
 })
 
 test("a job levels up once it has enough xp", () => {
@@ -76,26 +76,27 @@ test("Time warping speeds the game up by 1 + log13(level + 1) when enabled", () 
     const game = loadGame()
     game.task("Time warping").level = 12
     assert.equal(game.task("Time warping").getEffect(), 2)
-    assert.equal(game.run("getGameSpeed()"), 8)
-    game.run("setTimeWarping()")
-    assert.equal(game.run("getGameSpeed()"), 4)
+    assert.equal(game.api.getGameSpeed(), 8)
+    game.api.setTimeWarping()
+    assert.equal(game.api.getGameSpeed(), 4)
 })
 
 test("lifespan is 70 years, extended by Immortality and Super immortality", () => {
     const game = loadGame()
-    assert.equal(game.run("daysToYears(getLifespan())"), 70)
+    assert.equal(game.api.daysToYears(game.api.getLifespan()), 70)
     game.task("Immortality").level = 32 // 1 + log33(33) = 2
-    assert.equal(game.run("daysToYears(getLifespan())"), 140)
+    assert.equal(game.api.daysToYears(game.api.getLifespan()), 140)
     game.task("Super immortality").level = 100 // x2
-    assert.equal(game.run("daysToYears(getLifespan())"), 280)
+    assert.equal(game.api.daysToYears(game.api.getLifespan()), 280)
 })
 
 test("happiness multiplies Meditation, Butler and the current property", () => {
     const game = loadGame()
-    assert.equal(game.run("getHappiness()"), 1)
+    assert.equal(game.api.getHappiness(), 1)
     game.task("Meditation").level = 100
-    game.run("setProperty('Tent'); setMisc('Butler')")
-    assert.ok(Math.abs(game.run("getHappiness()") - 2 * 1.5 * 1.4) < 1e-9)
+    game.api.setProperty('Tent')
+    game.api.setMisc('Butler')
+    assert.ok(Math.abs(game.api.getHappiness() - 2 * 1.5 * 1.4) < 1e-9)
     // happiness boosts every task's xp
     assert.equal(game.task("Beggar").getXpGain(), Math.round(10 * 4.2))
 })
@@ -103,24 +104,26 @@ test("happiness multiplies Meditation, Butler and the current property", () => {
 test("items only take effect while owned", () => {
     const game = loadGame()
     assert.equal(game.item("Book").getEffect(), 1)
-    game.run("setMisc('Book')")
+    game.api.setMisc('Book')
     assert.equal(game.item("Book").getEffect(), 1.5)
     assert.equal(game.task("Concentration").getXpGain(), 15)
-    game.run("setMisc('Book')") // toggles off
+    game.api.setMisc('Book') // toggles off
     assert.equal(game.item("Book").getEffect(), 1)
 })
 
 test("expenses add up the property and misc items, reduced by Bargaining", () => {
     const game = loadGame()
-    game.run("setProperty('Tent'); setMisc('Book')")
-    assert.equal(game.run("getExpense()"), 15 + 10)
+    game.api.setProperty('Tent')
+    game.api.setMisc('Book')
+    assert.equal(game.api.getExpense(), 15 + 10)
     game.task("Bargaining").level = 6 // x0.9, each item rounded
-    assert.equal(game.run("getExpense()"), Math.round(15 * 0.9) + Math.round(10 * 0.9))
+    assert.equal(game.api.getExpense(), Math.round(15 * 0.9) + Math.round(10 * 0.9))
 })
 
 test("running out of coins makes you homeless and drops your items", () => {
     const game = loadGame()
-    game.run("setProperty('Tent'); setMisc('Book')")
+    game.api.setProperty('Tent')
+    game.api.setMisc('Book')
     game.ticks(1)
     assert.equal(game.gameData.coins, 0)
     assert.equal(game.gameData.currentProperty.name, "Homeless")
@@ -129,23 +132,23 @@ test("running out of coins makes you homeless and drops your items", () => {
 
 test("evil gained on rebirth is Evil control x Blood meditation", () => {
     const game = loadGame()
-    assert.equal(game.run("getEvilGain()"), 1)
+    assert.equal(game.api.getEvilGain(), 1)
     game.task("Evil control").level = 100
     game.task("Blood meditation").level = 50
-    assert.equal(game.run("getEvilGain()"), 3)
+    assert.equal(game.api.getEvilGain(), 3)
 })
 
 test("time stops when paused or when lifespan is reached", () => {
     const game = loadGame()
     const startDays = game.gameData.days
-    game.run("setPause()")
+    game.api.setPause()
     game.ticks(10)
     assert.equal(game.gameData.days, startDays)
-    game.run("setPause()")
+    game.api.setPause()
 
-    game.run("gameData.days = getLifespan()")
+    game.api.gameData.days = game.api.getLifespan()
     const coins = game.gameData.coins
     game.ticks(10)
-    assert.equal(game.run("isAlive()"), false)
+    assert.equal(game.api.isAlive(), false)
     assert.equal(game.gameData.coins, coins)
 })

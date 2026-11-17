@@ -37,7 +37,7 @@ test("auto-promote follows the state, not the checkbox", () => {
     assert.equal(game.gameData.currentJob.name, "Beggar", "off by default")
 
     // Changing only the state (the checkbox is never touched) is enough
-    game.run("setAutoPromote(true)")
+    game.api.setAutoPromote(true)
     game.ticks(1)
     assert.equal(game.gameData.currentJob.name, "Farmer")
 })
@@ -45,16 +45,16 @@ test("auto-promote follows the state, not the checkbox", () => {
 test("auto-learn follows the state, including skipped skills", () => {
     const game = loadGame()
     game.task("Concentration").level = 5
-    game.run("setSkillWithLowestMaxXp()")
+    game.api.setSkillWithLowestMaxXp()
     game.ticks(1)
     assert.equal(game.gameData.currentSkill.name, "Concentration", "off by default")
 
-    game.run("setAutoLearn(true)")
+    game.api.setAutoLearn(true)
     game.ticks(1)
     assert.equal(game.gameData.currentSkill.name, "Productivity")
 
-    game.run("setSkillSkipped('Productivity', true)")
-    game.run("setSkillWithLowestMaxXp()")
+    game.api.setSkillSkipped('Productivity', true)
+    game.api.setSkillWithLowestMaxXp()
     game.ticks(1)
     assert.equal(game.gameData.currentSkill.name, "Strength")
 })

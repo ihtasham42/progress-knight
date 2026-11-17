@@ -20,7 +20,7 @@ function play() {
     game.window.document.getElementById("autoPromote").checked = true
     game.window.document.getElementById("autoLearn").checked = true
     const lives = [playLife(game)]
-    game.run("rebirthOne()")
+    game.api.rebirthOne()
     lives.push(playLife(game))
     assert.equal(game.errors.length, 0, game.errors.join("\n"))
     return lives
