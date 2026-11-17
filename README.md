@@ -14,9 +14,10 @@ The game is built with [Vite](https://vite.dev/). You need Node.js 22 or later.
 - `npm test`: unit tests (Vitest)
 - `npm run test:e2e`: browser tests (Playwright); run `npx playwright install chromium` once first
 - `npm run lint`: lint
+- `npm run typecheck`: TypeScript type checking
 - `npm run build`: build the site into `dist/`; `npm run preview` serves the build
 
-The game logic and data are in `src/game/` and don't touch the page; the page code is in `src/ui/`. Game data (jobs, skills, items and unlocks) lives in `src/game/data.js`; the format is documented at the top of that file.
+The game logic and data are in `src/game/` (TypeScript) and don't touch the page; the page code is in `src/ui/`. Game data (jobs, skills, items and unlocks) lives in `src/game/data.ts`; the format is documented at the top of that file and typed in `src/game/types.ts`, so `npm run typecheck` catches a misspelt id, stat or requirement.
 
 Pushes to `main` are published to GitHub Pages automatically.
 
