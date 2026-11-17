@@ -72,3 +72,12 @@ export function splitEffect(description: string): {multiplier: string, what: str
     const [multiplier, ...rest] = description.split(" ")
     return {multiplier: multiplier.replace(/^x/, "×"), what: rest.join(" ").toLowerCase()}
 }
+
+// "just now", "5 seconds ago", "1 minute ago"
+export function describeAge(seconds: number): string {
+    const plural = (count: number, unit: string) => count + " " + unit + (count == 1 ? "" : "s") + " ago"
+    if (seconds < 5) return "just now"
+    if (seconds < 60) return plural(seconds, "second")
+    if (seconds < 3600) return plural(Math.floor(seconds / 60), "minute")
+    return plural(Math.floor(seconds / 3600), "hour")
+}
