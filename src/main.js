@@ -2,7 +2,7 @@
 import "./vendor/hacktimer.js"
 import { advanceGameTime, setSkillWithLowestMaxXp } from "./game/engine.ts"
 import { updateSpeed } from "./game/rules.ts"
-import { saveGameData } from "./game/save.js"
+import { saveGameData } from "./game/save.ts"
 import { renderFrame } from "./ui/ui.js"
 import { startGame } from "./start.js"
 

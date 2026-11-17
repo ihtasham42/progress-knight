@@ -2,7 +2,7 @@
 // main.js calls this and then starts the timers; tests call it without them.
 
 import { initGameData, update } from "./game/engine.ts"
-import { loadGameData } from "./game/save.js"
+import { loadGameData } from "./game/save.ts"
 import { initUI, updateUI } from "./ui/ui.js"
 
 export function startGame() {

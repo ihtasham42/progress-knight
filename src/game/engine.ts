@@ -16,13 +16,14 @@ export let skillWithLowestMaxXp: Skill | null = null
 // Unlocks that stay unlocked through rebirths
 export const permanentUnlocks = unlocks.filter(unlock => unlock.permanent).map(unlock => unlock.name)
 
-// undefined for an id that doesn't exist (e.g. from an old save)
-export function getTaskById(id: string): Job | Skill | undefined {
-    return gameData.taskData[namesById[id]]
+// undefined for an id that doesn't exist or is missing (e.g. in an old save).
+// A missing id (undefined) names nothing, so finds nothing.
+export function getTaskById(id: string | undefined): Job | Skill | undefined {
+    return gameData.taskData[namesById[id as string]]
 }
 
-export function getItemById(id: string): Item | undefined {
-    return gameData.itemData[namesById[id]]
+export function getItemById(id: string | undefined): Item | undefined {
+    return gameData.itemData[namesById[id as string]]
 }
 
 // Wires up every xp, income and expense multiplier from the boosts declared
