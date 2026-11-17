@@ -13,23 +13,25 @@ import { classNames, removeSpaces } from "./classNames.ts"
 export function ShopTable() {
     const game = useGame()
     return (
-        <table id="itemTable" className="w3-table w3-bordered">
-            <tbody>
-                {Object.entries(itemCategories).map(([categoryName, names]) => (
-                    <Fragment key={categoryName}>
-                        <tr className={classNames(removeSpaces(categoryName), "headerRow", isCategoryHidden(categoryName) && "hidden")}
-                            style={{backgroundColor: headerRowColors[categoryName as keyof typeof headerRowColors], color: "var(--pk-on-category)"}}>
-                            <th className="category" style={{width: "250px"}}>{categoryName}</th>
-                            <th style={{width: "100px"}}>Active</th>
-                            <th style={{width: "250px"}}>Effect</th>
-                            <th>Expense/day</th>
-                        </tr>
-                        {names.map(name => <ItemRow key={name} item={game.itemData[name]} isProperty={categoryName == "Properties"} />)}
-                        <RequiredRow categoryName={categoryName} category={names} items={true} />
-                    </Fragment>
-                ))}
-            </tbody>
-        </table>
+        <div className="table-scroll">
+            <table id="itemTable" className="w3-table w3-bordered">
+                <tbody>
+                    {Object.entries(itemCategories).map(([categoryName, names]) => (
+                        <Fragment key={categoryName}>
+                            <tr className={classNames(removeSpaces(categoryName), "headerRow", isCategoryHidden(categoryName) && "hidden")}
+                                style={{backgroundColor: headerRowColors[categoryName as keyof typeof headerRowColors], color: "var(--pk-on-category)"}}>
+                                <th className="category">{categoryName}</th>
+                                <th className="col-active">Active</th>
+                                <th className="col-effect">Effect</th>
+                                <th>Expense/day</th>
+                            </tr>
+                            {names.map(name => <ItemRow key={name} item={game.itemData[name]} isProperty={categoryName == "Properties"} />)}
+                            <RequiredRow categoryName={categoryName} category={names} items={true} />
+                        </Fragment>
+                    ))}
+                </tbody>
+            </table>
+        </div>
     )
 }
 

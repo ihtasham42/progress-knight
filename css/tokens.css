@@ -32,6 +32,20 @@
 
     /* Shape */
     --pk-radius: 6px;
+
+    /* Layout. The breakpoints (640px and 1024px) can't be variables, so
+       they're written out in the media queries in styles.css */
+    --pk-page-max: 1376px;
+    --pk-sidebar-min: 300px;
+    --pk-sidebar-max: 340px;
+    --pk-main-basis: 560px;
+    --pk-measure: 480px;
+    --pk-bar-width: 200px;
+    --pk-quick-bar-width: 230px;
+    --pk-col-wide: 250px;
+    --pk-col-narrow: 100px;
+    --pk-control-height: 40px;
+    --pk-touch: 44px;
 }
 
 /* Light theme (body without .dark) */

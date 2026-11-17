@@ -18,7 +18,7 @@ export function Sidebar() {
     // Time warping is a skill (data.ts)
     const timeWarping = getTaskById("time_warping") as Skill
     return (
-        <div className="panel w3-padding" style={{width: "300px", height: "auto", float: "left"}}>
+        <div className="panel sidebar">
             {" "}
             <span id="deathText" className={classNames(!isLifeOver() && "hidden")}>
                 {" "}
@@ -74,11 +74,11 @@ export function Sidebar() {
             {" "}
             <span id="quickTaskDisplay" className={classNames(!isUnlocked("quick_task_display") && "hidden")}>
                 {" "}
-                <QuickTask task={game.currentJob} className="small-margin inline job progress-bar progressBar" />
+                <QuickTask task={game.currentJob} className="small-margin inline job progress-bar progressBar quick-task" />
                 {" "}
                 <div className="sidebar-element" style={{color: "var(--pk-text-muted)"}}>Current job</div>
                 {" "}
-                <QuickTask task={game.currentSkill} className="small-margin skill progress-bar progressBar" />
+                <QuickTask task={game.currentSkill} className="small-margin skill progress-bar progressBar quick-task" />
                 {" "}
                 <div className="sidebar-element" style={{color: "var(--pk-text-muted)"}}>Current skill</div>
                 {" "}
@@ -116,7 +116,7 @@ export function Sidebar() {
 // The current job or skill with its level and progress
 function QuickTask({task, className}: {task: Job | Skill, className: string}) {
     return (
-        <div style={{width: "230px"}} className={className}>
+        <div className={className}>
             {" "}
             <div className="progress-fill progressFill" style={{backgroundColor: "var(--pk-bar-current)", width: task.xp / task.getMaxXp() * 100 + "%"}}></div>
             {" "}

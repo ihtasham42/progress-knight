@@ -10,8 +10,8 @@ html body {
     font-variant-numeric: tabular-nums;
 }
 
-/* The page has no doctype (quirks mode), where tables don't inherit the
-   body's colour and font, so they are set here too */
+/* Tables get the body's colour and font explicitly (old browsers and quirks
+   mode don't inherit them into tables) */
 table {
     color: var(--pk-text);
     font-size: inherit;
@@ -23,8 +23,8 @@ h1 {
 }
 
 .w3-bar-item {
-    width: 100px;
-    height: 40px;
+    width: var(--pk-col-narrow);
+    height: var(--pk-control-height);
     text-align: center;
 }
 
@@ -53,7 +53,7 @@ table.w3-bordered tr {
     background-color: var(--pk-bar-track);
     border-radius: var(--pk-radius);
     cursor: pointer;
-    width: 200px;
+    width: var(--pk-bar-width);
 }
 
 .progress-fill {
@@ -102,8 +102,8 @@ body .w3-text-gray {
     background-color: var(--pk-panel);
     border-radius: var(--pk-radius);
     text-align: center;
-    width: 200px;
-    height: 40px;
+    width: var(--pk-bar-width);
+    height: var(--pk-control-height);
     padding: var(--pk-space-2);
 }
 
@@ -207,4 +207,224 @@ button:focus-visible {
 
 .small-margin  {
     margin-bottom: 2px;
+}
+
+/* Page layout. Phones first (one column, bottom tab bar), then stacked at
+   tablet width, then the sidebar beside the main panel from 1024px */
+
+.page {
+    box-sizing: border-box;
+    max-width: var(--pk-page-max);
+    margin: 0 auto;
+    padding: var(--pk-space-3);
+    /* Room for the fixed tab bar */
+    padding-bottom: calc(var(--pk-touch) + env(safe-area-inset-bottom) + var(--pk-space-4));
+}
+
+.layout {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-4);
+}
+
+.layout > .sidebar {
+    box-sizing: border-box;
+    padding: var(--pk-space-2) var(--pk-space-4);
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-4);
+    min-width: 0;
+}
+
+.tab-panel {
+    box-sizing: border-box;
+    padding: var(--pk-space-2) var(--pk-space-4);
+    min-width: 0;
+}
+
+/* A wide table scrolls inside this box, not the page */
+.table-scroll {
+    overflow-x: auto;
+}
+
+th.category {
+    width: var(--pk-col-wide);
+}
+
+th.col-active {
+    width: var(--pk-col-narrow);
+}
+
+th.col-effect {
+    width: var(--pk-col-wide);
+}
+
+.quick-task {
+    width: 100%;
+    max-width: var(--pk-quick-bar-width);
+}
+
+.tab-bar {
+    display: flow-root;
+}
+
+/* The tabs stay inline (not flex items), so the page's text keeps them on
+   one line; the Settings tab floats to the right end */
+body .tab-bar .tabButton {
+    vertical-align: top;
+    box-sizing: border-box;
+    width: var(--pk-col-narrow);
+    height: var(--pk-control-height);
+    padding-top: 0;
+    padding-bottom: 0;
+    line-height: var(--pk-control-height);
+}
+
+body .tab-bar .tabButton.tab-end {
+    float: right;
+}
+
+#importExportBox {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--pk-measure);
+    height: var(--pk-control-height);
+    padding: 0 var(--pk-space-3);
+    background: var(--pk-panel);
+    color: var(--pk-text);
+    border: 1px solid var(--pk-line);
+    border-radius: var(--pk-radius);
+}
+
+th {
+    white-space: nowrap;
+}
+
+.tab-panel h2 {
+    font-size: var(--pk-text-lg);
+}
+
+/* Tablet and up: padding grows */
+@media (min-width: 640px) {
+    .page {
+        padding: var(--pk-space-4);
+    }
+
+    .tab-panel h2 {
+        font-size: var(--pk-text-xl);
+    }
+}
+
+/* Under 1024px the sidebar is above the main panel, so bars and item
+   buttons grow to fill their table cell */
+@media (max-width: 1023px) {
+    .progress-bar,
+    .item-button {
+        width: 100%;
+        min-width: var(--pk-bar-width);
+        box-sizing: border-box;
+    }
+
+    .tooltip {
+        display: block;
+    }
+}
+
+@media (min-width: 1024px) {
+    .page {
+        padding: var(--pk-space-4) var(--pk-space-6);
+    }
+
+    .layout {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: flex-start;
+    }
+
+    .layout > .sidebar {
+        flex: 1 1 var(--pk-sidebar-min);
+        max-width: var(--pk-sidebar-max);
+    }
+
+    .main {
+        flex: 999 1 var(--pk-main-basis);
+    }
+}
+
+/* Phones: tab bar fixed to the bottom, touch-sized controls */
+@media (max-width: 639px) {
+    .tab-bar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 10;
+        padding-bottom: env(safe-area-inset-bottom);
+        border-radius: 0;
+        border-top: 1px solid var(--pk-line);
+    }
+
+    /* The visible tabs share the bar equally (--tab-count is set in App).
+       No font size on the bar, so the spaces between the tabs have no width */
+    .tab-bar {
+        font-size: 0;
+    }
+
+    body .tab-bar .tabButton,
+    body .tab-bar .tabButton.tab-end {
+        float: none;
+        width: calc(100% / var(--tab-count));
+        height: var(--pk-touch);
+        line-height: var(--pk-touch);
+        font-size: var(--pk-text-xs);
+        padding-left: 0;
+        padding-right: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .page h1 {
+        font-size: var(--pk-text-2xl);
+        margin-top: var(--pk-space-2);
+        margin-bottom: var(--pk-space-3);
+    }
+
+    .tab-panel ul {
+        padding-left: var(--pk-space-4);
+    }
+
+    body .tabButton.w3-blue-gray {
+        color: var(--pk-accent) !important;
+        box-shadow: inset 0 2px 0 var(--pk-accent);
+    }
+
+    .progress-bar,
+    .item-button {
+        min-height: var(--pk-touch);
+    }
+
+    .progress-fill {
+        height: var(--pk-touch);
+    }
+
+    .progress-bar .progress-text {
+        display: flex;
+        align-items: center;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    .item-button {
+        height: auto;
+    }
+
+    .layout > .sidebar,
+    .tab-panel {
+        padding-left: var(--pk-space-3);
+        padding-right: var(--pk-space-3);
+    }
 }

@@ -25,17 +25,19 @@ export function TaskTable({kind}: {kind: TaskKind}) {
     const game = useGame()
     const categories = kind == "jobs" ? jobCategories : skillCategories
     return (
-        <table id={kind == "jobs" ? "jobTable" : "skillTable"} className="w3-table w3-bordered">
-            <tbody>
-                {Object.entries(categories).map(([categoryName, names]) => (
-                    <Fragment key={categoryName}>
-                        <TaskHeaderRow kind={kind} categoryName={categoryName} />
-                        {names.map(name => <TaskRow key={name} task={game.taskData[name]} />)}
-                        <RequiredRow categoryName={categoryName} category={names} items={false} />
-                    </Fragment>
-                ))}
-            </tbody>
-        </table>
+        <div className="table-scroll">
+            <table id={kind == "jobs" ? "jobTable" : "skillTable"} className="w3-table w3-bordered">
+                <tbody>
+                    {Object.entries(categories).map(([categoryName, names]) => (
+                        <Fragment key={categoryName}>
+                            <TaskHeaderRow kind={kind} categoryName={categoryName} />
+                            {names.map(name => <TaskRow key={name} task={game.taskData[name]} />)}
+                            <RequiredRow categoryName={categoryName} category={names} items={false} />
+                        </Fragment>
+                    ))}
+                </tbody>
+            </table>
+        </div>
     )
 }
 
@@ -44,7 +46,7 @@ function TaskHeaderRow({kind, categoryName}: {kind: TaskKind, categoryName: stri
     return (
         <tr className={classNames(removeSpaces(categoryName), "headerRow", isCategoryHidden(categoryName) && "hidden")}
             style={{backgroundColor: headerRowColors[categoryName as keyof typeof headerRowColors], color: "var(--pk-on-category)"}}>
-            <th className="category" style={{width: "250px"}}>{categoryName}</th>
+            <th className="category">{categoryName}</th>
             <th>Level</th>
             <th className="valueType">{kind == "jobs" ? "Income/day" : "Effect"}</th>
             <th>Xp/day</th>
