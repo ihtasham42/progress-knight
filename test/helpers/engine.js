@@ -1,4 +1,4 @@
-// Loads only the game logic (classes.js, data.js and engine.js) into a plain
+// Loads only the game logic (data, state, rules, classes and engine) into a plain
 // Node vm context: no page, no document, no window, no timers. If any of
 // these files touched the page, loading or playing would throw.
 
@@ -8,7 +8,7 @@ import vm from "node:vm"
 import { gameApi } from "./game.js"
 
 const ROOT = path.join(import.meta.dirname, "..", "..")
-const ENGINE_SCRIPTS = ["src/game/classes.js", "src/game/data.js", "src/game/engine.js"]
+const ENGINE_SCRIPTS = ["src/game/data.js", "src/game/state.js", "src/game/rules.js", "src/game/classes.js", "src/game/engine.js"]
 
 function loadEngine() {
     const context = vm.createContext({})

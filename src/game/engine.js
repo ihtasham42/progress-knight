@@ -1,49 +1,14 @@
 "use strict"
 
-// The game itself: its state, formulas, game steps, rebirths and automation.
+// The game itself: game steps, unlocks, rebirths and automation. The state
+// is in state.js and the formulas the classes share are in rules.js.
 // Nothing here touches the page (no document or window), so the game can
 // also run without a browser. ui.js shows this state on the page.
 
-const gameData = {
-    taskData: {},
-    itemData: {},
-
-    coins: 0,
-    days: 365 * 14,
-    evil: 0,
-    paused: false,
-    timeWarpingEnabled: true,
-
-    rebirthOneCount: 0,
-    rebirthTwoCount: 0,
-
-    currentJob: null,
-    currentSkill: null,
-    currentProperty: null,
-    currentMisc: null,
-
-    // Not saved yet
-    automation: {
-        autoPromote: false,
-        autoLearn: false,
-        skippedSkills: new Set(), // skill ids
-    },
-}
-
 let skillWithLowestMaxXp = null
-
-const updateSpeed = 20
-
-const baseLifespan = 365 * 70
-
-const baseGameSpeed = 4
 
 // Unlocks that stay unlocked through rebirths
 const permanentUnlocks = unlocks.filter(unlock => unlock.permanent).map(unlock => unlock.name)
-
-function getBaseLog(x, y) {
-    return Math.log(y) / Math.log(x);
-}
 
 function getTaskById(id) {
     return gameData.taskData[namesById[id]]
@@ -51,16 +16,6 @@ function getTaskById(id) {
 
 function getItemById(id) {
     return gameData.itemData[namesById[id]]
-}
-
-function getBindedTaskEffect(taskName) {
-    const task = gameData.taskData[taskName]
-    return task.getEffect.bind(task)
-}
-
-function getBindedItemEffect(itemName) {
-    const item = gameData.itemData[itemName]
-    return item.getEffect.bind(item)
 }
 
 // Wires up every xp, income and expense multiplier from the boosts declared
@@ -119,52 +74,17 @@ function getBoostEffects(stat, entity) {
     return effects
 }
 
-function getSourceEffect(source) {
-    return source.name in gameData.taskData ? getBindedTaskEffect(source.name) : getBindedItemEffect(source.name)
-}
-
 // A property's effect is always happiness, applied after other boosts
 function getHappiness() {
     return applyStatBoosts("happiness", 1) * gameData.currentProperty.getEffect()
-}
-
-// Multiplies value by the effect of every skill and item that boosts a
-// global stat (happiness, lifespan, gameSpeed, evilGain), in definition order
-function applyStatBoosts(stat, value) {
-    for (const source of [...skills, ...items]) {
-        for (const boost of source.boosts || []) {
-            if (boost.stat == stat) value *= getSourceEffect(source)()
-        }
-    }
-    return value
 }
 
 function getEvil() {
     return gameData.evil
 }
 
-function applyMultipliers(value, multipliers) {
-    let finalMultiplier = 1
-    multipliers.forEach(function(multiplierFunction) {
-        const multiplier = multiplierFunction()
-        finalMultiplier *= multiplier
-    })
-    const finalValue = Math.round(value * finalMultiplier)
-    return finalValue
-}
-
-function applySpeed(value) {
-    return value * getGameSpeed() / updateSpeed
-}
-
 function getEvilGain() {
     return applyStatBoosts("evilGain", 1)
-}
-
-function getGameSpeed() {
-    const timeWarpingSpeed = gameData.timeWarpingEnabled ? applyStatBoosts("gameSpeed", 1) : 1
-    const gameSpeed = baseGameSpeed * +!gameData.paused * +isAlive() * timeWarpingSpeed
-    return gameSpeed
 }
 
 function applyExpenses() {
@@ -276,11 +196,6 @@ function getIncome() {
 function increaseCoins() {
     const coins = applySpeed(getIncome())
     gameData.coins += coins
-}
-
-function daysToYears(days) {
-    const years = Math.floor(days / 365)
-    return years
 }
 
 function getCategoryFromEntityName(categoryType, entityName) {
@@ -452,19 +367,6 @@ function rebirthReset() {
         if (requirement.completed && permanentUnlocks.includes(key)) continue
         requirement.completed = false
     }
-}
-
-function getLifespan() {
-    return applyStatBoosts("lifespan", baseLifespan)
-}
-
-// Also stops the age going past the lifespan
-function isAlive() {
-    const condition = gameData.days < getLifespan()
-    if (!condition) {
-        gameData.days = getLifespan()
-    }
-    return condition
 }
 
 // Like isAlive(), but never changes the game state
