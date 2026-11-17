@@ -9,6 +9,7 @@ import type { TaskRequirementSpec } from "../game/types.ts"
 import { requestRender, useGame } from "./gameStore.ts"
 import { classNames } from "./classNames.ts"
 import { format } from "./format.ts"
+import { PastLives } from "./PastLives.tsx"
 
 // The age that Rebirth II waits for (the "rebirth_note_3" unlock in data.ts)
 const EVIL_AGE = 200
@@ -127,6 +128,7 @@ export function AmuletTab() {
 
                 <EvilTeaser hidden={evilReady} />
             </div>
+            <PastLives />
         </div>
     )
 }

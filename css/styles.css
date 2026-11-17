@@ -2056,6 +2056,124 @@ table.w3-bordered tr.next-tr {
     }
 }
 
+/* Past lives, at the foot of the Amulet tab: a table of rows from 640px up,
+   a card per life on phones */
+
+.past-lives {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--pk-space-3);
+}
+
+.amulet .past-lives .card-label {
+    font-size: var(--pk-text-xs);
+}
+
+.past-table {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-1);
+    align-self: stretch;
+}
+
+.past-row {
+    display: grid;
+    grid-template-columns: 80px minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1.6fr);
+    column-gap: var(--pk-space-4);
+    align-items: center;
+    padding: 10px var(--pk-space-3);
+    border-radius: var(--pk-radius);
+    background-color: var(--pk-raised);
+}
+
+.past-head {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    background-color: transparent;
+    font-size: var(--pk-text-xs);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--pk-text-muted);
+}
+
+.past-living {
+    background-color: var(--pk-line);
+}
+
+.past-living .past-ended {
+    font-weight: 600;
+    color: var(--pk-gain-text);
+}
+
+.past-ended {
+    color: var(--pk-text-muted);
+}
+
+/* On desktop the detail wrapper only groups; its cells are grid columns */
+.past-detail {
+    display: contents;
+}
+
+@media (max-width: 639px) {
+    /* The column names stay for screen readers; each card says what it holds */
+    .past-head {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+
+    .past-row {
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 2px var(--pk-space-3);
+        padding: var(--pk-space-3);
+    }
+
+    .past-life::before {
+        content: "Life ";
+    }
+
+    .past-ended {
+        grid-column: 2;
+        grid-row: 1;
+        justify-self: end;
+        font-size: var(--pk-text-xs);
+        text-align: right;
+    }
+
+    /* Job, skill and peak share the second line */
+    .past-detail {
+        grid-column: 1 / -1;
+        display: block;
+        font-size: var(--pk-text-xs);
+        color: var(--pk-text-muted);
+    }
+
+    .past-job,
+    .past-skill,
+    .past-peak {
+        display: inline;
+    }
+
+    .past-skill::before,
+    .past-peak::before {
+        content: " · ";
+        white-space: pre;
+    }
+
+    .past-peak::before {
+        content: " · peak";
+    }
+
+    .past-more {
+        align-self: stretch;
+    }
+}
+
 /* The Settings tab: cards in a responsive grid */
 
 .settings-grid {
