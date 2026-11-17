@@ -2,8 +2,10 @@
 // and multipliers. The job, skill and item classes use these, so they live
 // apart from the rest of the engine.
 
-import { skills, items } from "./data.js"
-import { gameData } from "./state.js"
+import { skills, items } from "./data.ts"
+import { gameData } from "./state.ts"
+import type { Skill } from "./classes.ts"
+import type { GlobalStat, SkillDefinition, ItemDefinition } from "./types.ts"
 
 export const updateSpeed = 20
 
@@ -11,27 +13,28 @@ export const baseLifespan = 365 * 70
 
 export const baseGameSpeed = 4
 
-export function getBaseLog(x, y) {
+export function getBaseLog(x: number, y: number): number {
     return Math.log(y) / Math.log(x);
 }
 
-export function getBindedTaskEffect(taskName) {
-    const task = gameData.taskData[taskName]
+export function getBindedTaskEffect(taskName: string): () => number {
+    // Only skills have an effect; this is only called for skills
+    const task = gameData.taskData[taskName] as Skill
     return task.getEffect.bind(task)
 }
 
-export function getBindedItemEffect(itemName) {
+export function getBindedItemEffect(itemName: string): () => number {
     const item = gameData.itemData[itemName]
     return item.getEffect.bind(item)
 }
 
-export function getSourceEffect(source) {
+export function getSourceEffect(source: SkillDefinition | ItemDefinition): () => number {
     return source.name in gameData.taskData ? getBindedTaskEffect(source.name) : getBindedItemEffect(source.name)
 }
 
 // Multiplies value by the effect of every skill and item that boosts a
 // global stat (happiness, lifespan, gameSpeed, evilGain), in definition order
-export function applyStatBoosts(stat, value) {
+export function applyStatBoosts(stat: GlobalStat, value: number): number {
     for (const source of [...skills, ...items]) {
         for (const boost of source.boosts || []) {
             if (boost.stat == stat) value *= getSourceEffect(source)()
@@ -40,7 +43,7 @@ export function applyStatBoosts(stat, value) {
     return value
 }
 
-export function applyMultipliers(value, multipliers) {
+export function applyMultipliers(value: number, multipliers: (() => number)[]): number {
     let finalMultiplier = 1
     multipliers.forEach(function(multiplierFunction) {
         const multiplier = multiplierFunction()
@@ -50,27 +53,27 @@ export function applyMultipliers(value, multipliers) {
     return finalValue
 }
 
-export function applySpeed(value) {
+export function applySpeed(value: number): number {
     return value * getGameSpeed() / updateSpeed
 }
 
-export function getGameSpeed() {
+export function getGameSpeed(): number {
     const timeWarpingSpeed = gameData.timeWarpingEnabled ? applyStatBoosts("gameSpeed", 1) : 1
     const gameSpeed = baseGameSpeed * +!gameData.paused * +isAlive() * timeWarpingSpeed
     return gameSpeed
 }
 
-export function daysToYears(days) {
+export function daysToYears(days: number): number {
     const years = Math.floor(days / 365)
     return years
 }
 
-export function getLifespan() {
+export function getLifespan(): number {
     return applyStatBoosts("lifespan", baseLifespan)
 }
 
 // Also stops the age going past the lifespan
-export function isAlive() {
+export function isAlive(): boolean {
     const condition = gameData.days < getLifespan()
     if (!condition) {
         gameData.days = getLifespan()

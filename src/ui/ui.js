@@ -2,12 +2,12 @@
 // that turn clicks into changes to that state. Rendering only reads the
 // game state; it never changes it.
 
-import { jobs, skills, items, unlocks, idsByName, jobCategories, skillCategories, itemCategories, headerRowColors, tooltips } from "../game/data.js"
-import { gameData } from "../game/state.js"
-import { daysToYears, getLifespan } from "../game/rules.js"
-import { Job, Skill, EvilRequirement } from "../game/classes.js"
-import { getTaskById, getHappiness, getEvilGain, getExpense, setPause, setTimeWarping, setAutoPromote, setAutoLearn, setSkillSkipped, setTask, setProperty, setMisc, getNet, getIncome, getDay, rebirthOne, rebirthTwo, isLifeOver } from "../game/engine.js"
-import { clearSave, importSave, exportSave } from "../game/save.js"
+import { jobs, skills, items, unlocks, idsByName, jobCategories, skillCategories, itemCategories, headerRowColors, tooltips } from "../game/data.ts"
+import { gameData } from "../game/state.ts"
+import { daysToYears, getLifespan } from "../game/rules.ts"
+import { Job, Skill, EvilRequirement } from "../game/classes.ts"
+import { getTaskById, getHappiness, getEvilGain, getExpense, setPause, setTimeWarping, setAutoPromote, setAutoLearn, setSkillSkipped, setTask, setProperty, setMisc, getNet, getIncome, getDay, rebirthOne, rebirthTwo, isLifeOver } from "../game/engine.ts"
+import { clearSave, importSave, exportSave } from "../game/save.ts"
 
 export const autoPromoteElement = document.getElementById("autoPromote")
 export const autoLearnElement = document.getElementById("autoLearn")

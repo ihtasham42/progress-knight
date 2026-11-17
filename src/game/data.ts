@@ -17,16 +17,22 @@
 //
 // The older lookup tables the rest of the game uses (jobBaseData,
 // jobCategories, tooltips, ...) are derived from these definitions.
+//
+// The definitions are checked against the types in types.ts, and the ids
+// they refer to are checked against the ids that exist (see the end of
+// this file), so a typo fails npm run typecheck.
 
-export function definitionsByName(definitions) {
-    const byName = {}
+import type { JobDefinition, SkillDefinition, ItemDefinition, UnlockDefinition } from "./types.ts"
+
+export function definitionsByName<T extends {name: string}>(definitions: readonly T[]): Record<string, T> {
+    const byName: Record<string, T> = {}
     for (const definition of definitions) byName[definition.name] = definition
     return byName
 }
 
 // Category name -> entity names, in definition order
-export function namesByCategory(definitions) {
-    const categories = {}
+export function namesByCategory(definitions: readonly {name: string, category: string}[]): Record<string, string[]> {
+    const categories: Record<string, string[]> = {}
     for (const definition of definitions) {
         if (!categories[definition.category]) categories[definition.category] = []
         categories[definition.category].push(definition.name)
@@ -34,7 +40,7 @@ export function namesByCategory(definitions) {
     return categories
 }
 
-export const jobs = [
+const jobList = [
     // Common work
     {id: "beggar", name: "Beggar", category: "Common work", maxXp: 50, income: 5, requires: [],
         tooltip: "Struggle day and night for a couple of copper coins. It feels like you are at the brink of death each day."},
@@ -80,9 +86,10 @@ export const jobs = [
         tooltip: "Blessed with unparalleled talent, perform unbelievable feats with magic at will. It is said that a master wizard has enough destructive power to wipe an empire off the map."},
     {id: "chairman", name: "Chairman", category: "The Arcane Association", maxXp: 1000000000000, income: 1000000, requires: [{task: "mana_control", level: 2000}, {task: "master_wizard", level: 10}],
         tooltip: "Spend your days administrating The Arcane Association and investigate the concepts of true immortality. The chairman receives ludicrous amounts of pay daily."},
-]
+] as const satisfies readonly JobDefinition[]
+export const jobs: readonly JobDefinition[] = jobList
 
-export const skills = [
+const skillList = [
     // Fundamentals
     {id: "concentration", name: "Concentration", category: "Fundamentals", maxXp: 100, effect: 0.01, description: "Skill xp", boosts: [{stat: "xp", of: "skills"}], requires: [],
         tooltip: "Improve your learning speed through practising intense concentration activities."},
@@ -124,9 +131,10 @@ export const skills = [
         tooltip: "Grow and culture the evil within you through the sacrifice of other living beings, drastically increasing evil gain."},
     {id: "demons_wealth", name: "Demon's wealth", category: "Dark magic", maxXp: 100, effect: 0.002, description: "Job pay", boosts: [{stat: "income", of: "jobs"}], requires: [{evil: 500}],
         tooltip: "Through the means of dark magic, multiply the raw matter of the coins you receive from your job."},
-]
+] as const satisfies readonly SkillDefinition[]
+export const skills: readonly SkillDefinition[] = skillList
 
-export const items = [
+const itemList = [
     // Properties
     {id: "homeless", name: "Homeless", category: "Properties", expense: 0, effect: 1, requires: [{coins: 0}],
         tooltip: "Sleep on the uncomfortable, filthy streets while almost freezing to death every night. It cannot get any worse than this."},
@@ -162,12 +170,13 @@ export const items = [
         tooltip: "A dedicated area which provides many fine stationery and equipment designed for furthering your progress in research."},
     {id: "library", name: "Library", category: "Misc", expense: 10000000, effect: 1.5, description: "Skill xp", boosts: [{stat: "xp", of: "skills"}], requires: [{coins: 1000000000}],
         tooltip: "Stores a collection of books, each containing vast amounts of information from basic life skills to complex magic spells."},
-]
+] as const satisfies readonly ItemDefinition[]
+export const items: readonly ItemDefinition[] = itemList
 
 // Parts of the game that are hidden until their requirements are met. A
 // category unlock reveals that category's rows; the others reveal the page
 // element with the given id.
-export const unlocks = [
+const unlockList = [
     {id: "the_arcane_association", name: "The Arcane Association", category: "The Arcane Association", requires: [{task: "concentration", level: 200}, {task: "meditation", level: 200}]},
     {id: "dark_magic", name: "Dark magic", category: "Dark magic", requires: [{evil: 1}]},
     {id: "shop", name: "Shop", elementId: "shopTabButton", permanent: true, requires: [{coins: 750}]},
@@ -179,15 +188,16 @@ export const unlocks = [
     {id: "time_warping_info", name: "Time warping info", elementId: "timeWarping", requires: [{task: "mage", level: 10}]},
     {id: "automation", name: "Automation", elementId: "automation", permanent: true, requires: [{age: 20}]},
     {id: "quick_task_display", name: "Quick task display", elementId: "quickTaskDisplay", permanent: true, requires: [{age: 20}]},
-]
+] as const satisfies readonly UnlockDefinition[]
+export const unlocks: readonly UnlockDefinition[] = unlockList
 
 // What a new life starts with (ids)
-export const startingItems = {job: "beggar", skill: "concentration", property: "homeless"}
+export const startingItems: {readonly job: JobId, readonly skill: SkillId, readonly property: PropertyId} = {job: "beggar", skill: "concentration", property: "homeless"}
 
 // Id <-> display name for every job, skill, item and unlock. Prototype-free
 // so lookups of untrusted keys (e.g. from a save) can't hit Object methods.
-export const namesById = Object.create(null)
-export const idsByName = Object.create(null)
+export const namesById: Record<string, string> = Object.create(null)
+export const idsByName: Record<string, string> = Object.create(null)
 for (const definition of [...jobs, ...skills, ...items, ...unlocks]) {
     namesById[definition.id] = definition.name
     idsByName[definition.name] = definition.id
@@ -202,7 +212,7 @@ export const skillCategories = namesByCategory(skills)
 export const itemBaseData = definitionsByName(items)
 export const itemCategories = namesByCategory(items)
 
-export const headerRowColors = {
+export const headerRowColors: Record<Category, string> = {
     "Common work": "#55a630",
     "Military": "#e63946",
     "The Arcane Association": "#C71585",
@@ -215,7 +225,26 @@ export const headerRowColors = {
 }
 
 // Entity name -> tooltip text
-export const tooltips = {}
+export const tooltips: Record<string, string> = {}
 for (const definition of [...jobs, ...skills, ...items]) {
     tooltips[definition.name] = definition.tooltip
 }
+
+// Ids and names that exist in the data above
+export type JobId = (typeof jobList)[number]["id"]
+export type SkillId = (typeof skillList)[number]["id"]
+export type TaskId = JobId | SkillId
+export type PropertyId = Extract<(typeof itemList)[number], {category: "Properties"}>["id"]
+export type Category = (typeof jobList | typeof skillList | typeof itemList)[number]["category"]
+export type BoostTarget = "all" | "jobs" | "skills" | "items" | Category | TaskId
+
+// Checks that every id the data refers to exists. A typo fails here with
+// "Type '"the_typo"' does not satisfy the constraint ...".
+type Expect<Actual extends Allowed, Allowed> = [Actual, Allowed]
+type AllDefinitions = typeof jobList | typeof skillList | typeof itemList | typeof unlockList
+type RequiredTask = Extract<AllDefinitions[number]["requires"][number], {task: string}>["task"]
+type BoostedTarget = Extract<Extract<(typeof skillList | typeof itemList)[number], {boosts: unknown}>["boosts"][number], {of: string}>["of"]
+type UnlockedCategory = Extract<(typeof unlockList)[number], {category: string}>["category"]
+export type _RequiredTasksExist = Expect<RequiredTask, TaskId>
+export type _BoostTargetsExist = Expect<BoostedTarget, BoostTarget>
+export type _UnlockedCategoriesExist = Expect<UnlockedCategory, Category>

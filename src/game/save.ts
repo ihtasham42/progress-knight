@@ -1,9 +1,9 @@
 // Saving, loading, importing and exporting game data.
 
-import { namesById, idsByName } from "./data.js"
-import { gameData } from "./state.js"
-import { Job, Skill } from "./classes.js"
-import { getTaskById, getItemById, setAutoPromote, setAutoLearn, setSkillSkipped } from "./engine.js"
+import { namesById, idsByName } from "./data.ts"
+import { gameData } from "./state.ts"
+import { Job, Skill } from "./classes.ts"
+import { getTaskById, getItemById, setAutoPromote, setAutoLearn, setSkillSkipped } from "./engine.ts"
 
 export function saveGameData() {
     localStorage.setItem("gameDataSave", JSON.stringify(serializeGameData()))
@@ -27,8 +27,8 @@ export function loadGameData() {
 
 // The first time a pre-version-2 save is loaded, keep an untouched copy so
 // the player can go back to the original game if they want to.
-export function backUpLegacySave(parsedSave, rawSave) {
-    const isLegacy = parsedSave !== null && typeof parsedSave === "object" && parsedSave.version === undefined
+export function backUpLegacySave(parsedSave: unknown, rawSave: string): void {
+    const isLegacy = parsedSave !== null && typeof parsedSave === "object" && (parsedSave as {version?: unknown}).version === undefined
     if (isLegacy && localStorage.getItem("gameDataSave_legacyBackup") === null) {
         localStorage.setItem("gameDataSave_legacyBackup", rawSave)
     }
@@ -42,7 +42,7 @@ export function clearSave() {
 // Checks an export string and, if it's a save the game can load, stores it
 // as the current save. Returns a message for the player if it can't be used
 // (the current save is then left alone), or nothing once it's stored.
-export function importSave(text) {
+export function importSave(text: string): string | undefined {
     let data
     try {
         data = JSON.parse(atob(text.trim()))
@@ -54,14 +54,15 @@ export function importSave(text) {
     try {
         save = migrateSave(data)
     } catch (error) {
-        return "That save couldn't be loaded: " + error.message + "."
+        // migrateSave only throws Errors
+        return "That save couldn't be loaded: " + (error as Error).message + "."
     }
 
     localStorage.setItem("gameDataSave", JSON.stringify(save))
 }
 
 // The current game as text the player can copy and import later
-export function exportSave() {
+export function exportSave(): string {
     return btoa(JSON.stringify(serializeGameData()))
 }
 
@@ -70,26 +71,87 @@ export function exportSave() {
 //
 // A save only holds the state that changes during play. Static game data
 // (job/skill/item definitions and requirement definitions) is rebuilt by
-// initGameData() in engine.js on every load, and the save is then applied on
+// initGameData() in engine.ts on every load, and the save is then applied on
 // top.
 //
 // Version history:
 //   (none) - legacy format: the whole gameData object passed to JSON.stringify
 //   2      - only mutable state, referring to jobs/skills/items by name
-//   3      - the same, referring to everything by id (see data.js)
+//   3      - the same, referring to everything by id (see data.ts)
 //   4      - adds automation settings (auto-promote, auto-learn, skipped skills)
 // ---------------------------------------------------------------------------
 
 export const SAVE_VERSION = 4
 
-export function serializeGameData() {
-    const tasks = {}
+// What each version of a save looks like, as the game wrote it. A save read
+// from storage or imported by the player is only checked as far as
+// migrateSave() and applySaveData() check it, which is why applySaveData()
+// checks every value before using it.
+
+// A saved level, max level and xp; missing values keep their defaults
+export interface SavedTask {
+    level?: number
+    maxLevel?: number
+    xp?: number
+}
+
+// A reference to a job, skill, item or unlock: a display name in version 2,
+// an id from version 3. Missing or unknown ones are skipped when loading.
+type SavedRef = string | undefined
+
+interface SaveFields<Version> {
+    version: Version
+    coins: number
+    days: number
+    evil: number
+    paused: boolean
+    timeWarpingEnabled: boolean
+    rebirthOneCount: number
+    rebirthTwoCount: number
+    currentJob: SavedRef
+    currentSkill: SavedRef
+    currentProperty: SavedRef
+    currentMisc: SavedRef[]
+    tasks: Record<string, SavedTask> // by name in version 2, by id from 3
+    completedRequirements: SavedRef[]
+}
+
+// The original game saved its whole gameData object
+export interface LegacySave {
+    version?: undefined
+    coins: number
+    days: number
+    evil: number
+    paused: boolean
+    timeWarpingEnabled: boolean
+    rebirthOneCount: number
+    rebirthTwoCount: number
+    currentJob: {name: string} | null
+    currentSkill: {name: string} | null
+    currentProperty: {name: string} | null
+    currentMisc: ({name: string} | null)[]
+    taskData: Record<string, SavedTask | null>
+    requirements?: Record<string, {completed?: boolean} | null>
+}
+export type SaveV2 = SaveFields<2>
+export type SaveV3 = SaveFields<3>
+export interface SaveV4 extends SaveFields<4> {
+    automation: {
+        autoPromote: boolean
+        autoLearn: boolean
+        skippedSkills: string[] // skill ids
+    }
+}
+type AnySave = LegacySave | SaveV2 | SaveV3 | SaveV4
+
+export function serializeGameData(): SaveV4 {
+    const tasks: Record<string, SavedTask> = {}
     for (const name in gameData.taskData) {
         const task = gameData.taskData[name]
         tasks[task.baseData.id] = {level: task.level, maxLevel: task.maxLevel, xp: task.xp}
     }
 
-    const completedRequirements = []
+    const completedRequirements: string[] = []
     for (const key in gameData.requirements) {
         if (gameData.requirements[key].completed) completedRequirements.push(idsByName[key])
     }
@@ -119,10 +181,13 @@ export function serializeGameData() {
 
 // Converts any supported save into the current format. Throws if the save
 // can't be understood.
-export function migrateSave(save) {
-    if (save === null || typeof save !== "object" || Array.isArray(save)) {
+export function migrateSave(input: unknown): SaveV4 {
+    if (input === null || typeof input !== "object" || Array.isArray(input)) {
         throw new Error("Save is not an object")
     }
+    // Its version says which of the formats it is; versions this game doesn't
+    // know are rejected below
+    let save = input as AnySave
 
     if (save.version === undefined) save = migrateLegacySave(save)
     if (save.version === 2) save = migrateV2ToV3(save)
@@ -132,31 +197,33 @@ export function migrateSave(save) {
         throw new Error("Save is from a newer version of the game")
     }
     if (save.version !== SAVE_VERSION) {
-        throw new Error("Unknown save version " + save.version)
+        // A version none of the types above describe
+        throw new Error("Unknown save version " + (save as {version: unknown}).version)
     }
 
     validateSave(save)
     return save
 }
 
-export function migrateLegacySave(legacy) {
+export function migrateLegacySave(legacy: LegacySave): SaveV2 {
     if (typeof legacy.taskData !== "object" || legacy.taskData === null) {
         throw new Error("Legacy save has no task data")
     }
 
-    const tasks = {}
+    const tasks: Record<string, SavedTask> = {}
     for (const name in legacy.taskData) {
-        const task = legacy.taskData[name] || {}
+        const task: SavedTask = legacy.taskData[name] || {}
         tasks[name] = {level: task.level, maxLevel: task.maxLevel, xp: task.xp}
     }
 
-    const completedRequirements = []
-    for (const key in legacy.requirements || {}) {
-        const requirement = legacy.requirements[key]
+    const completedRequirements: string[] = []
+    const requirements = legacy.requirements || {}
+    for (const key in requirements) {
+        const requirement = requirements[key]
         if (requirement && requirement.completed) completedRequirements.push(key)
     }
 
-    const nameOf = function(entity) {return entity && entity.name}
+    const nameOf = function(entity: {name: string} | null): SavedRef {return entity ? entity.name : undefined}
 
     return {
         version: 2,
@@ -178,35 +245,37 @@ export function migrateLegacySave(legacy) {
 
 // Version 2 referred to jobs, skills, items and unlocks by display name.
 // Names the game no longer has are dropped.
-export function migrateV2ToV3(save) {
-    const toId = name => typeof name === "string" ? idsByName[name] : undefined
-    const migrated = Object.assign({}, save, {version: 3})
+export function migrateV2ToV3(save: SaveV2): SaveV3 {
+    const toId = (name: unknown): SavedRef => typeof name === "string" ? idsByName[name] : undefined
+    const migrated: SaveV3 = Object.assign({}, save, {version: 3 as const})
 
     if (save.tasks && typeof save.tasks === "object") {
-        migrated.tasks = {}
+        const tasks: Record<string, SavedTask> = {}
+        migrated.tasks = tasks
         for (const name in save.tasks) {
-            if (toId(name)) migrated.tasks[toId(name)] = save.tasks[name]
+            const id = toId(name)
+            if (id) tasks[id] = save.tasks[name]
         }
     }
     migrated.currentJob = toId(save.currentJob)
     migrated.currentSkill = toId(save.currentSkill)
     migrated.currentProperty = toId(save.currentProperty)
-    for (const key of ["currentMisc", "completedRequirements"]) {
+    for (const key of ["currentMisc", "completedRequirements"] as const) {
         if (Array.isArray(save[key])) migrated[key] = save[key].map(toId).filter(Boolean)
     }
     return migrated
 }
 
 // Version 3 didn't save automation settings, so they start switched off
-export function migrateV3ToV4(save) {
+export function migrateV3ToV4(save: SaveV3): SaveV4 {
     return Object.assign({}, save, {
-        version: 4,
+        version: 4 as const,
         automation: {autoPromote: false, autoLearn: false, skippedSkills: []},
     })
 }
 
-export function validateSave(save) {
-    for (const key of ["coins", "days"]) {
+export function validateSave(save: SaveV4): void {
+    for (const key of ["coins", "days"] as const) {
         if (!isFiniteNumber(save[key])) throw new Error("Save has an invalid " + key)
     }
     if (typeof save.tasks !== "object" || save.tasks === null) {
@@ -214,27 +283,30 @@ export function validateSave(save) {
     }
 }
 
-export function isFiniteNumber(value) {
+export function isFiniteNumber(value: unknown): value is number {
     return typeof value === "number" && isFinite(value)
 }
 
 // Applies a current-format save on top of freshly initialised gameData.
 // Anything the save doesn't have, or that no longer exists in the game,
 // keeps its default value.
-export function applySaveData(save) {
-    for (const key of ["coins", "days", "evil", "rebirthOneCount", "rebirthTwoCount"]) {
-        if (isFiniteNumber(save[key])) gameData[key] = save[key]
+export function applySaveData(save: SaveV4): void {
+    for (const key of ["coins", "days", "evil", "rebirthOneCount", "rebirthTwoCount"] as const) {
+        const value: unknown = save[key]
+        if (isFiniteNumber(value)) gameData[key] = value
     }
-    for (const key of ["paused", "timeWarpingEnabled"]) {
-        if (typeof save[key] === "boolean") gameData[key] = save[key]
+    for (const key of ["paused", "timeWarpingEnabled"] as const) {
+        const value: unknown = save[key]
+        if (typeof value === "boolean") gameData[key] = value
     }
 
     for (const id in save.tasks) {
         const task = getTaskById(id)
         const savedTask = save.tasks[id]
         if (!task || !savedTask) continue
-        for (const key of ["level", "maxLevel", "xp"]) {
-            if (isFiniteNumber(savedTask[key])) task[key] = savedTask[key]
+        for (const key of ["level", "maxLevel", "xp"] as const) {
+            const value: unknown = savedTask[key]
+            if (isFiniteNumber(value)) task[key] = value
         }
     }
 
@@ -259,7 +331,8 @@ export function applySaveData(save) {
 
     if (Array.isArray(save.completedRequirements)) {
         for (const id of save.completedRequirements) {
-            const requirement = gameData.requirements[namesById[id]]
+            // A missing id (undefined) names nothing, so finds no requirement
+            const requirement = gameData.requirements[namesById[id as string]]
             if (requirement) requirement.completed = true
         }
     }

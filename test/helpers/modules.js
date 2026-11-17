@@ -5,8 +5,8 @@ import path from "node:path"
 const ROOT = path.join(import.meta.dirname, "..", "..")
 
 // The game's modules, in the order they depend on each other
-const GAME_MODULES = ["src/game/data.js", "src/game/state.js", "src/game/rules.js", "src/game/classes.js",
-    "src/game/engine.js", "src/game/save.js"]
+const GAME_MODULES = ["src/game/data.ts", "src/game/state.ts", "src/game/rules.ts", "src/game/classes.ts",
+    "src/game/engine.ts", "src/game/save.ts"]
 const PAGE_MODULES = ["src/ui/ui.js"]
 
 // Imports the files, in order. Call vi.resetModules() first for new copies.
