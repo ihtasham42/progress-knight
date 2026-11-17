@@ -140,3 +140,18 @@ test("rendering never changes the game state", () => {
     game.run("gameData.days = getLifespan() + 1000")
     renderTwice()
 })
+
+test("automation checkboxes show the game state", () => {
+    const game = loadGame()
+    const document = game.window.document
+    game.run("setAutoPromote(true); setAutoLearn(true); setSkillSkipped('Bargaining', true); updateUI()")
+    assert.equal(document.getElementById("autoPromote").checked, true)
+    assert.equal(document.getElementById("autoLearn").checked, true)
+    const skip = name => document.getElementById("row " + name).getElementsByClassName("checkbox")[0]
+    assert.equal(skip("Bargaining").checked, true)
+    assert.equal(skip("Concentration").checked, false)
+
+    game.run("setAutoLearn(false); setSkillSkipped('Bargaining', false); updateUI()")
+    assert.equal(document.getElementById("autoLearn").checked, false)
+    assert.equal(skip("Bargaining").checked, false)
+})

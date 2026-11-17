@@ -161,6 +161,7 @@ function createRow(templates, name, categoryName, categoryType) {
             income: valueElement.getElementsByClassName("income")[0],
             effect: valueElement.getElementsByClassName("effect")[0],
             skipSkill: row.getElementsByClassName("skipSkill")[0],
+            skipCheckbox: categoryType == skillCategories ? row.getElementsByClassName("checkbox")[0] : null,
         }
     } else {
         itemRowElements[name] = {
@@ -482,6 +483,22 @@ function updateUI() {
     hideEntities()
     updateText()  
     updateTabAfterRebirth()
+    updateAutomationControls()
+}
+
+// Keeps the automation checkboxes showing the game state, e.g. after a save
+// is loaded. Compares with the checkbox itself because the player can tick it.
+function updateAutomationControls() {
+    setChecked(autoPromoteElement, gameData.automation.autoPromote)
+    setChecked(autoLearnElement, gameData.automation.autoLearn)
+    for (const name in taskRowElements) {
+        const checkbox = taskRowElements[name].skipCheckbox
+        if (checkbox) setChecked(checkbox, gameData.automation.skippedSkills.has(idsByName[name]))
+    }
+}
+
+function setChecked(checkbox, checked) {
+    if (checkbox.checked !== checked) checkbox.checked = checked
 }
 
 // About 10 frames per second is plenty for numbers and progress bars
