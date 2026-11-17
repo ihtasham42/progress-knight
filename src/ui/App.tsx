@@ -8,6 +8,7 @@ import { Sidebar } from "./Sidebar.tsx"
 import { TaskTable } from "./TaskTable.tsx"
 import { ShopTable } from "./ShopTable.tsx"
 import { AmuletTab } from "./AmuletTab.tsx"
+import { SettingsTab } from "./SettingsTab.tsx"
 import { classNames } from "./classNames.ts"
 
 export type TabName = "jobs" | "skills" | "shop" | "rebirth" | "settings"
@@ -58,7 +59,7 @@ export function App() {
                     {" "}
                     <Tab name="rebirth" selected={selectedTab}><AmuletTab /></Tab>
                     {" "}
-                    <Tab name="settings" selected={selectedTab}>{null}</Tab>
+                    <Tab name="settings" selected={selectedTab}><SettingsTab /></Tab>
                     {" "}
                 </div>
                 {" "}
