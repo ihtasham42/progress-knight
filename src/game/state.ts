@@ -1,6 +1,6 @@
 // The game state: one object that the game steps change and saves record.
 
-import type { Job, Skill, Item, Requirement } from "./classes.js"
+import type { Job, Skill, Item, Requirement } from "./classes.ts"
 
 export interface GameData {
     taskData: Record<string, Job | Skill> // by name

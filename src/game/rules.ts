@@ -4,7 +4,7 @@
 
 import { skills, items } from "./data.ts"
 import { gameData } from "./state.ts"
-import type { Skill } from "./classes.js"
+import type { Skill } from "./classes.ts"
 import type { GlobalStat, SkillDefinition, ItemDefinition } from "./types.ts"
 
 export const updateSpeed = 20
