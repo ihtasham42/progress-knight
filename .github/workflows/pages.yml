@@ -36,13 +36,17 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      # Publish only the game itself, not the tests or tooling
-      - run: |
-          mkdir _site
-          cp -r index.html css src LICENSE _site/
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Publish only the built game (and its licence), not the tests or tooling
+      - run: npm run build
+      - run: cp LICENSE dist/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: _site
+          path: dist
       - id: deployment
         uses: actions/deploy-pages@v4
