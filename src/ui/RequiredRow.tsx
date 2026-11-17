@@ -54,7 +54,7 @@ function needsOf(requirement: Requirement): Need[] {
         }
         if (kind == "evil") return {kind, label: "Evil", have: gameData.evil, need: condition.requirement}
         if (kind == "age") return {kind, label: "Age", have: Math.floor(daysToYears(gameData.days)), need: condition.requirement}
-        return {kind, label: "", have: gameData.coins, need: condition.requirement}
+        return {kind, label: "Coins", have: gameData.coins, need: condition.requirement}
     })
 }
 
@@ -112,7 +112,7 @@ export function RequiredRow({categoryName, category, items}: {categoryName: stri
                         <LockIcon />
                         {locked
                             ? <span>{evilUnlock ? "Embrace evil at the Amulet to unlock" : "Unlocks with"}</span>
-                            : <span>Next: <strong>{nextEntity?.name}</strong></span>}
+                            : <span>Next: <strong>{nextEntity?.name}</strong>{items && " · shows up once you've held"}</span>}
                     </span>
                     {needs.map((need, i) => <Fragment key={i}>{" "}<NeedChip need={need} /></Fragment>)}
                 </div>

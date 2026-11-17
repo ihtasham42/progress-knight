@@ -11,7 +11,7 @@ import { CoinParts, EmptyCoinParts } from "./CoinParts.tsx"
 import { Checkbox } from "./Checkbox.tsx"
 import { RequiredRow, isCategoryHidden } from "./RequiredRow.tsx"
 import { classNames, removeSpaces } from "./classNames.ts"
-import { format } from "./format.ts"
+import { format, splitEffect } from "./format.ts"
 
 export type TaskKind = "jobs" | "skills"
 
@@ -40,12 +40,6 @@ export function TaskTable({kind}: {kind: TaskKind}) {
             </table>
         </div>
     )
-}
-
-// "x1.86 Military pay" -> "×1.86" and "military pay", so the number leads
-function splitEffect(description: string): {multiplier: string, what: string} {
-    const [multiplier, ...rest] = description.split(" ")
-    return {multiplier: multiplier.replace(/^x/, "×"), what: rest.join(" ").toLowerCase()}
 }
 
 function TaskHeaderRow({kind, categoryName}: {kind: TaskKind, categoryName: string}) {

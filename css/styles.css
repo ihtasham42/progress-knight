@@ -126,18 +126,58 @@ body .w3-text-gray {
     color: var(--pk-text-muted) !important;
 }
 
-.item-button {
-    background-color: var(--pk-panel);
+/* A shop item is a bar-like button. In use it is tinted with its category
+   colour (--cat is set on the row), like a task bar; not in use it is
+   raised, and hover steps up one shade. */
+button.item-button {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    height: var(--pk-bar-height);
+    margin: 0;
+    padding: 0 var(--pk-space-3);
+    border: 0;
     border-radius: var(--pk-radius);
-    text-align: center;
-    width: var(--pk-bar-width);
-    height: var(--pk-control-height);
-    padding: var(--pk-space-2);
+    background-color: var(--pk-raised);
+    color: var(--pk-text);
+    font: inherit;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
 }
 
-.item-button:hover {
-    cursor: pointer;
+button.item-button:hover {
+    background-color: var(--pk-line);
+}
+
+button.item-button[aria-pressed="true"] {
+    background-color: color-mix(in srgb, var(--cat) var(--pk-bar-tint), var(--pk-raised));
+    color: var(--pk-bar-text);
+}
+
+button.item-button[aria-pressed="true"]:hover {
+    background-color: color-mix(in srgb, var(--cat) var(--pk-bar-tint), var(--pk-line));
+}
+
+/* Can't afford it: no hover, muted text. An item already in use keeps its tint. */
+button.item-button:disabled {
+    cursor: not-allowed;
+}
+
+button.item-button:disabled:not([aria-pressed="true"]) {
     background-color: var(--pk-raised);
+    color: var(--pk-text-muted);
+}
+
+/* The inset outline stays inside the scrolling box */
+button.item-button:focus-visible {
+    outline-offset: -2px;
+}
+
+/* The tick inside the button is for phones only */
+.item-tick {
+    display: none;
 }
 
 button:focus {
@@ -266,14 +306,6 @@ th.category {
     width: var(--pk-col-wide);
 }
 
-th.col-active {
-    width: var(--pk-col-narrow);
-}
-
-th.col-effect {
-    width: var(--pk-col-wide);
-}
-
 .tab-bar {
     display: flow-root;
 }
@@ -381,12 +413,6 @@ th {
 /* Under 1024px the sidebar is above the main panel, so bars and item
    buttons grow to fill their table cell */
 @media (max-width: 1023px) {
-    .item-button {
-        width: 100%;
-        min-width: var(--pk-bar-width);
-        box-sizing: border-box;
-    }
-
     .tooltip {
         display: block;
     }
@@ -461,17 +487,13 @@ th {
         box-shadow: inset 0 2px 0 var(--pk-accent);
     }
 
-    .progress-bar,
-    .item-button {
+    .progress-bar {
         min-height: var(--pk-touch);
     }
 
-    button.progress-bar {
+    button.progress-bar,
+    button.item-button {
         height: var(--pk-touch);
-    }
-
-    .item-button {
-        height: auto;
     }
 
     .tab-panel {
@@ -1142,28 +1164,39 @@ body.dark .automation-check {
         grid-column: 1 / -1;
     }
 
-    #itemTable .item-button {
+    #itemTable button.item-button {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        width: 100%;
-        min-width: 0;
-        min-height: var(--pk-touch);
-        padding: 0 var(--pk-space-3);
-        text-align: left;
-        /* Same as the bars: the tab panel behind is --pk-panel */
-        background-color: var(--pk-raised);
     }
 
-    #itemTable .item-button:disabled {
-        opacity: 0.6;
-        cursor: default;
+    #itemTable .item-tick {
+        display: block;
+        flex: none;
+        width: 18px;
+        height: 18px;
     }
 
-    #itemTable .item-button[aria-pressed="true"]::after {
-        content: "\2713";
-        color: var(--pk-accent);
+    #itemTable td.effect strong {
         font-weight: 600;
+        color: var(--pk-text);
+    }
+
+    #itemTable td.expense.free {
+        color: var(--pk-text-muted);
+    }
+
+    /* The generic dot has its own gap; the space after it is enough here */
+    #itemTable td.expense::before {
+        margin: 0 0 0 var(--pk-space-1);
+    }
+
+    #itemTable td.expense.free::before {
+        margin-right: var(--pk-space-1);
+    }
+
+    #itemTable td.expense.free::after {
+        content: none;
     }
 
     /* Next and Unlocks with: a flat block under the rows, chips on the panel */
@@ -1438,4 +1471,65 @@ table.w3-bordered tr.next-tr {
     #itemTable td.requiredRow {
         padding: var(--pk-space-3) var(--pk-space-3) var(--pk-space-1);
     }
+}
+
+/* Tablet and up: the Shop reuses the task table's flat headers and rows.
+   Four columns: item, in use, effect, upkeep. */
+@media (min-width: 640px) {
+    table.task-table.shop-table {
+        min-width: 680px;
+    }
+
+    table.shop-table th.col-active {
+        width: 72px;
+    }
+
+    table.shop-table th.col-effect {
+        width: 30%;
+    }
+
+    table.shop-table th.col-upkeep {
+        width: 140px;
+    }
+
+    table.shop-table th.category {
+        width: 40%;
+    }
+
+    table.shop-table td.in-use {
+        color: var(--cat);
+    }
+
+    table.shop-table td.in-use svg {
+        display: block;
+    }
+
+    table.shop-table .not-in-use {
+        color: var(--pk-text-muted);
+    }
+
+    table.shop-table td.expense.free {
+        color: var(--pk-text-muted);
+    }
+}
+
+.category-hint {
+    margin-left: var(--pk-space-2);
+    font-size: var(--pk-text-xs);
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--pk-text-muted);
+}
+
+@media (max-width: 639px) {
+    #itemTable th.category .category-hint {
+        margin-left: auto;
+    }
+}
+
+.shop-note {
+    margin: var(--pk-space-5) 0 0;
+    font-size: var(--pk-text-xs);
+    color: var(--pk-text-muted);
 }
