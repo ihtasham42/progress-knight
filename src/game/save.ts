@@ -27,7 +27,7 @@ export function loadGameData() {
 
 // The first time a pre-version-2 save is loaded, keep an untouched copy so
 // the player can go back to the original game if they want to.
-export function backUpLegacySave(parsedSave: unknown, rawSave: string): void {
+function backUpLegacySave(parsedSave: unknown, rawSave: string): void {
     const isLegacy = parsedSave !== null && typeof parsedSave === "object" && (parsedSave as {version?: unknown}).version === undefined
     if (isLegacy && localStorage.getItem("gameDataSave_legacyBackup") === null) {
         localStorage.setItem("gameDataSave_legacyBackup", rawSave)
@@ -205,7 +205,7 @@ export function migrateSave(input: unknown): SaveV4 {
     return save
 }
 
-export function migrateLegacySave(legacy: LegacySave): SaveV2 {
+function migrateLegacySave(legacy: LegacySave): SaveV2 {
     if (typeof legacy.taskData !== "object" || legacy.taskData === null) {
         throw new Error("Legacy save has no task data")
     }
@@ -245,7 +245,7 @@ export function migrateLegacySave(legacy: LegacySave): SaveV2 {
 
 // Version 2 referred to jobs, skills, items and unlocks by display name.
 // Names the game no longer has are dropped.
-export function migrateV2ToV3(save: SaveV2): SaveV3 {
+function migrateV2ToV3(save: SaveV2): SaveV3 {
     const toId = (name: unknown): SavedRef => typeof name === "string" ? idsByName[name] : undefined
     const migrated: SaveV3 = Object.assign({}, save, {version: 3 as const})
 
@@ -267,14 +267,14 @@ export function migrateV2ToV3(save: SaveV2): SaveV3 {
 }
 
 // Version 3 didn't save automation settings, so they start switched off
-export function migrateV3ToV4(save: SaveV3): SaveV4 {
+function migrateV3ToV4(save: SaveV3): SaveV4 {
     return Object.assign({}, save, {
         version: 4 as const,
         automation: {autoPromote: false, autoLearn: false, skippedSkills: []},
     })
 }
 
-export function validateSave(save: SaveV4): void {
+function validateSave(save: SaveV4): void {
     for (const key of ["coins", "days"] as const) {
         if (!isFiniteNumber(save[key])) throw new Error("Save has an invalid " + key)
     }
@@ -283,14 +283,14 @@ export function validateSave(save: SaveV4): void {
     }
 }
 
-export function isFiniteNumber(value: unknown): value is number {
+function isFiniteNumber(value: unknown): value is number {
     return typeof value === "number" && isFinite(value)
 }
 
 // Applies a current-format save on top of freshly initialised gameData.
 // Anything the save doesn't have, or that no longer exists in the game,
 // keeps its default value.
-export function applySaveData(save: SaveV4): void {
+function applySaveData(save: SaveV4): void {
     for (const key of ["coins", "days", "evil", "rebirthOneCount", "rebirthTwoCount"] as const) {
         const value: unknown = save[key]
         if (isFiniteNumber(value)) gameData[key] = value

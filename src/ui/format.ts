@@ -1,6 +1,6 @@
 // How numbers and coins are written on the page.
 
-export const units = ["", "k", "M", "B", "T", "q", "Q", "Sx", "Sp", "Oc"]
+const units = ["", "k", "M", "B", "T", "q", "Q", "Sx", "Sp", "Oc"]
 
 export function format(number: number | string): number | string {
     number = Number(number)
@@ -29,7 +29,7 @@ export function format(number: number | string): number | string {
     return sign + scaled.toFixed(1) + units[tier]
 }
 
-export const coinColors = {
+const coinColors = {
     "p": "#79b9c7",
     "g": "#E5C100",
     "s": "#a8a8a8",
