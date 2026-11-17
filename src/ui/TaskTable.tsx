@@ -12,6 +12,7 @@ import { Checkbox } from "./Checkbox.tsx"
 import { RequiredRow, isCategoryHidden } from "./RequiredRow.tsx"
 import { classNames, removeSpaces } from "./classNames.ts"
 import { format, splitEffect } from "./format.ts"
+import { fillStyle } from "./fill.ts"
 
 export type TaskKind = "jobs" | "skills"
 
@@ -72,8 +73,12 @@ function TaskRow({task, categoryName}: {task: Job | Skill, categoryName: string}
             <td>
                 {/* A real button, so the keyboard can start the task too */}
                 <button type="button" className="progress-bar progressBar tooltip" aria-describedby={tooltipId} onClick={() => {setTask(name); requestRender()}}>
-                    <span className={classNames("progress-fill progressFill", isCurrent && "current")}
-                        style={{width: task.xp / task.getMaxXp() * 100 + "%"}}></span>
+                    {/* Keyed by level so a level-up resets the bar instead of sliding it back */}
+                    {/* The track clips the sliding fill; the tooltip stays outside it */}
+                    <span className="progress-track">
+                        <span key={task.level} className={classNames("progress-fill progressFill", isCurrent && "current")}
+                            style={fillStyle(task.xp / task.getMaxXp())}></span>
+                    </span>
                     <span className="progress-text name">{name}</span>
                     <span className="bar-end">
                         {isCurrent && <span className="active-badge">Active</span>}

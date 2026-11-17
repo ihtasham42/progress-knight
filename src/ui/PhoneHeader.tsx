@@ -7,6 +7,7 @@ import { getDay, getExpense, getIncome, getNet, isLifeOver, setPause } from "../
 import { requestRender, useGame } from "./gameStore.ts"
 import { CoinParts } from "./CoinParts.tsx"
 import { getLifeShare } from "./life.ts"
+import { fillStyle } from "./fill.ts"
 
 export function PhoneHeader() {
     const game = useGame()
@@ -37,7 +38,7 @@ export function PhoneHeader() {
                 <span>Lifespan {daysToYears(lifespan)}</span>
             </div>
             <div className="life-bar" role="img" aria-label={"Age " + age + " of " + daysToYears(lifespan)}>
-                <div className="life-bar-fill" style={{width: lifeShare * 100 + "%"}}></div>
+                <div className="life-bar-fill" style={fillStyle(lifeShare)}></div>
             </div>
             {isLifeOver() && <div className="phone-header-death">Age has caught up to you</div>}
         </header>
