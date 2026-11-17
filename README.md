@@ -11,13 +11,13 @@ The game is built with [Vite](https://vite.dev/). You need Node.js 22 or later.
 
 - `npm install`: install the tools
 - `npm run dev`: run the game locally with live reloading (open the address it prints)
-- `npm test`: unit tests (Vitest)
+- `npm test`: unit and component tests (Vitest, React Testing Library)
 - `npm run test:e2e`: browser tests (Playwright); run `npx playwright install chromium` once first
 - `npm run lint`: lint
 - `npm run typecheck`: TypeScript type checking
 - `npm run build`: build the site into `dist/`; `npm run preview` serves the build
 
-The game logic and data are in `src/game/` (TypeScript) and don't touch the page; the page code is in `src/ui/`. Game data (jobs, skills, items and unlocks) lives in `src/game/data.ts`; the format is documented at the top of that file and typed in `src/game/types.ts`, so `npm run typecheck` catches a misspelt id, stat or requirement.
+The game logic and data are in `src/game/` (TypeScript) and don't touch the page. The page is a React app in `src/ui/`: the game state stays a plain object that the game loop changes outside React, and `src/ui/gameStore.ts` tells the components to render it again about 10 times a second and after every player action. Player actions call the engine's functions; components never change the game state while rendering. Game data (jobs, skills, items and unlocks) lives in `src/game/data.ts`; the format is documented at the top of that file and typed in `src/game/types.ts`, so `npm run typecheck` catches a misspelt id, stat or requirement.
 
 Pushes to `main` are published to GitHub Pages automatically.
 

@@ -174,20 +174,20 @@ const itemList = [
 export const items: readonly ItemDefinition[] = itemList
 
 // Parts of the game that are hidden until their requirements are met. A
-// category unlock reveals that category's rows; the others reveal the page
-// element with the given id.
+// category unlock reveals that category's rows; the page decides what the
+// others reveal, asking isUnlocked(id) (engine.ts).
 const unlockList = [
     {id: "the_arcane_association", name: "The Arcane Association", category: "The Arcane Association", requires: [{task: "concentration", level: 200}, {task: "meditation", level: 200}]},
     {id: "dark_magic", name: "Dark magic", category: "Dark magic", requires: [{evil: 1}]},
-    {id: "shop", name: "Shop", elementId: "shopTabButton", permanent: true, requires: [{coins: 750}]},
-    {id: "rebirth_tab", name: "Rebirth tab", elementId: "rebirthTabButton", requires: [{age: 25}]},
-    {id: "rebirth_note_1", name: "Rebirth note 1", elementId: "rebirthNote1", requires: [{age: 45}]},
-    {id: "rebirth_note_2", name: "Rebirth note 2", elementId: "rebirthNote2", requires: [{age: 65}]},
-    {id: "rebirth_note_3", name: "Rebirth note 3", elementId: "rebirthNote3", requires: [{age: 200}]},
-    {id: "evil_info", name: "Evil info", elementId: "evilInfo", requires: [{evil: 1}]},
-    {id: "time_warping_info", name: "Time warping info", elementId: "timeWarping", requires: [{task: "mage", level: 10}]},
-    {id: "automation", name: "Automation", elementId: "automation", permanent: true, requires: [{age: 20}]},
-    {id: "quick_task_display", name: "Quick task display", elementId: "quickTaskDisplay", permanent: true, requires: [{age: 20}]},
+    {id: "shop", name: "Shop", permanent: true, requires: [{coins: 750}]},
+    {id: "rebirth_tab", name: "Rebirth tab", requires: [{age: 25}]},
+    {id: "rebirth_note_1", name: "Rebirth note 1", requires: [{age: 45}]},
+    {id: "rebirth_note_2", name: "Rebirth note 2", requires: [{age: 65}]},
+    {id: "rebirth_note_3", name: "Rebirth note 3", requires: [{age: 200}]},
+    {id: "evil_info", name: "Evil info", requires: [{evil: 1}]},
+    {id: "time_warping_info", name: "Time warping info", requires: [{task: "mage", level: 10}]},
+    {id: "automation", name: "Automation", permanent: true, requires: [{age: 20}]},
+    {id: "quick_task_display", name: "Quick task display", permanent: true, requires: [{age: 20}]},
 ] as const satisfies readonly UnlockDefinition[]
 export const unlocks: readonly UnlockDefinition[] = unlockList
 

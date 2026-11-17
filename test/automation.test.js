@@ -16,16 +16,16 @@ test("automation starts switched off", async () => {
 test("the checkboxes update the automation state", async () => {
     const game = await loadGame()
     const document = game.window.document
-    document.getElementById("autoPromote").checked = true
-    document.getElementById("autoLearn").checked = true
-    document.getElementById("row Strength").getElementsByClassName("checkbox")[0].checked = true
+    game.setChecked(document.getElementById("autoPromote"), true)
+    game.setChecked(document.getElementById("autoLearn"), true)
+    game.setChecked(document.getElementById("row Strength").getElementsByClassName("checkbox")[0], true)
     const automation = game.gameData.automation
     assert.equal(automation.autoPromote, true)
     assert.equal(automation.autoLearn, true)
     assert.deepEqual([...automation.skippedSkills], ["strength"])
 
-    document.getElementById("autoPromote").checked = false
-    document.getElementById("row Strength").getElementsByClassName("checkbox")[0].checked = false
+    game.setChecked(document.getElementById("autoPromote"), false)
+    game.setChecked(document.getElementById("row Strength").getElementsByClassName("checkbox")[0], false)
     assert.equal(automation.autoPromote, false)
     assert.equal(automation.skippedSkills.size, 0)
 })
