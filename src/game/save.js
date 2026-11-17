@@ -1,7 +1,7 @@
 // Saving, loading, importing and exporting game data.
 
 import { namesById, idsByName } from "./data.ts"
-import { gameData } from "./state.js"
+import { gameData } from "./state.ts"
 import { Job, Skill } from "./classes.js"
 import { getTaskById, getItemById, setAutoPromote, setAutoLearn, setSkillSkipped } from "./engine.js"
 

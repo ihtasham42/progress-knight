@@ -3,8 +3,8 @@
 // game state; it never changes it.
 
 import { jobs, skills, items, unlocks, idsByName, jobCategories, skillCategories, itemCategories, headerRowColors, tooltips } from "../game/data.ts"
-import { gameData } from "../game/state.js"
-import { daysToYears, getLifespan } from "../game/rules.js"
+import { gameData } from "../game/state.ts"
+import { daysToYears, getLifespan } from "../game/rules.ts"
 import { Job, Skill, EvilRequirement } from "../game/classes.js"
 import { getTaskById, getHappiness, getEvilGain, getExpense, setPause, setTimeWarping, setAutoPromote, setAutoLearn, setSkillSkipped, setTask, setProperty, setMisc, getNet, getIncome, getDay, rebirthOne, rebirthTwo, isLifeOver } from "../game/engine.js"
 import { clearSave, importSave, exportSave } from "../game/save.js"

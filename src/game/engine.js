@@ -1,11 +1,11 @@
 // The game itself: game steps, unlocks, rebirths and automation. The state
-// is in state.js and the formulas the classes share are in rules.js.
+// is in state.ts and the formulas the classes share are in rules.ts.
 // Nothing here touches the page (no document or window), so the game can
 // also run without a browser. ui.js shows this state on the page.
 
 import { jobs, skills, items, unlocks, startingItems, namesById, idsByName, jobBaseData, jobCategories, skillBaseData, itemBaseData } from "./data.ts"
-import { gameData } from "./state.js"
-import { updateSpeed, getSourceEffect, applyStatBoosts, applySpeed, daysToYears, getLifespan } from "./rules.js"
+import { gameData } from "./state.ts"
+import { updateSpeed, getSourceEffect, applyStatBoosts, applySpeed, daysToYears, getLifespan } from "./rules.ts"
 import { Job, Skill, Item, TaskRequirement, CoinRequirement, AgeRequirement, EvilRequirement } from "./classes.js"
 
 export let skillWithLowestMaxXp = null

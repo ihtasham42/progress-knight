@@ -5,7 +5,7 @@
 import { vi } from "vitest"
 import { importModules, gameApi } from "./modules.js"
 
-const ENGINE_MODULES = ["src/game/data.ts", "src/game/state.js", "src/game/rules.js", "src/game/classes.js", "src/game/engine.js"]
+const ENGINE_MODULES = ["src/game/data.ts", "src/game/state.ts", "src/game/rules.ts", "src/game/classes.js", "src/game/engine.js"]
 
 async function loadEngine() {
     // In case a test in the same file loaded a page

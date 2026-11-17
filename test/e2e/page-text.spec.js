@@ -40,8 +40,8 @@ function stopTimers() {
 // serves each module at one URL, so these are the page's own copies.
 async function exposeGame(page) {
     await page.evaluate(async base => {
-        const [state, rules, engine, ui] = await Promise.all(["game/state", "game/rules", "game/engine", "ui/ui"]
-            .map(name => import(base + "src/" + name + ".js")))
+        const [state, rules, engine, ui] = await Promise.all(["game/state.ts", "game/rules.ts", "game/engine.js", "ui/ui.js"]
+            .map(name => import(base + "src/" + name)))
         window.pk = {
             gameData: state.gameData,
             update: engine.update,

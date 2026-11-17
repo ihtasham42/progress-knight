@@ -1,6 +1,6 @@
 import { itemCategories } from "./data.ts"
-import { gameData } from "./state.js"
-import { getBaseLog, applyMultipliers, applySpeed, daysToYears } from "./rules.js"
+import { gameData } from "./state.ts"
+import { getBaseLog, applyMultipliers, applySpeed, daysToYears } from "./rules.ts"
 
 export class Task {
     constructor(baseData) {
