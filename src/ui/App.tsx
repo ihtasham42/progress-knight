@@ -4,6 +4,7 @@ import { useState } from "react"
 import type { ReactNode } from "react"
 import { isUnlocked } from "../game/engine.ts"
 import { useGame } from "./gameStore.ts"
+import { Sidebar } from "./Sidebar.tsx"
 import { classNames } from "./classNames.ts"
 
 export type TabName = "jobs" | "skills" | "shop" | "rebirth" | "settings"
@@ -34,6 +35,8 @@ export function App() {
             <h1>Progress Knight</h1>
             {" "}
             <div style={{width: "1220px", height: "600px"}}>
+                {" "}
+                <Sidebar />
                 {" "}
                 <div className="panel w3-margin-left" style={{width: "900px", height: "40px", float: "left"}}>
                     {" "}
