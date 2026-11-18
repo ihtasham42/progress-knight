@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from "react"
 import { headerRowColors, jobBaseData, namesById, skills } from "../game/data.ts"
+import { nextWakeDay, yearOf } from "../game/history.ts"
 import { getEvilGain, getTaskById, isUnlocked, rebirthOne, rebirthTwo } from "../game/engine.ts"
 import { daysToYears, getLifespan } from "../game/rules.ts"
 import type { Skill } from "../game/classes.ts"
@@ -95,7 +96,7 @@ export function AmuletTab() {
                     <button type="button" id="rebirthOneButton" className="amulet-cta"
                         onClick={() => {rebirthOne(); requestRender()}}>Touch the eye</button>
                     <p className="amulet-fine">
-                        Resets coins, age, levels and items · {game.rebirthOneCount} {game.rebirthOneCount == 1 ? "rebirth" : "rebirths"} so far
+                        Resets coins, age, levels and items · <strong>you’ll wake at 14 in {yearOf(nextWakeDay())}</strong>
                     </p>
                 </section>
 

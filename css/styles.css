@@ -1869,6 +1869,11 @@ table.w3-bordered tr.next-tr {
     color: var(--pk-text-muted);
 }
 
+.amulet-fine strong {
+    font-weight: 600;
+    color: var(--pk-text);
+}
+
 .amulet-reward {
     display: flex;
     justify-content: space-between;
