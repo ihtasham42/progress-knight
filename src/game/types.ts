@@ -69,5 +69,19 @@ export interface UnlockDefinition extends Definition {
     readonly permanent?: boolean
 }
 
+// The world calendar. A year is its seasons, in order, and starts on the
+// first day of the first one.
+export interface SeasonDefinition {
+    readonly id: string
+    readonly name: string
+    readonly days: number
+}
+
+export interface CalendarDefinition {
+    readonly epochYear: number // the year world day 0 falls in
+    readonly eraLabel: string
+    readonly seasons: readonly SeasonDefinition[]
+}
+
 // Anything with its own unlock requirement
 export type AnyDefinition = JobDefinition | SkillDefinition | ItemDefinition | UnlockDefinition

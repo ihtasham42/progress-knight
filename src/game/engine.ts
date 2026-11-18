@@ -7,6 +7,7 @@ import { jobs, skills, items, unlocks, startingItems, namesById, idsByName, jobB
 import { gameData, MAX_LIVES } from "./state.ts"
 import type { LifeBest, LifeEnd } from "./state.ts"
 import { updateSpeed, getSourceEffect, applyStatBoosts, applySpeed, daysToYears, getLifespan } from "./rules.ts"
+import { getWorldDay, GROWING_UP_DAYS } from "./calendar.ts"
 import { Job, Skill, Item, TaskRequirement, CoinRequirement, AgeRequirement, EvilRequirement } from "./classes.ts"
 import type { Requirement } from "./classes.ts"
 import type { AnyDefinition, JobDefinition, SkillDefinition, ItemDefinition, TargetedStat,
@@ -286,11 +287,6 @@ export function autoLearn() {
     gameData.currentSkill = skillWithLowestMaxXp
 }
 
-export function getDay() {
-    const day = Math.floor(gameData.days - daysToYears(gameData.days) * 365)
-    return day
-}
-
 function increaseDays() {
     const increase = applySpeed(1)
     gameData.days += increase
@@ -369,6 +365,8 @@ function recordLife(end: LifeEnd, evil: number): void {
         skill: getBestOfLife(Skill),
         peakCoins: getLifePeakCoins(),
         evil: evil,
+        born: gameData.lifeStartDay - GROWING_UP_DAYS,
+        ended: getWorldDay(),
     })
     if (gameData.lives.length > MAX_LIVES) gameData.lives.splice(0, gameData.lives.length - MAX_LIVES)
 }
@@ -394,7 +392,9 @@ export function rebirthTwo() {
     }    
 }
 
+// The next life is born as this one ends and wakes 14 years later
 function rebirthReset() {
+    gameData.lifeStartDay = getWorldDay() + GROWING_UP_DAYS
     gameData.coins = 0
     gameData.lifePeakCoins = 0
     gameData.days = 365 * 14

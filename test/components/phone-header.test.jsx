@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-// The compact header shown on phones: coins, net per day, age and day, the
+// The compact header shown on phones: coins, net per day, age and date, the
 // life bar and the pause button.
 
 import { test } from "vitest"
@@ -11,7 +11,7 @@ import { renderComponent } from "../helpers/react.js"
 const squash = element => element.textContent.replace(/\s+/g, " ").trim()
 const header = () => document.querySelector(".phone-header")
 
-test("coins, net per day, age and day", async () => {
+test("coins, net per day, age and date", async () => {
     const game = await renderComponent("PhoneHeader.tsx", "PhoneHeader")
     game.gameData.coins = 123456789
     game.gameData.days = 365 * 31 + 204.5
@@ -19,7 +19,10 @@ test("coins, net per day, age and day", async () => {
     assert.equal(squash(header().querySelector(".phone-header-coins")), "123p 45g 67s 89c")
     assert.equal(squash(header().querySelector(".phone-header-net")), "+ 5c / day")
     assert.equal(header().querySelector(".phone-header-net span").style.color, "var(--pk-gain)")
-    assert.match(squash(header().querySelector(".phone-header-muted")), /^Age 31 · Day 204\s?Lifespan 70$/)
+    assert.match(squash(header().querySelector(".phone-header-muted")), /^Age 31 · Winter 22, 1217\s?Lifespan 70$/)
+    const icon = header().querySelector(".phone-header-muted .season-icon")
+    assert.equal(icon.dataset.season, "winter")
+    assert.equal(icon.getAttribute("width"), "14")
 })
 
 test("the net sign turns to a minus when expenses are higher", async () => {

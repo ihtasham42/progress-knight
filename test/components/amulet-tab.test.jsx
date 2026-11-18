@@ -108,7 +108,7 @@ test("past lives list each life, then the one being lived", async () => {
     game.ticks(1)
     fireEvent.click(screen.getByRole("button", { name: "Embrace evil" }))
     game.task("Immortality").level = 0
-    game.gameData.lives.push({ life: 3, end: "rebirth", age: 30, job: { id: "gone", level: 2 }, skill: { id: "strength", level: 1 }, peakCoins: 0, evil: 0 })
+    game.gameData.lives.push({ life: 3, end: "rebirth", age: 30, job: { id: "gone", level: 2 }, skill: { id: "strength", level: 1 }, peakCoins: 0, evil: 0, born: 0, ended: 365 * 16 })
     game.task("Farmer").level = 7
     game.gameData.coins = 250
     game.ticks(1)

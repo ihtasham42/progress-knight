@@ -2,6 +2,7 @@
 
 import { namesById, idsByName } from "./data.ts"
 import { gameData, MAX_LIVES } from "./state.ts"
+import { GROWING_UP_DAYS } from "./calendar.ts"
 import type { Life, LifeEnd } from "./state.ts"
 import { Job, Skill } from "./classes.ts"
 import { getTaskById, getItemById, setAutoPromote, setAutoLearn, setSkillSkipped } from "./engine.ts"
@@ -94,9 +95,11 @@ export function exportSave(): string {
 //   3      - the same, referring to everything by id (see data.ts)
 //   4      - adds automation settings (auto-promote, auto-learn, skipped skills)
 //   5      - adds the history of past lives and the peak purse of this life
+//   6      - adds the world date: when this life woke, and when each past
+//            life was born and ended
 // ---------------------------------------------------------------------------
 
-export const SAVE_VERSION = 5
+export const SAVE_VERSION = 6
 
 // What each version of a save looks like, as the game wrote it. A save read
 // from storage or imported by the player is only checked as far as
@@ -159,12 +162,17 @@ export interface SaveV4 extends SaveFields<4> {
 }
 export interface SaveV5 extends Omit<SaveV4, "version"> {
     version: 5
-    lives: Life[] // jobs and skills by id, so renamed tasks still resolve
+    lives: Omit<Life, "born" | "ended">[] // jobs and skills by id, so renamed tasks still resolve
     lifePeakCoins: number
 }
-type AnySave = LegacySave | SaveV2 | SaveV3 | SaveV4 | SaveV5
+export interface SaveV6 extends Omit<SaveV5, "version" | "lives"> {
+    version: 6
+    lives: Life[]
+    lifeStartDay: number // world days, see calendar.ts
+}
+type AnySave = LegacySave | SaveV2 | SaveV3 | SaveV4 | SaveV5 | SaveV6
 
-export function serializeGameData(): SaveV5 {
+export function serializeGameData(): SaveV6 {
     const tasks: Record<string, SavedTask> = {}
     for (const name in gameData.taskData) {
         const task = gameData.taskData[name]
@@ -198,12 +206,13 @@ export function serializeGameData(): SaveV5 {
         },
         lives: gameData.lives.map(life => ({...life, job: {...life.job}, skill: {...life.skill}})),
         lifePeakCoins: gameData.lifePeakCoins,
+        lifeStartDay: gameData.lifeStartDay,
     }
 }
 
 // Converts any supported save into the current format. Throws if the save
 // can't be understood.
-export function migrateSave(input: unknown): SaveV5 {
+export function migrateSave(input: unknown): SaveV6 {
     if (input === null || typeof input !== "object" || Array.isArray(input)) {
         throw new Error("Save is not an object")
     }
@@ -215,6 +224,7 @@ export function migrateSave(input: unknown): SaveV5 {
     if (save.version === 2) save = migrateV2ToV3(save)
     if (save.version === 3) save = migrateV3ToV4(save)
     if (save.version === 4) save = migrateV4ToV5(save)
+    if (save.version === 5) save = migrateV5ToV6(save)
 
     if (save.version > SAVE_VERSION) {
         throw new Error("Save is from a newer version of the game")
@@ -307,7 +317,31 @@ function migrateV4ToV5(save: SaveV4): SaveV5 {
     })
 }
 
-function validateSave(save: SaveV5): void {
+// Version 5 didn't date anything, so the history is rebuilt: the oldest life
+// kept woke on world day 0, each lasted from 14 to the age it ended at, and
+// the next woke 14 years after it ended. This life woke where that leaves
+// off. Lives that can't be dated are left as they are, and dropped when the
+// save is applied, as other malformed lives are.
+function migrateV5ToV6(save: SaveV5): SaveV6 {
+    let lifeStartDay = 0
+    let lives: unknown = save.lives
+    if (Array.isArray(save.lives)) {
+        lives = save.lives.slice(-MAX_LIVES).map(function(life: unknown) {
+            if (life === null || typeof life !== "object" || !isCount((life as {age?: unknown}).age)) return life
+            const born = lifeStartDay - GROWING_UP_DAYS
+            const ended = lifeStartDay + Math.max(0, (life as {age: number}).age * 365 - GROWING_UP_DAYS)
+            lifeStartDay = ended + GROWING_UP_DAYS
+            return Object.assign({}, life, {born: born, ended: ended})
+        })
+    }
+    return Object.assign({}, save, {
+        version: 6 as const,
+        lives: lives as Life[],
+        lifeStartDay: lifeStartDay,
+    })
+}
+
+function validateSave(save: SaveV6): void {
     for (const key of ["coins", "days"] as const) {
         if (!isFiniteNumber(save[key])) throw new Error("Save has an invalid " + key)
     }
@@ -323,8 +357,8 @@ function isFiniteNumber(value: unknown): value is number {
 // Applies a current-format save on top of freshly initialised gameData.
 // Anything the save doesn't have, or that no longer exists in the game,
 // keeps its default value.
-function applySaveData(save: SaveV5): void {
-    for (const key of ["coins", "days", "evil", "rebirthOneCount", "rebirthTwoCount"] as const) {
+function applySaveData(save: SaveV6): void {
+    for (const key of ["coins", "days", "evil", "rebirthOneCount", "rebirthTwoCount", "lifeStartDay"] as const) {
         const value: unknown = save[key]
         if (isFiniteNumber(value)) gameData[key] = value
     }
@@ -397,7 +431,11 @@ function readLife(value: unknown): Life | undefined {
     if (!job || !skill) return undefined
     if (!isCount(life.life) || life.life < 1 || !isCount(life.age) || !isCount(life.peakCoins) || !isCount(life.evil)) return undefined
     if (life.end !== "rebirth" && life.end !== "evil") return undefined
-    return {life: life.life, end: life.end as LifeEnd, age: life.age, job, skill, peakCoins: life.peakCoins, evil: life.evil}
+    // World days can be before day 0, but a life can't end before its birth
+    const born = life.born
+    const ended = life.ended
+    if (!isFiniteNumber(born) || !isFiniteNumber(ended) || ended < born) return undefined
+    return {life: life.life, end: life.end as LifeEnd, age: life.age, job, skill, peakCoins: life.peakCoins, evil: life.evil, born, ended}
 }
 
 function readBest(value: unknown): Life["job"] | undefined {

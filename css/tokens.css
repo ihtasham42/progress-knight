@@ -95,6 +95,10 @@ body {
     --pk-stat-evil: #af3b43;
     --pk-stat-time: #8a48a2;
 
+    /* Seasons of the world calendar, each always shown with its name */
+    --pk-season-summer: #626d00;
+    --pk-season-winter: #46628a;
+
     /* Progress bars: the task buttons. Fills are the colour at about 28%
        over the track, so dark text stays readable */
     --pk-bar-track: #ecebe7;

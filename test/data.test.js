@@ -81,3 +81,10 @@ test("a new life starts with a job, a skill and a property that exist", async ()
     assert.ok(skills.some(definition => definition.id == starting.skill))
     assert.ok(items.some(definition => definition.id == starting.property && definition.category == "Properties"))
 })
+
+test("the calendar's seasons make up a year of age, with unique ids", async () => {
+    const { calendar } = game.api
+    assert.equal(calendar.seasons.reduce((total, season) => total + season.days, 0), 365)
+    assert.equal(new Set(calendar.seasons.map(season => season.id)).size, calendar.seasons.length)
+    for (const season of calendar.seasons) assert.ok(season.days > 0 && Number.isInteger(season.days), season.name)
+})

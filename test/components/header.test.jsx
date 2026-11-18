@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-// The header from tablet width up: age and day, the life bar, the game speed,
+// The header from tablet width up: age and date, the life bar, the game speed,
 // the pause button and the death text.
 
 import { test } from "vitest"
@@ -13,14 +13,16 @@ const text = id => byId(id).textContent.replace(/\s+/g, " ").trim()
 const squash = element => element.textContent.replace(/\s+/g, " ").trim()
 const isHidden = id => byId(id).classList.contains("hidden")
 
-test("age, day and years left", async () => {
+test("age, date and years left", async () => {
     const game = await renderComponent("Header.tsx", "Header")
     assert.equal(text("ageDisplay"), "14")
-    assert.equal(text("dayDisplay"), "0")
+    assert.equal(text("dateDisplay"), "Summer 1, 1200")
+    assert.equal(document.querySelector(".life-date .season-icon").dataset.season, "summer")
     assert.equal(text("lifespanDisplay"), "70")
     game.gameData.days = 365 * 31 + 204.5
     game.rerender()
-    assert.equal(squash(document.querySelector(".life-age")), "Age 31 · Day 204")
+    assert.equal(squash(document.querySelector(".life-age")), "Age 31 · Winter 22, 1217")
+    assert.equal(document.querySelector(".life-date .season-icon").dataset.season, "winter")
     assert.equal(squash(document.querySelector(".life-left")), "39 years left of 70")
 })
 

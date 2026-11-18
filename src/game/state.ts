@@ -21,6 +21,8 @@ export interface Life {
     skill: LifeBest
     peakCoins: number
     evil: number // the evil gained, 0 unless the life ended in evil
+    born: number // world day of birth, 14 years before it woke
+    ended: number // world day it ended
 }
 
 // Past lives kept; older ones are dropped
@@ -41,6 +43,7 @@ export interface GameData {
 
     lives: Life[] // finished lives, newest last
     lifePeakCoins: number // the most coins held in this life so far
+    lifeStartDay: number // the world day this life woke up at 14 (calendar.ts)
 
     currentJob: Job
     currentSkill: Skill
@@ -77,6 +80,9 @@ export const gameData: GameData = {
     // Saved since save version 5
     lives: [],
     lifePeakCoins: 0,
+
+    // Saved since save version 6. The first life wakes on world day 0.
+    lifeStartDay: 0,
 
     currentJob: notBuiltYet,
     currentSkill: notBuiltYet,
