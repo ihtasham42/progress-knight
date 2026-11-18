@@ -61,3 +61,17 @@ test("the death message appears only when the life is over", async () => {
     game.rerender()
     assert.equal(squash(header().querySelector(".phone-header-death")), "Age has caught up to you")
 })
+
+test("an event running gets a row under the life bar", async () => {
+    const game = await renderComponent("PhoneHeader.tsx", "PhoneHeader")
+    game.gameData.requirements["Shop"].completed = true
+    game.gameData.days = 365 * 14 + 50
+    game.rerender()
+    assert.equal(header().querySelector(".phone-header-event"), null)
+    game.gameData.days = 365 * 14 + 183 + 61
+    game.rerender()
+    const rows = header().querySelectorAll(".phone-header-event")
+    assert.equal(rows.length, 1)
+    assert.equal(squash(rows[0]), "Hard Winter ×1.25 upkeep ×1.5 skill XP 121 days")
+    assert.deepEqual([...rows[0].querySelectorAll(".phone-header-effect")].map(effect => effect.style.color), ["var(--pk-loss)", "var(--pk-gain-text)"])
+})

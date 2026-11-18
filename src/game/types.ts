@@ -83,5 +83,29 @@ export interface CalendarDefinition {
     readonly seasons: readonly SeasonDefinition[]
 }
 
+// Something that happens for a whole season, on a fixed schedule: in each
+// year where (year - epochYear - offset) is a multiple of everyYears. Nothing
+// about events is stored; past and future ones are worked out from the date.
+// Each effect multiplies its boosts' stats by effect while the event runs;
+// its label names them for the player ("×3 Magic and Arcane XP").
+export interface EventEffect {
+    readonly label: string
+    readonly effect: number
+    readonly boosts: readonly Boost[]
+}
+
+export interface EventDefinition {
+    readonly id: string
+    readonly name: string
+    readonly plural: string
+    readonly season: string // a season's id
+    readonly everyYears: number
+    readonly offset: number
+    readonly effects: readonly EventEffect[]
+    // An unlock's id: until it is reached the event has no effect and isn't shown
+    readonly requires?: string
+    readonly description: string
+}
+
 // Anything with its own unlock requirement
 export type AnyDefinition = JobDefinition | SkillDefinition | ItemDefinition | UnlockDefinition

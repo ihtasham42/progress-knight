@@ -1,10 +1,12 @@
 // The compact header on phones: title, pause button, coins, net per day,
-// age and the world's date, and a life bar. Header.tsx holds the same numbers behind ids (tests
+// age and the world's date, a life bar and a row for each event running. Header.tsx holds the same numbers behind ids (tests
 // and wider screens use those), so this uses classes only.
 
 import { daysToYears, getLifespan } from "../game/rules.ts"
 import { getExpense, getIncome, getNet, isLifeOver, setPause } from "../game/engine.ts"
-import { formatDate, getWorldDay, toDate } from "../game/calendar.ts"
+import { daysLeftInSeason, formatDate, getWorldDay, toDate } from "../game/calendar.ts"
+import { getActiveEvents } from "../game/events.ts"
+import { effectColor, effectText } from "./eventText.ts"
 import type { SeasonId } from "../game/data.ts"
 import { requestRender, useGame } from "./gameStore.ts"
 import { CoinParts } from "./CoinParts.tsx"
@@ -44,6 +46,19 @@ export function PhoneHeader() {
             <div className="life-bar" role="img" aria-label={"Age " + age + " of " + daysToYears(lifespan)}>
                 <div className="life-bar-fill" style={fillStyle(lifeShare)}></div>
             </div>
+            {getActiveEvents().map(running => {
+                const left = daysLeftInSeason(getWorldDay())
+                return (
+                    <div key={running.event.id} className="phone-header-event">
+                        <strong>{running.event.name}</strong>
+                        {running.event.effects.map(effect => (
+                            <span key={effect.label}>{" "}<span className="phone-header-effect" style={{color: effectColor(effect, true)}}>{effectText(effect)}</span></span>
+                        ))}
+                        {" "}
+                        <span className="phone-header-event-left">{left + (left == 1 ? " day" : " days")}</span>
+                    </div>
+                )
+            })}
             {isLifeOver() && <div className="phone-header-death">Age has caught up to you</div>}
         </header>
     )

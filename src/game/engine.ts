@@ -3,14 +3,15 @@
 // Nothing here touches the page (no document or window), so the game can
 // also run without a browser. ui.js shows this state on the page.
 
-import { jobs, skills, items, unlocks, startingItems, namesById, idsByName, jobBaseData, jobCategories, skillBaseData, itemBaseData } from "./data.ts"
+import { jobs, skills, items, unlocks, events, startingItems, namesById, idsByName, jobBaseData, jobCategories, skillBaseData, itemBaseData } from "./data.ts"
 import { gameData, MAX_LIVES } from "./state.ts"
 import type { LifeBest, LifeEnd } from "./state.ts"
 import { updateSpeed, getSourceEffect, applyStatBoosts, applySpeed, daysToYears, getLifespan } from "./rules.ts"
 import { getWorldDay, GROWING_UP_DAYS } from "./calendar.ts"
+import { getEventEffect } from "./events.ts"
 import { Job, Skill, Item, TaskRequirement, CoinRequirement, AgeRequirement, EvilRequirement } from "./classes.ts"
 import type { Requirement } from "./classes.ts"
-import type { AnyDefinition, JobDefinition, SkillDefinition, ItemDefinition, TargetedStat,
+import type { AnyDefinition, Boost, JobDefinition, SkillDefinition, ItemDefinition, TargetedStat,
     TaskRequirementSpec, CoinRequirementSpec, AgeRequirementSpec, EvilRequirementSpec } from "./types.ts"
 
 export let skillWithLowestMaxXp: Skill | null = null
@@ -31,7 +32,7 @@ export function getItemById(id: string | undefined): Item | undefined {
 // Wires up every xp, income and expense multiplier from the boosts declared
 // in data.ts. Multipliers are applied from the broadest to the most specific
 // ("all", then "jobs"/"skills"/"items", then a category or a single task),
-// each group in definition order with skills before items.
+// each group in definition order with skills before items, then events.
 function addMultipliers() {
     for (const taskName in gameData.taskData) {
         const task = gameData.taskData[taskName]
@@ -69,16 +70,24 @@ function boostApplies(target: string, entity: Job | Skill | Item): boolean {
     return entity.baseData.category == target || entity.baseData.id == target
 }
 
-// Effect functions of every skill and item that boosts stat for entity
+// Effect functions of every skill, item and event that boosts stat for
+// entity. An event's is 1 while the event isn't running.
 function getBoostEffects(stat: TargetedStat, entity: Job | Skill | Item): (() => number)[] {
+    // Only xp, income and expense boosts can match stat, and they always have
+    // a target (types.ts)
+    const matches = (boost: Boost, scope: string) =>
+        boost.stat == stat && getBoostScope(boost.of as string) == scope && boostApplies(boost.of as string, entity)
     const effects: (() => number)[] = []
     for (const scope of boostScopes) {
         for (const source of [...skills, ...items]) {
             for (const boost of source.boosts || []) {
-                // Only xp, income and expense boosts can match stat, and they always
-                // have a target (types.ts)
-                if (boost.stat == stat && getBoostScope(boost.of as string) == scope && boostApplies(boost.of as string, entity)) {
-                    effects.push(getSourceEffect(source))
+                if (matches(boost, scope)) effects.push(getSourceEffect(source))
+            }
+        }
+        for (const event of events) {
+            for (const effect of event.effects) {
+                for (const boost of effect.boosts) {
+                    if (matches(boost, scope)) effects.push(getEventEffect(event, effect))
                 }
             }
         }

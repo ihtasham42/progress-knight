@@ -118,7 +118,43 @@ test("each strip starts on the right day of the year", async () => {
         + "var(--pk-stripe-summer) -25.0685%, var(--pk-stripe-summer) 0.0000%, "
         + "var(--pk-stripe-winter) 0.0000%, var(--pk-stripe-winter) 24.9315%)")
     await withLives([41])
-    const strip = section().querySelector(".chronicle-strip")
+    const strip = section().querySelector(".chronicle-track")
     assert.equal(strip.getAttribute("role"), "img")
     assert.equal(strip.getAttribute("aria-label"), "18 years of Summers and Winters")
+})
+
+const unlock = (game, ...names) => { for (const name of names) game.gameData.requirements[name].completed = true }
+
+test("each life marks the events it lived through, rare ones in gold, and names them", async () => {
+    const game = await withLives([70])
+    // Life 1 woke in 1200 and touched the eye at 70, in 1256
+    assert.equal(section().querySelector(".chronicle-lane"), null, "no events before they are unlocked")
+    assert.equal(section().querySelector(".chronicle-events"), null)
+    assert.deepEqual([...section().querySelectorAll(".chronicle-legend > span")].map(squash), ["Summer", "Winter"])
+
+    unlock(game, "Shop", "Arcane glimpse")
+    game.rerender()
+    const [, first] = section().querySelectorAll(".chronicle-life")
+    assert.equal(squash(first.querySelector(".chronicle-events")),
+        "Arcane Conjunction 1200, 1207, 1214, 1221, 1228, 1235, 1242, 1249 · 12 Hard Winters")
+    const marks = [...first.querySelectorAll(".chronicle-event")]
+    assert.equal(marks.length, 8 + 12)
+    assert.equal(marks.filter(mark => mark.classList.contains("chronicle-rare")).length, 8)
+    // The first, Hard Winter 1200, runs from day 183 to 365 of a 56-year life
+    assert.equal(marks[0].style.left, 183 / (56 * 365) * 100 + "%")
+    assert.equal(first.querySelector(".chronicle-track").getAttribute("aria-label"), "56 years of Summers and Winters, 20 events")
+    assert.deepEqual([...section().querySelectorAll(".chronicle-legend > span")].map(squash),
+        ["Summer", "Winter", "Event (a season)", "Rare event"])
+})
+
+test("the life being lived counts the events that have begun, one alone by name", async () => {
+    const game = await renderComponent("Chronicle.tsx", "Chronicle")
+    unlock(game, "Shop")
+    game.gameData.days = 25 * 365
+    game.ticks(1)
+    // 1200 to 1211: Hard Winters in 1200, 1205 and 1210
+    assert.equal(squash(section().querySelector(".chronicle-events")), "3 Hard Winters")
+    game.gameData.days = 14 * 365 + 200
+    game.rerender()
+    assert.equal(squash(section().querySelector(".chronicle-events")), "Hard Winter")
 })

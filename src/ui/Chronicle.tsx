@@ -1,12 +1,15 @@
 // The Chronicle, in the Settings tab: every life on the world's calendar.
 // An overview puts all of them on one axis from the first life to now; a
 // list below gives each life a strip of its Summers and Winters, with the
-// years spent growing up between them. The life being lived updates live.
+// years spent growing up between them, and a lane above the strip marking
+// each event it lived through. The life being lived updates live.
 
 import { useState } from "react"
 import type { CSSProperties } from "react"
 import { DAYS_PER_YEAR, getWorldDay, toDate } from "../game/calendar.ts"
-import { calendar } from "../game/data.ts"
+import { calendar, events } from "../game/data.ts"
+import { getEventsInSpan, isEventUnlocked, isRare } from "../game/events.ts"
+import type { EventOccurrence } from "../game/events.ts"
 import { getLifeSpans, toRoman, yearOf } from "../game/history.ts"
 import type { LifeSpan } from "../game/history.ts"
 import { useGame } from "./gameStore.ts"
@@ -76,6 +79,28 @@ export function getStripStyle(from: number, to: number): CSSProperties {
     return {backgroundImage: "repeating-linear-gradient(90deg, " + stops.join(", ") + ")"}
 }
 
+// The events a life lived through that the player can see, earliest first.
+// The life being lived counts those that have begun.
+function getLifeEvents(span: LifeSpan): EventOccurrence[] {
+    return getEventsInSpan(span.woke, span.ended).filter(found => isEventUnlocked(found.event))
+}
+
+// "Arcane Conjunction 1522, 1529 · 6 Tournament Summers · 4 Hard Winters":
+// rare events with their years first, then how many of each other one
+export function getEventSummary(found: EventOccurrence[]): string {
+    const parts: string[] = []
+    for (const rare of [true, false]) {
+        for (const event of events) {
+            if (isRare(event) != rare) continue
+            const years = found.filter(occurrence => occurrence.event == event).map(occurrence => occurrence.year)
+            if (years.length == 0) continue
+            if (rare) parts.push(event.name + " " + years.join(", "))
+            else parts.push(years.length == 1 ? event.name : years.length + " " + event.plural)
+        }
+    }
+    return parts.join(" · ")
+}
+
 function endText(span: LifeSpan): string {
     if (span.living) return "living, age " + span.age
     return (span.end == "evil" ? "embraced evil at " : "touched the eye at ") + span.age
@@ -136,6 +161,10 @@ export function Chronicle() {
                 {calendar.seasons.map(season => (
                     <span key={season.id}><span aria-hidden="true" className="chronicle-swatch" style={{backgroundColor: "var(--pk-stripe-" + season.id + ")"}}></span>{season.name}</span>
                 ))}
+                {events.some(isEventUnlocked) && <>
+                    <span><span aria-hidden="true" className="chronicle-swatch chronicle-swatch-event"></span>Event (a season)</span>
+                    <span><span aria-hidden="true" className="chronicle-swatch chronicle-swatch-event chronicle-rare"></span>Rare event</span>
+                </>}
             </div>
 
             <ol className="chronicle-list">
@@ -146,9 +175,7 @@ export function Chronicle() {
                                 <strong>{"Life " + span.life + (span.living ? " · now" : "")}</strong>
                                 <span className="settings-note">{"Born " + yearOf(span.born) + " · " + endText(span)}</span>
                             </span>
-                            <span className="chronicle-strip" role="img"
-                                aria-label={plural(Math.floor((span.ended - span.woke) / DAYS_PER_YEAR), "year", "years") + " of Summers and Winters"}
-                                style={getStripStyle(span.woke, span.ended)}></span>
+                            <LifeStrip span={span} />
                             <span className={classNames("chronicle-years", span.living && "chronicle-years-now")}>{yearsText(span)}</span>
                         </div>
                         {/* The years this life spent growing up, after the life before it */}
@@ -167,5 +194,34 @@ export function Chronicle() {
                 </button>
             )}
         </section>
+    )
+}
+
+// A life's Summers and Winters, a lane above them marking each event it lived
+// through (rare ones in gold), and a line naming them
+function LifeStrip({span}: {span: LifeSpan}) {
+    const found = getLifeEvents(span)
+    const length = Math.max(1, span.ended - span.woke)
+    const label = plural(Math.floor((span.ended - span.woke) / DAYS_PER_YEAR), "year", "years") + " of Summers and Winters"
+        + (found.length ? ", " + plural(found.length, "event", "events") : "")
+    const summary = getEventSummary(found)
+    return (
+        <span className="chronicle-middle">
+            <span className="chronicle-track" role="img" aria-label={label}>
+                {found.length > 0 && (
+                    <span className="chronicle-lane">
+                        {found.map(occurrence => {
+                            const start = Math.max(occurrence.start, span.woke)
+                            const end = Math.min(occurrence.end, span.ended)
+                            return <span key={occurrence.event.id + " " + occurrence.year}
+                                className={classNames("chronicle-event", isRare(occurrence.event) && "chronicle-rare")}
+                                style={{left: (start - span.woke) / length * 100 + "%", width: (end - start) / length * 100 + "%"}}></span>
+                        })}
+                    </span>
+                )}
+                <span className="chronicle-strip" style={getStripStyle(span.woke, span.ended)}></span>
+            </span>
+            {summary && <span className="chronicle-events">{summary}</span>}
+        </span>
     )
 }

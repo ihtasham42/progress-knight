@@ -91,6 +91,7 @@ body {
     --pk-gain: #257d24;
     --pk-loss: #af3c3a;
     --pk-info: #006cb7;
+    --pk-on-info: #ffffff;
     --pk-stat-happiness: #1f68bc;
     --pk-stat-evil: #af3b43;
     --pk-stat-time: #8a48a2;
@@ -101,6 +102,8 @@ body {
     /* The seasons as strips over the raised background (the Chronicle) */
     --pk-stripe-summer: color-mix(in srgb, var(--pk-season-summer) 55%, var(--pk-raised));
     --pk-stripe-winter: color-mix(in srgb, var(--pk-season-winter) 55%, var(--pk-raised));
+    /* An event's mark over the strips */
+    --pk-event-lane: color-mix(in srgb, var(--pk-text) 55%, transparent);
 
     /* Progress bars: the task buttons. Fills are the colour at about 28%
        over the track, so dark text stays readable */

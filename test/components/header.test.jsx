@@ -65,3 +65,18 @@ test("the death text is shown once age reaches the lifespan, and hidden after a 
     game.rerender()
     assert.ok(isHidden("deathText"))
 })
+
+test("an event running shows as a chip after the date", async () => {
+    const game = await renderComponent("Header.tsx", "Header")
+    game.gameData.days = 365 * 14 + 183 + 5
+    game.rerender()
+    assert.equal(document.querySelector(".event-chip"), null, "not until it is unlocked")
+    game.gameData.requirements["Shop"].completed = true
+    game.gameData.requirements["Arcane glimpse"].completed = true
+    game.rerender()
+    assert.deepEqual([...document.querySelectorAll(".event-chip")].map(squash), ["Hard Winter", "Arcane Conjunction"])
+    assert.equal(squash(document.querySelector(".life-age")), "Age 14 · Winter 6, 1200 Hard Winter Arcane Conjunction")
+    game.gameData.days = 365 * 15 + 5
+    game.rerender()
+    assert.equal(document.querySelector(".event-chip"), null)
+})

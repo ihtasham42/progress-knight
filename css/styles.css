@@ -618,6 +618,35 @@ th {
         margin-top: var(--pk-space-2);
     }
 
+    /* An event running: its name, its effects and the days it has left */
+    .phone-header-event {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 2px var(--pk-space-2);
+        min-height: var(--pk-space-8);
+        margin-top: var(--pk-space-2);
+        padding: var(--pk-space-1) var(--pk-space-3);
+        box-sizing: border-box;
+        border-radius: var(--pk-radius);
+        background-color: var(--pk-raised);
+        font-size: var(--pk-text-xs);
+    }
+
+    .phone-header-event strong {
+        font-weight: 600;
+        color: var(--pk-text);
+    }
+
+    .phone-header-effect {
+        font-weight: 600;
+    }
+
+    .phone-header-event-left {
+        margin-left: auto;
+        color: var(--pk-text-muted);
+    }
+
     .phone-header-death {
         margin-top: var(--pk-space-2);
         font-size: var(--pk-text-sm);
@@ -760,6 +789,19 @@ th {
     .life-date {
         font-weight: 600;
         color: var(--pk-text);
+    }
+
+    /* An event running, after the date */
+    .event-chip {
+        display: inline-block;
+        margin-left: var(--pk-space-1);
+        padding: 2px var(--pk-space-2);
+        border-radius: var(--pk-radius);
+        background-color: var(--pk-raised);
+        color: var(--pk-text-secondary);
+        font-size: var(--pk-text-xs);
+        font-weight: 600;
+        vertical-align: 0.125em;
     }
 
     .life-left {
@@ -2603,10 +2645,53 @@ body.effects-off .fx-anim::after {
     color: var(--pk-text);
 }
 
-.chronicle-strip {
+.chronicle-middle {
     grid-area: strip;
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-1);
+    min-width: 0;
+}
+
+.chronicle-track {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.chronicle-strip {
     height: 10px;
     border-radius: 2px;
+}
+
+/* A mark over each season an event ran for; rare events in gold */
+.chronicle-lane {
+    position: relative;
+    height: 4px;
+}
+
+.chronicle-event {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    min-width: 1px;
+    background-color: var(--pk-event-lane);
+}
+
+.chronicle-event.chronicle-rare,
+.chronicle-swatch-event.chronicle-rare {
+    background-color: var(--pk-accent);
+}
+
+.chronicle-swatch-event {
+    width: 14px;
+    height: 4px;
+    background-color: var(--pk-event-lane);
+}
+
+.chronicle-events {
+    font-size: var(--pk-text-xs);
+    color: var(--pk-text-secondary);
 }
 
 .chronicle-years {
@@ -2638,4 +2723,113 @@ body.effects-off .fx-anim::after {
     .chronicle-gap {
         grid-template-areas: "title . years";
     }
+}
+
+/* The Almanac's events: the label row's toggle, a box per event running,
+   the next event, and the list of those coming up */
+.almanac-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--pk-space-2);
+}
+
+.almanac-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pk-space-1);
+    height: var(--pk-space-8);
+    margin: calc(-1 * var(--pk-space-2)) calc(-1 * var(--pk-space-2)) calc(-1 * var(--pk-space-2)) 0;
+    padding: 0 var(--pk-space-2);
+    border: 0;
+    border-radius: var(--pk-radius);
+    background: none;
+    color: var(--pk-text-muted);
+    font: inherit;
+    font-size: var(--pk-text-xs);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.almanac-toggle:hover {
+    background-color: var(--pk-raised);
+    color: var(--pk-text);
+}
+
+.almanac-chevron-open {
+    transform: rotate(180deg);
+}
+
+.almanac-event {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-1);
+    padding: var(--pk-space-3);
+    border-radius: var(--pk-radius);
+    background-color: var(--pk-raised);
+}
+
+.almanac-event-head {
+    display: flex;
+    align-items: center;
+    gap: var(--pk-space-2);
+}
+
+.almanac-event-head strong {
+    font-weight: 600;
+    color: var(--pk-text);
+}
+
+.almanac-began {
+    padding: 1px var(--pk-space-2);
+    border-radius: var(--pk-radius);
+    background-color: var(--pk-info);
+    color: var(--pk-on-info);
+    font-size: var(--pk-text-xs);
+    font-weight: 700;
+}
+
+.almanac-event-left {
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+.almanac-effects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px var(--pk-space-3);
+    font-size: var(--pk-text-xs);
+    font-weight: 600;
+}
+
+.almanac-next-event strong {
+    font-weight: 600;
+    color: var(--pk-text-secondary);
+}
+
+.almanac-upcoming {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-2);
+    padding-top: var(--pk-space-3);
+    border-top: 1px solid var(--pk-raised);
+}
+
+.almanac-coming {
+    display: flex;
+    flex-direction: column;
+}
+
+.almanac-coming-name {
+    color: var(--pk-text);
+}
+
+@media (hover: none) {
+    .almanac-toggle {
+        height: var(--pk-touch);
+    }
+}
+
+.purse-event b {
+    font-weight: 600;
 }
