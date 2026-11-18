@@ -2,7 +2,7 @@
 
 import { namesById, idsByName } from "./data.ts"
 import { gameData, MAX_LIVES } from "./state.ts"
-import { GROWING_UP_DAYS } from "./calendar.ts"
+import { GROWING_UP_DAYS, worldDayAt } from "./calendar.ts"
 import type { Life, LifeEnd } from "./state.ts"
 import { Job, Skill } from "./classes.ts"
 import { getTaskById, getItemById, setAutoPromote, setAutoLearn, setSkillSkipped } from "./engine.ts"
@@ -97,7 +97,8 @@ export function exportSave(): string {
 //   5      - adds the history of past lives and the peak purse of this life
 //   6      - adds the world date: when this life woke, and when each past
 //            life was born and ended
-//   7      - every life wakes on the same day, so the dates are dropped
+//   7      - every life wakes on the same day, so the dates are dropped;
+//            adds the furthest date any life has reached
 // ---------------------------------------------------------------------------
 
 export const SAVE_VERSION = 7
@@ -173,6 +174,7 @@ export interface SaveV6 extends Omit<SaveV5, "version" | "lives"> {
 }
 export interface SaveV7 extends Omit<SaveV5, "version"> {
     version: 7
+    furthestDay: number // world days, see calendar.ts
 }
 type AnySave = LegacySave | SaveV2 | SaveV3 | SaveV4 | SaveV5 | SaveV6 | SaveV7
 
@@ -210,6 +212,7 @@ export function serializeGameData(): SaveV7 {
         },
         lives: gameData.lives.map(life => ({...life, job: {...life.job}, skill: {...life.skill}})),
         lifePeakCoins: gameData.lifePeakCoins,
+        furthestDay: gameData.furthestDay,
     }
 }
 
@@ -347,7 +350,19 @@ function migrateV5ToV6(save: SaveV5): SaveV6 {
 
 // Version 6 ran the date on from life to life. Now every life wakes on the
 // same day, so the dates are dropped; a life's span follows from its age.
+// The furthest date reached is the furthest any life kept, or this one, got
+// to by its age. Lives already dropped can't count.
 function migrateV6ToV7(save: SaveV6): SaveV7 {
+    let furthestDay = 0
+    const reach = function(days: unknown) {
+        if (isFiniteNumber(days)) furthestDay = Math.max(furthestDay, worldDayAt(days))
+    }
+    reach(save.days)
+    if (Array.isArray(save.lives)) {
+        for (const life of save.lives as unknown[]) {
+            if (life !== null && typeof life === "object" && isCount((life as {age?: unknown}).age)) reach((life as {age: number}).age * 365)
+        }
+    }
     const migrated: Partial<SaveV6> = Object.assign({}, save)
     delete migrated.lifeStartDay
     let lives: unknown = save.lives
@@ -363,6 +378,7 @@ function migrateV6ToV7(save: SaveV6): SaveV7 {
     return Object.assign(migrated, {
         version: 7 as const,
         lives: lives as Life[],
+        furthestDay: furthestDay,
     }) as SaveV7
 }
 
@@ -389,6 +405,9 @@ function applySaveData(save: SaveV7): void {
     }
     // A save that lacks it (or has nonsense) starts the peak from the coins held
     gameData.lifePeakCoins = isFiniteNumber(save.lifePeakCoins) && save.lifePeakCoins >= gameData.coins ? save.lifePeakCoins : gameData.coins
+    // A save that lacks it (or has nonsense) starts the record from today
+    if (isFiniteNumber(save.furthestDay) && save.furthestDay >= 0) gameData.furthestDay = save.furthestDay
+    gameData.furthestDay = Math.max(gameData.furthestDay, worldDayAt(gameData.days))
     if (Array.isArray(save.lives)) {
         gameData.lives = save.lives.map(readLife).filter((life): life is Life => life !== undefined).slice(-MAX_LIVES)
     }

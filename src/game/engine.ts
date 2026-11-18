@@ -8,6 +8,7 @@ import { gameData, MAX_LIVES } from "./state.ts"
 import type { LifeBest, LifeEnd } from "./state.ts"
 import { updateSpeed, getSourceEffect, applyStatBoosts, applySpeed, daysToYears, getLifespan } from "./rules.ts"
 import { getEventEffect } from "./events.ts"
+import { getWorldDay } from "./calendar.ts"
 import { Job, Skill, Item, TaskRequirement, CoinRequirement, AgeRequirement, EvilRequirement } from "./classes.ts"
 import type { Requirement } from "./classes.ts"
 import type { AnyDefinition, Boost, JobDefinition, SkillDefinition, ItemDefinition, TargetedStat,
@@ -363,6 +364,12 @@ export function getLifePeakCoins(): number {
     return Math.max(gameData.lifePeakCoins, gameData.coins)
 }
 
+// The furthest world day any life has reached, counting today. Kept apart
+// from the lives, since the oldest of those are dropped.
+export function getFurthestDay(): number {
+    return Math.max(gameData.furthestDay, getWorldDay())
+}
+
 // Writes the life that is ending into the history, before the reset
 function recordLife(end: LifeEnd, evil: number): void {
     gameData.lives.push({
@@ -374,6 +381,7 @@ function recordLife(end: LifeEnd, evil: number): void {
         peakCoins: getLifePeakCoins(),
         evil: evil,
     })
+    gameData.furthestDay = getFurthestDay()
     if (gameData.lives.length > MAX_LIVES) gameData.lives.splice(0, gameData.lives.length - MAX_LIVES)
 }
 
@@ -442,8 +450,9 @@ export function update() {
     doCurrentTask(gameData.currentSkill)
     applyExpenses()
     updateRequirements()
-    // Only watches the coins; it changes nothing the game uses
+    // Only watch the coins and the date; they change nothing the game uses
     gameData.lifePeakCoins = getLifePeakCoins()
+    gameData.furthestDay = getFurthestDay()
 }
 
 // The game always advances in fixed steps of 1 / updateSpeed seconds, however

@@ -41,6 +41,7 @@ export interface GameData {
 
     lives: Life[] // finished lives, newest last
     lifePeakCoins: number // the most coins held in this life so far
+    furthestDay: number // the furthest world day any life has reached; it never goes down
 
     currentJob: Job
     currentSkill: Skill
@@ -77,6 +78,9 @@ export const gameData: GameData = {
     // Saved since save version 5
     lives: [],
     lifePeakCoins: 0,
+
+    // Saved since save version 7
+    furthestDay: 0,
 
     currentJob: notBuiltYet,
     currentSkill: notBuiltYet,

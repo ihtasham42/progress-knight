@@ -353,8 +353,12 @@ test("version 5 and 6 saves with past lives keep the lives, and this life wakes 
         assert.equal(game.api.formatDate(game.api.toDate(game.api.getWorldDay())), "Winter 52, 1201", "this life is 15")
         assert.equal(game.errors.length, 0, game.errors.join("\n"))
 
+        // Life 1 reached 70, in 1256: further than life 2 (52) or this one (15)
+        assert.equal(game.gameData.furthestDay, 56 * 365)
+
         const saved = savedState(game)
         assert.equal(saved.version, 7)
+        assert.equal(saved.furthestDay, 56 * 365)
         assert.equal(saved.lifeStartDay, undefined)
         assert.deepEqual(saved.lives.map(entry => [entry.born, entry.ended]), [[undefined, undefined], [undefined, undefined]])
     }
@@ -373,7 +377,33 @@ test("the old dates on a version 6 save are dropped whatever they hold", async (
     assert.equal(game.errors.length, 0, game.errors.join("\n"))
 })
 
+test("older saves with no past lives start the record from this life", async () => {
+    for (const raw of [legacyRaw, v5Raw]) {
+        const game = await loadGame({ localStorage: { gameDataSave: raw } })
+        assert.equal(game.gameData.furthestDay, game.api.getWorldDay())
+        assert.ok(game.gameData.furthestDay > 0)
+    }
+})
+
+test("the record is saved and loaded, and a bad or lower one is ignored", async () => {
+    const game = await loadGame()
+    game.api.gameData.days = 70 * 365
+    game.api.rebirthOne()
+    game.api.saveGameData()
+    const raw = game.window.localStorage.getItem("gameDataSave")
+    assert.equal(JSON.parse(raw).furthestDay, 56 * 365)
+    const reloaded = await loadGame({ localStorage: { gameDataSave: raw } })
+    assert.equal(reloaded.gameData.furthestDay, 56 * 365)
+
+    for (const furthestDay of ["far", -5, null, undefined, 1]) {
+        const save = { ...JSON.parse(raw), days: 30 * 365, furthestDay }
+        const bad = await loadGame({ localStorage: { gameDataSave: JSON.stringify(save) } })
+        assert.equal(Math.floor(bad.gameData.furthestDay), 16 * 365, "the record is at least where this life is: " + furthestDay)
+    }
+})
+
 test("a new game, and so a hard reset, starts on Summer 1, 1200", async () => {
     const game = await loadGame()
+    assert.ok(game.gameData.furthestDay < 1, "with no record")
     assert.equal(game.api.formatDate(game.api.toDate(game.api.getWorldDay())), "Summer 1, 1200")
 })

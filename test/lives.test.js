@@ -108,3 +108,34 @@ test("both rebirths wake the next life on Summer 1, 1200", async () => {
     assert.equal(today(), "Summer 1, 1200", "after embracing evil")
     assert.equal(game.api.getWorldYear(), 1200)
 })
+
+test("the furthest date any life reached is kept, survives both rebirths and never goes back", async () => {
+    const game = await loadEngine()
+    const { gameData } = game
+    const year = () => game.api.yearOf(game.api.getFurthestDay())
+    game.fastTicks(1)
+    assert.ok(gameData.furthestDay > 0, "it follows the life being lived")
+
+    gameData.days = 365 * 70
+    game.fastTicks(1)
+    game.api.rebirthOne()
+    assert.equal(gameData.furthestDay, 365 * 56)
+    assert.equal(year(), 1256)
+
+    gameData.days = 365 * 40
+    game.api.rebirthTwo()
+    assert.equal(gameData.furthestDay, 365 * 56, "a shorter life doesn't lower it")
+
+    game.api.getTaskById("immortality").level = 33 ** 3 - 1 // lifespan x4
+    gameData.days = 365 * 90
+    game.fastTicks(1)
+    assert.equal(year(), 1276, "a longer life raises it as it goes")
+    game.api.rebirthTwo()
+    assert.equal(Math.floor(gameData.furthestDay), 365 * 76)
+
+    // Past the cap, the life that set it is long gone from the history
+    for (let i = 0; i < 60; i++) game.api.rebirthOne()
+    assert.equal(gameData.lives.length, 50)
+    assert.ok(gameData.lives.every(life => life.age < 90))
+    assert.equal(Math.floor(gameData.furthestDay), 365 * 76)
+})
