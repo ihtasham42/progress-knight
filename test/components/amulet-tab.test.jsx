@@ -115,15 +115,16 @@ test("past lives list each life, then the one being lived", async () => {
 
     const rows = pastRows()
     // A purse set just before a game step has earned a little by then
-    assert.match(rows[1].splice(3, 1)[0], /^3s \d+c$/)
-    assert.match(rows[3].splice(3, 1)[0], /^2s \d+c$/)
+    assert.match(rows[1].splice(4, 1)[0], /^3s \d+c$/)
+    assert.match(rows[3].splice(4, 1)[0], /^2s \d+c$/)
     assert.deepEqual(rows, [
-        ["1", "Footman 31", "Strength 112", "8g 12s", "Age 66 · touched the eye"],
-        ["2", "Squire 14", "Immortality 35936", "Age 200 · embraced evil (+3.0 evil)"],
-        ["3", "Unknown 2", "Strength 1", "0c", "Age 30 · touched the eye"],
-        ["3", "Farmer 7", "Concentration 0", "Living"],
+        ["1", "1200–1252", "Footman 31", "Strength 112", "8g 12s", "Touched the eye at 66"],
+        ["2", "1266–1452", "Squire 14", "Immortality 35936", "Embraced evil at 200 (+3.0 evil)"],
+        ["3", "1214–1216", "Unknown 2", "Strength 1", "0c", "Touched the eye at 30"],
+        ["3", "1466–now", "Farmer 7", "Concentration 0", "Living"],
     ])
     assert.ok(document.querySelector(".past-living .past-ended"))
+    assert.ok(document.querySelector(".past-living .past-years"))
     assert.equal(screen.queryByRole("button", { name: /Show all/ }), null)
 })
 
@@ -137,7 +138,20 @@ test("only the 10 latest past lives show until Show all", async () => {
     fireEvent.click(screen.getByRole("button", { name: "Show all 14 lives" }))
     assert.equal(pastRows().length, 15)
     assert.equal(pastRows()[0][0], "1")
-    assert.equal(pastRows()[14][4], "Living")
+    assert.equal(pastRows()[14][5], "Living")
     fireEvent.click(screen.getByRole("button", { name: "Show recent lives" }))
     assert.equal(pastRows().length, 11)
+})
+
+test("the foot of Touch the eye says when the next life wakes", async () => {
+    const game = await renderComponent("AmuletTab.tsx", "AmuletTab")
+    const foot = () => document.querySelector("#rebirthNote2 .amulet-fine").textContent.replace(/\s+/g, " ").trim()
+    game.gameData.days = 365 * 66 + 200
+    game.rerender()
+    // Today is 1252; 14 years spent growing up
+    assert.equal(foot(), "Resets coins, age, levels and items · you’ll wake at 14 in 1266")
+    assert.equal(document.querySelector("#rebirthNote2 .amulet-fine strong").textContent, "you’ll wake at 14 in 1266")
+    game.gameData.days = 365 * 70
+    game.rerender()
+    assert.match(foot(), /in 1270$/)
 })

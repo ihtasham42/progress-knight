@@ -1,6 +1,7 @@
 // The whole page: the header, the sidebar, the tab bar and the selected tab.
 
 import { useEffect, useState } from "react"
+import { flushSync } from "react-dom"
 import type { ReactNode } from "react"
 import { isUnlocked } from "../game/engine.ts"
 import { useGame } from "./gameStore.ts"
@@ -12,6 +13,7 @@ import { ShopTable } from "./ShopTable.tsx"
 import { AmuletTab } from "./AmuletTab.tsx"
 import { SettingsTab } from "./SettingsTab.tsx"
 import { classNames } from "./classNames.ts"
+import { getPreferences } from "./preferences.ts"
 
 export type TabName = "jobs" | "skills" | "shop" | "rebirth" | "settings"
 
@@ -40,10 +42,32 @@ function useSidebarOpen() {
     return [open, setOpen] as const
 }
 
+// The height of the headers that stay on screen as the page scrolls (the
+// compact header on phones), so whatever is scrolled to isn't hidden under them
+function getStickyHeight(): number {
+    let height = 0
+    for (const header of document.querySelectorAll<HTMLElement>(".site-header, .phone-header")) {
+        const position = getComputedStyle(header).position
+        if ((position == "sticky" || position == "fixed") && header.offsetParent !== null) height += header.offsetHeight
+    }
+    return height
+}
+
 export function App() {
     const game = useGame()
     const [selectedTab, setSelectedTab] = useState<TabName>("jobs")
     const [sidebarOpen, setSidebarOpen] = useSidebarOpen()
+
+    // The Almanac's link: the Settings tab, scrolled to the Chronicle, whose
+    // heading takes the focus. The tab is shown first, so it can scroll.
+    const openChronicle = () => {
+        flushSync(() => setSelectedTab("settings"))
+        const heading = document.getElementById("chronicleLabel")
+        if (!heading) return
+        scrollTo({top: heading.getBoundingClientRect().top + scrollY - getStickyHeight() - 16,
+            behavior: getPreferences().reducedMotion ? "auto" : "smooth"})
+        heading.focus({preventScroll: true})
+    }
 
     // After a rebirth the page goes back to the Jobs tab
     const rebirths = game.rebirthOneCount + game.rebirthTwoCount
@@ -63,7 +87,7 @@ export function App() {
                     {" "}
                     <details className="sidebar-details" open={sidebarOpen} onToggle={event => setSidebarOpen(event.currentTarget.open)}>
                         <summary>Details</summary>
-                        <Sidebar />
+                        <Sidebar onOpenChronicle={openChronicle} />
                     </details>
                     {" "}
                     <div className="main">

@@ -1869,6 +1869,11 @@ table.w3-bordered tr.next-tr {
     color: var(--pk-text-muted);
 }
 
+.amulet-fine strong {
+    font-weight: 600;
+    color: var(--pk-text);
+}
+
 .amulet-reward {
     display: flex;
     justify-content: space-between;
@@ -2121,7 +2126,7 @@ body.effects-off .fx-anim::after {
 
 .past-row {
     display: grid;
-    grid-template-columns: 80px minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1.6fr);
+    grid-template-columns: 56px 96px minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1.6fr);
     column-gap: var(--pk-space-4);
     align-items: center;
     padding: 10px var(--pk-space-3);
@@ -2153,6 +2158,15 @@ body.effects-off .fx-anim::after {
     color: var(--pk-text-muted);
 }
 
+.past-years {
+    white-space: nowrap;
+    color: var(--pk-text-muted);
+}
+
+.past-living .past-years {
+    color: var(--pk-accent-text);
+}
+
 /* On desktop the detail wrapper only groups; its cells are grid columns */
 .past-detail {
     display: contents;
@@ -2170,9 +2184,13 @@ body.effects-off .fx-anim::after {
     }
 
     .past-row {
-        grid-template-columns: auto minmax(0, 1fr);
+        grid-template-columns: auto auto minmax(0, 1fr);
         gap: 2px var(--pk-space-3);
         padding: var(--pk-space-3);
+    }
+
+    .past-years {
+        font-size: var(--pk-text-xs);
     }
 
     .past-life::before {
@@ -2180,7 +2198,7 @@ body.effects-off .fx-anim::after {
     }
 
     .past-ended {
-        grid-column: 2;
+        grid-column: 3;
         grid-row: 1;
         justify-self: end;
         font-size: var(--pk-text-xs);
@@ -2391,4 +2409,233 @@ body.effects-off .fx-anim::after {
 .season-icon {
     vertical-align: -0.125em;
     margin-right: var(--pk-space-1);
+}
+
+/* The Almanac: today's date, the days to the next season and the season's bar */
+.almanac-now {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-2);
+}
+
+.almanac-line {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--pk-space-2);
+}
+
+.almanac-date {
+    font-size: var(--pk-text-base);
+    font-weight: 600;
+    color: var(--pk-text);
+}
+
+.almanac-next {
+    white-space: nowrap;
+}
+
+.almanac .almanac-bar {
+    height: 6px;
+}
+
+/* A small flat text button, nudged so its text lines up with the card's */
+.almanac-link {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pk-space-1);
+    height: var(--pk-space-8);
+    margin: 0 0 calc(-1 * var(--pk-space-2)) calc(-1 * var(--pk-space-2));
+    padding: 0 var(--pk-space-2);
+    border: 0;
+    border-radius: var(--pk-radius);
+    background: none;
+    color: var(--pk-text-muted);
+    font: inherit;
+    font-size: var(--pk-text-xs);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.almanac-link:hover {
+    background-color: var(--pk-raised);
+    color: var(--pk-text);
+}
+
+@media (hover: none) {
+    .almanac-link {
+        height: var(--pk-touch);
+    }
+}
+
+/* The Chronicle, in Settings: every life on one axis, then a strip per life */
+.chronicle-summary {
+    white-space: nowrap;
+}
+
+.chronicle h2:focus {
+    outline: none;
+}
+
+.chronicle-overview {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-1);
+}
+
+/* One row of blocks per set of overlapping lives */
+.chronicle-axis {
+    position: relative;
+    height: calc(var(--rows, 1) * 24px + 4px);
+}
+
+.chronicle-baseline {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 14px;
+    border-top: 1px dashed var(--pk-line);
+}
+
+.chronicle-block {
+    position: absolute;
+    top: calc(4px + var(--row, 0) * 24px);
+    height: 20px;
+    min-width: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 2px;
+    background-color: var(--pk-line);
+    color: var(--pk-text-secondary);
+    font-size: var(--pk-text-xs);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.chronicle-block-now {
+    background-color: color-mix(in srgb, var(--pk-accent) calc(var(--pk-bar-tint) + 5%), var(--pk-raised));
+    color: var(--pk-text);
+}
+
+.chronicle-now {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--pk-accent);
+}
+
+.chronicle-ticks {
+    position: relative;
+    height: 18px;
+    font-size: var(--pk-text-xs);
+    color: var(--pk-text-muted);
+}
+
+.chronicle-ticks span {
+    position: absolute;
+}
+
+.chronicle-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--pk-space-2) var(--pk-space-4);
+    font-size: var(--pk-text-xs);
+    color: var(--pk-text-muted);
+}
+
+.chronicle-legend > span {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pk-space-2);
+}
+
+.chronicle-swatch {
+    width: 10px;
+    height: 10px;
+}
+
+.chronicle-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* The life, its strip and its years; on phones the strip takes a row of its own */
+.chronicle-life,
+.chronicle-gap {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "title years" "strip strip";
+    column-gap: var(--pk-space-6);
+    row-gap: var(--pk-space-2);
+    align-items: center;
+}
+
+.chronicle-life {
+    padding: var(--pk-space-3) 0;
+    border-top: 1px solid var(--pk-line);
+}
+
+.chronicle-gap {
+    grid-template-areas: "title years";
+    padding: var(--pk-space-2) 0;
+    border-top: 1px dashed var(--pk-line);
+    font-size: var(--pk-text-xs);
+    color: var(--pk-text-muted);
+}
+
+.chronicle-title {
+    grid-area: title;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.chronicle-title strong {
+    font-weight: 600;
+    color: var(--pk-text);
+}
+
+.chronicle-strip {
+    grid-area: strip;
+    height: 10px;
+    border-radius: 2px;
+}
+
+.chronicle-years {
+    grid-area: years;
+    text-align: right;
+    white-space: nowrap;
+    color: var(--pk-text-muted);
+}
+
+.chronicle-life .chronicle-years {
+    font-weight: 500;
+}
+
+.chronicle-years-now {
+    color: var(--pk-accent-text);
+}
+
+.chronicle-more {
+    align-self: flex-start;
+}
+
+@media (min-width: 640px) {
+    .chronicle-life,
+    .chronicle-gap {
+        grid-template-columns: 200px minmax(0, 1fr) 100px;
+        grid-template-areas: "title strip years";
+    }
+
+    .chronicle-gap {
+        grid-template-areas: "title . years";
+    }
 }

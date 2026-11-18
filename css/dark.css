@@ -38,6 +38,8 @@ body.dark {
 
     --pk-season-summer: #b8c255;
     --pk-season-winter: #9db8d9;
+    --pk-stripe-summer: color-mix(in srgb, var(--pk-season-summer) 60%, var(--pk-raised));
+    --pk-stripe-winter: color-mix(in srgb, var(--pk-season-winter) 60%, var(--pk-raised));
 
     /* Fills are the colour at about 40% over the track, so white text stays readable */
     --pk-bar-track: #20242d;
