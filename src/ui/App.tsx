@@ -1,6 +1,7 @@
 // The whole page: the header, the sidebar, the tab bar and the selected tab.
 
 import { useEffect, useState } from "react"
+import { flushSync } from "react-dom"
 import type { ReactNode } from "react"
 import { isUnlocked } from "../game/engine.ts"
 import { useGame } from "./gameStore.ts"
@@ -12,6 +13,7 @@ import { ShopTable } from "./ShopTable.tsx"
 import { AmuletTab } from "./AmuletTab.tsx"
 import { SettingsTab } from "./SettingsTab.tsx"
 import { classNames } from "./classNames.ts"
+import { getPreferences } from "./preferences.ts"
 
 export type TabName = "jobs" | "skills" | "shop" | "rebirth" | "settings"
 
@@ -45,6 +47,15 @@ export function App() {
     const [selectedTab, setSelectedTab] = useState<TabName>("jobs")
     const [sidebarOpen, setSidebarOpen] = useSidebarOpen()
 
+    // The Almanac's link: the Settings tab, scrolled to the Chronicle, whose
+    // heading takes the focus. The tab is shown first, so it can scroll.
+    const openChronicle = () => {
+        flushSync(() => setSelectedTab("settings"))
+        const heading = document.getElementById("chronicleLabel")
+        heading?.scrollIntoView({behavior: getPreferences().reducedMotion ? "auto" : "smooth", block: "start"})
+        heading?.focus({preventScroll: true})
+    }
+
     // After a rebirth the page goes back to the Jobs tab
     const rebirths = game.rebirthOneCount + game.rebirthTwoCount
     const [shownRebirths, setShownRebirths] = useState(rebirths)
@@ -63,7 +74,7 @@ export function App() {
                     {" "}
                     <details className="sidebar-details" open={sidebarOpen} onToggle={event => setSidebarOpen(event.currentTarget.open)}>
                         <summary>Details</summary>
-                        <Sidebar />
+                        <Sidebar onOpenChronicle={openChronicle} />
                     </details>
                     {" "}
                     <div className="main">

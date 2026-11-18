@@ -2392,3 +2392,62 @@ body.effects-off .fx-anim::after {
     vertical-align: -0.125em;
     margin-right: var(--pk-space-1);
 }
+
+/* The Almanac: today's date, the days to the next season and the season's bar */
+.almanac-now {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-2);
+}
+
+.almanac-line {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--pk-space-2);
+}
+
+.almanac-date {
+    font-size: var(--pk-text-base);
+    font-weight: 600;
+    color: var(--pk-text);
+}
+
+.almanac-next {
+    white-space: nowrap;
+}
+
+.almanac .almanac-bar {
+    height: 6px;
+}
+
+/* A small flat text button, nudged so its text lines up with the card's */
+.almanac-link {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pk-space-1);
+    height: var(--pk-space-8);
+    margin: 0 0 calc(-1 * var(--pk-space-2)) calc(-1 * var(--pk-space-2));
+    padding: 0 var(--pk-space-2);
+    border: 0;
+    border-radius: var(--pk-radius);
+    background: none;
+    color: var(--pk-text-muted);
+    font: inherit;
+    font-size: var(--pk-text-xs);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.almanac-link:hover {
+    background-color: var(--pk-raised);
+    color: var(--pk-text);
+}
+
+@media (hover: none) {
+    .almanac-link {
+        height: var(--pk-touch);
+    }
+}

@@ -1,5 +1,5 @@
-// The cards on the left: purse, the current job and skill, happiness, evil,
-// time warping and automation.
+// The cards on the left: purse, the current job and skill, the Almanac,
+// happiness, evil, time warping and automation.
 
 import type { Job, Skill } from "../game/classes.ts"
 import type { GameData } from "../game/state.ts"
@@ -13,8 +13,10 @@ import { Checkbox } from "./Checkbox.tsx"
 import { classNames } from "./classNames.ts"
 import { format } from "./format.ts"
 import { fillStyle } from "./fill.ts"
+import { Almanac } from "./Almanac.tsx"
 
-export function Sidebar() {
+// onOpenChronicle: shows the Chronicle in the Settings tab
+export function Sidebar({onOpenChronicle = () => {}}: {onOpenChronicle?: () => void}) {
     const game = useGame()
     const glows = game.evil > 0
     const income = getIncome()
@@ -40,6 +42,7 @@ export function Sidebar() {
                 <QuickTask task={game.currentJob} kind="Job" className="job" />
                 <QuickTask task={game.currentSkill} kind="Skill" className="skill" />
             </section>
+            <Almanac onOpenChronicle={onOpenChronicle} />
             {/* Out of sight until something in it has been unlocked */}
             <section className={classNames("card card-stats", !["happiness_info", "evil_info", "time_warping_info", "automation"].some(isUnlocked) && "hidden")}>
                 <div id="happinessInfo" className={classNames("stat", !isUnlocked("happiness_info") && "hidden")}>

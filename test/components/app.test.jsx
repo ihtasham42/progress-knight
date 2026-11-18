@@ -78,3 +78,13 @@ test("rendering again with nothing changed doesn't touch the page", async () => 
     assert.ok(observer.takeRecords().length > 0, "values that changed are still written")
     observer.disconnect()
 })
+
+test("the Almanac's link opens the Settings tab", async () => {
+    const game = await renderComponent("App.tsx", "App")
+    game.gameData.days = 365 * 25
+    game.ticks(1)
+    fireEvent.click(screen.getByRole("button", { name: "Chronicle in Settings" }))
+    assert.equal(tab("settings").style.display, "block")
+    assert.equal(tab("jobs").style.display, "none")
+    assert.ok(tabButton("Settings").classList.contains("w3-blue-gray"))
+})
