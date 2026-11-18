@@ -30,7 +30,7 @@ test("export puts the save in the box", async () => {
     await renderComponent("SettingsTab.tsx", "SettingsTab")
     fireEvent.click(screen.getByText("Export"))
     const save = JSON.parse(Buffer.from(box().value, "base64").toString())
-    assert.equal(save.version, 5)
+    assert.equal(save.version, 6)
     assert.equal(save.currentJob, "beggar")
 })
 
