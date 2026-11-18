@@ -2645,10 +2645,53 @@ body.effects-off .fx-anim::after {
     color: var(--pk-text);
 }
 
-.chronicle-strip {
+.chronicle-middle {
     grid-area: strip;
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-1);
+    min-width: 0;
+}
+
+.chronicle-track {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.chronicle-strip {
     height: 10px;
     border-radius: 2px;
+}
+
+/* A mark over each season an event ran for; rare events in gold */
+.chronicle-lane {
+    position: relative;
+    height: 4px;
+}
+
+.chronicle-event {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    min-width: 1px;
+    background-color: var(--pk-event-lane);
+}
+
+.chronicle-event.chronicle-rare,
+.chronicle-swatch-event.chronicle-rare {
+    background-color: var(--pk-accent);
+}
+
+.chronicle-swatch-event {
+    width: 14px;
+    height: 4px;
+    background-color: var(--pk-event-lane);
+}
+
+.chronicle-events {
+    font-size: var(--pk-text-xs);
+    color: var(--pk-text-secondary);
 }
 
 .chronicle-years {
