@@ -2,12 +2,13 @@
   {
     "ticks": 102199,
     "age": 70,
-    "coins": 1472367,
+    "coins": 1489624,
     "job": "Blacksmith",
-    "skill": "Bargaining",
-    "property": "Wooden hut",
+    "skill": "Battle tactics",
+    "property": "Tent",
     "misc": [
-      "Book"
+      "Book",
+      "Dumbbells"
     ],
     "tasks": {
       "Beggar": [
@@ -27,35 +28,35 @@
         0
       ],
       "Blacksmith": [
-        21,
+        22,
         0
       ],
       "Concentration": [
-        38,
+        39,
         0
       ],
       "Productivity": [
-        38,
+        39,
         0
       ],
       "Bargaining": [
-        37,
+        39,
         0
       ],
       "Meditation": [
-        37,
+        39,
         0
       ],
       "Strength": [
-        37,
+        39,
         0
       ],
       "Battle tactics": [
-        37,
+        38,
         0
       ],
       "Muscle memory": [
-        37,
+        38,
         0
       ]
     }
@@ -63,9 +64,9 @@
   {
     "ticks": 102200,
     "age": 70,
-    "coins": 3481198,
+    "coins": 3521424,
     "job": "Merchant",
-    "skill": "Muscle memory",
+    "skill": "Meditation",
     "property": "Wooden hut",
     "misc": [
       "Book",
@@ -85,44 +86,44 @@
         10
       ],
       "Miner": [
-        24,
+        23,
         28
       ],
       "Blacksmith": [
-        28,
-        21
+        27,
+        22
       ],
       "Merchant": [
-        30,
+        31,
         0
       ],
       "Concentration": [
-        107,
-        38
+        112,
+        39
       ],
       "Productivity": [
-        107,
-        38
+        112,
+        39
       ],
       "Bargaining": [
-        107,
-        37
+        112,
+        39
       ],
       "Meditation": [
-        107,
-        37
+        111,
+        39
       ],
       "Strength": [
-        107,
-        37
+        111,
+        39
       ],
       "Battle tactics": [
-        107,
-        37
+        111,
+        38
       ],
       "Muscle memory": [
-        106,
-        37
+        111,
+        38
       ]
     }
   }
