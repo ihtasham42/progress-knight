@@ -36,6 +36,9 @@ body.dark {
     --pk-stat-evil: #ed7379;
     --pk-stat-time: #c37fdc;
 
+    --pk-season-summer: #b8c255;
+    --pk-season-winter: #9db8d9;
+
     /* Fills are the colour at about 40% over the track, so white text stays readable */
     --pk-bar-track: #20242d;
     --pk-bar-fill: #405d7c;
