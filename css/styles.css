@@ -2121,7 +2121,7 @@ body.effects-off .fx-anim::after {
 
 .past-row {
     display: grid;
-    grid-template-columns: 80px minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1.6fr);
+    grid-template-columns: 56px 96px minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1.6fr);
     column-gap: var(--pk-space-4);
     align-items: center;
     padding: 10px var(--pk-space-3);
@@ -2153,6 +2153,15 @@ body.effects-off .fx-anim::after {
     color: var(--pk-text-muted);
 }
 
+.past-years {
+    white-space: nowrap;
+    color: var(--pk-text-muted);
+}
+
+.past-living .past-years {
+    color: var(--pk-accent-text);
+}
+
 /* On desktop the detail wrapper only groups; its cells are grid columns */
 .past-detail {
     display: contents;
@@ -2170,9 +2179,13 @@ body.effects-off .fx-anim::after {
     }
 
     .past-row {
-        grid-template-columns: auto minmax(0, 1fr);
+        grid-template-columns: auto auto minmax(0, 1fr);
         gap: 2px var(--pk-space-3);
         padding: var(--pk-space-3);
+    }
+
+    .past-years {
+        font-size: var(--pk-text-xs);
     }
 
     .past-life::before {
@@ -2180,7 +2193,7 @@ body.effects-off .fx-anim::after {
     }
 
     .past-ended {
-        grid-column: 2;
+        grid-column: 3;
         grid-row: 1;
         justify-self: end;
         font-size: var(--pk-text-xs);

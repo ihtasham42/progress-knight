@@ -5,6 +5,7 @@ import { useState } from "react"
 import { getBestOfLife, getLifePeakCoins, getTaskById } from "../game/engine.ts"
 import { Job, Skill } from "../game/classes.ts"
 import type { Life, LifeBest } from "../game/state.ts"
+import { wokeOn, yearOf } from "../game/history.ts"
 import { useGame } from "./gameStore.ts"
 import { classNames } from "./classNames.ts"
 import { CoinParts } from "./CoinParts.tsx"
@@ -18,12 +19,13 @@ function bestText(best: LifeBest): string {
 }
 
 function endedText(life: Life): string {
-    return "Age " + life.age + " · " + (life.end == "evil" ? "embraced evil (+" + life.evil.toFixed(1) + " evil)" : "touched the eye")
+    return life.end == "evil" ? "Embraced evil at " + life.age + " (+" + life.evil.toFixed(1) + " evil)" : "Touched the eye at " + life.age
 }
 
 interface Row {
     key: string
     life: number
+    years: string // from waking at 14 to the end
     job: string
     skill: string
     peak: number
@@ -40,6 +42,7 @@ export function PastLives() {
     const rows: Row[] = shown.map(life => ({
         key: "past-" + life.life,
         life: life.life,
+        years: yearOf(wokeOn(life)) + "–" + yearOf(life.ended),
         job: bestText(life.job),
         skill: bestText(life.skill),
         peak: life.peakCoins,
@@ -49,6 +52,7 @@ export function PastLives() {
     rows.push({
         key: "living",
         life: game.rebirthOneCount + game.rebirthTwoCount + 1,
+        years: yearOf(game.lifeStartDay) + "–now",
         job: bestText(getBestOfLife(Job)),
         skill: bestText(getBestOfLife(Skill)),
         peak: getLifePeakCoins(),
@@ -62,6 +66,7 @@ export function PastLives() {
             <div role="table" aria-labelledby="pastLivesLabel" className="past-table">
                 <div role="row" className="past-row past-head">
                     <span role="columnheader">Life</span>
+                    <span role="columnheader">Years</span>
                     <span role="columnheader">Best job</span>
                     <span role="columnheader">Best skill</span>
                     <span role="columnheader">Peak purse</span>
@@ -70,6 +75,7 @@ export function PastLives() {
                 {rows.map(row => (
                     <div role="row" key={row.key} className={classNames("past-row", row.living && "past-living")}>
                         <strong role="cell" className="past-life">{row.life}</strong>
+                        <span role="cell" className="past-years">{row.years}</span>
                         <span className="past-detail">
                             <span role="cell" className="past-job">{row.job}</span>
                             <span role="cell" className="past-skill">{row.skill}</span>
