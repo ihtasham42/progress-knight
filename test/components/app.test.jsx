@@ -2,7 +2,7 @@
 
 // The page as a whole: the tab bar and switching tabs.
 
-import { test } from "vitest"
+import { test, vi } from "vitest"
 import assert from "node:assert/strict"
 import { fireEvent, screen } from "@testing-library/react"
 import { renderComponent } from "../helpers/react.js"
@@ -79,12 +79,17 @@ test("rendering again with nothing changed doesn't touch the page", async () => 
     observer.disconnect()
 })
 
-test("the Almanac's link opens the Settings tab", async () => {
+test("the Almanac's link opens the Settings tab at the Chronicle", async () => {
     const game = await renderComponent("App.tsx", "App")
+    const scrolls = []
+    vi.stubGlobal("scrollTo", options => scrolls.push(options))
     game.gameData.days = 365 * 25
     game.ticks(1)
     fireEvent.click(screen.getByRole("button", { name: "Chronicle in Settings" }))
     assert.equal(tab("settings").style.display, "block")
     assert.equal(tab("jobs").style.display, "none")
     assert.ok(tabButton("Settings").classList.contains("w3-blue-gray"))
+    assert.equal(scrolls.length, 1)
+    assert.equal(scrolls[0].behavior, "smooth")
+    assert.equal(document.activeElement, document.getElementById("chronicleLabel"))
 })

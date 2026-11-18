@@ -2451,3 +2451,173 @@ body.effects-off .fx-anim::after {
         height: var(--pk-touch);
     }
 }
+
+/* The Chronicle, in Settings: every life on one axis, then a strip per life */
+.chronicle-summary {
+    white-space: nowrap;
+}
+
+.chronicle h2:focus {
+    outline: none;
+}
+
+.chronicle-overview {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pk-space-1);
+}
+
+/* One row of blocks per set of overlapping lives */
+.chronicle-axis {
+    position: relative;
+    height: calc(var(--rows, 1) * 24px + 4px);
+}
+
+.chronicle-baseline {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 14px;
+    border-top: 1px dashed var(--pk-line);
+}
+
+.chronicle-block {
+    position: absolute;
+    top: calc(4px + var(--row, 0) * 24px);
+    height: 20px;
+    min-width: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 2px;
+    background-color: var(--pk-line);
+    color: var(--pk-text-secondary);
+    font-size: var(--pk-text-xs);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.chronicle-block-now {
+    background-color: color-mix(in srgb, var(--pk-accent) calc(var(--pk-bar-tint) + 5%), var(--pk-raised));
+    color: var(--pk-text);
+}
+
+.chronicle-now {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--pk-accent);
+}
+
+.chronicle-ticks {
+    position: relative;
+    height: 18px;
+    font-size: var(--pk-text-xs);
+    color: var(--pk-text-muted);
+}
+
+.chronicle-ticks span {
+    position: absolute;
+}
+
+.chronicle-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--pk-space-2) var(--pk-space-4);
+    font-size: var(--pk-text-xs);
+    color: var(--pk-text-muted);
+}
+
+.chronicle-legend > span {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pk-space-2);
+}
+
+.chronicle-swatch {
+    width: 10px;
+    height: 10px;
+}
+
+.chronicle-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* The life, its strip and its years; on phones the strip takes a row of its own */
+.chronicle-life,
+.chronicle-gap {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "title years" "strip strip";
+    column-gap: var(--pk-space-6);
+    row-gap: var(--pk-space-2);
+    align-items: center;
+}
+
+.chronicle-life {
+    padding: var(--pk-space-3) 0;
+    border-top: 1px solid var(--pk-line);
+}
+
+.chronicle-gap {
+    grid-template-areas: "title years";
+    padding: var(--pk-space-2) 0;
+    border-top: 1px dashed var(--pk-line);
+    font-size: var(--pk-text-xs);
+    color: var(--pk-text-muted);
+}
+
+.chronicle-title {
+    grid-area: title;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.chronicle-title strong {
+    font-weight: 600;
+    color: var(--pk-text);
+}
+
+.chronicle-strip {
+    grid-area: strip;
+    height: 10px;
+    border-radius: 2px;
+}
+
+.chronicle-years {
+    grid-area: years;
+    text-align: right;
+    white-space: nowrap;
+    color: var(--pk-text-muted);
+}
+
+.chronicle-life .chronicle-years {
+    font-weight: 500;
+}
+
+.chronicle-years-now {
+    color: var(--pk-accent-text);
+}
+
+.chronicle-more {
+    align-self: flex-start;
+}
+
+@media (min-width: 640px) {
+    .chronicle-life,
+    .chronicle-gap {
+        grid-template-columns: 200px minmax(0, 1fr) 100px;
+        grid-template-areas: "title strip years";
+    }
+
+    .chronicle-gap {
+        grid-template-areas: "title . years";
+    }
+}

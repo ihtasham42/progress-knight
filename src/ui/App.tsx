@@ -42,6 +42,17 @@ function useSidebarOpen() {
     return [open, setOpen] as const
 }
 
+// The height of the headers that stay on screen as the page scrolls (the
+// compact header on phones), so whatever is scrolled to isn't hidden under them
+function getStickyHeight(): number {
+    let height = 0
+    for (const header of document.querySelectorAll<HTMLElement>(".site-header, .phone-header")) {
+        const position = getComputedStyle(header).position
+        if ((position == "sticky" || position == "fixed") && header.offsetParent !== null) height += header.offsetHeight
+    }
+    return height
+}
+
 export function App() {
     const game = useGame()
     const [selectedTab, setSelectedTab] = useState<TabName>("jobs")
@@ -52,8 +63,10 @@ export function App() {
     const openChronicle = () => {
         flushSync(() => setSelectedTab("settings"))
         const heading = document.getElementById("chronicleLabel")
-        heading?.scrollIntoView({behavior: getPreferences().reducedMotion ? "auto" : "smooth", block: "start"})
-        heading?.focus({preventScroll: true})
+        if (!heading) return
+        scrollTo({top: heading.getBoundingClientRect().top + scrollY - getStickyHeight() - 16,
+            behavior: getPreferences().reducedMotion ? "auto" : "smooth"})
+        heading.focus({preventScroll: true})
     }
 
     // After a rebirth the page goes back to the Jobs tab

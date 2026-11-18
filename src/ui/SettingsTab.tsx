@@ -1,5 +1,5 @@
 // The Settings tab: importing and exporting saves, the theme and amulet
-// effects, the Discord link and a hard reset.
+// effects, the Discord link, the Chronicle of past lives and a hard reset.
 
 import { memo, useEffect, useRef, useState } from "react"
 import type { KeyboardEvent } from "react"
@@ -9,6 +9,7 @@ import { describeAge } from "./format.ts"
 import { useGame } from "./gameStore.ts"
 import { setPreferences, usePreferences } from "./preferences.ts"
 import type { Theme } from "./preferences.ts"
+import { Chronicle } from "./Chronicle.tsx"
 
 const themes: {value: Theme, label: string, id?: string}[] = [
     {value: "dark", label: "Dark"},
@@ -172,6 +173,8 @@ export const SettingsTab = memo(function SettingsTab() {
                     <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg>
                 </a>
             </section>
+
+            <Chronicle />
 
             <section className="settings-card settings-wide">
                 <div className="settings-line">
