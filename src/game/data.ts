@@ -22,7 +22,7 @@
 // they refer to are checked against the ids that exist (see the end of
 // this file), so a typo fails npm run typecheck.
 
-import type { JobDefinition, SkillDefinition, ItemDefinition, UnlockDefinition } from "./types.ts"
+import type { JobDefinition, SkillDefinition, ItemDefinition, UnlockDefinition, SeasonDefinition, CalendarDefinition } from "./types.ts"
 
 function definitionsByName<T extends {name: string}>(definitions: readonly T[]): Record<string, T> {
     const byName: Record<string, T> = {}
@@ -199,6 +199,16 @@ const unlockList = [
     {id: "quick_task_display", name: "Quick task display", permanent: true, requires: [{age: 20}]},
 ] as const satisfies readonly UnlockDefinition[]
 export const unlocks: readonly UnlockDefinition[] = unlockList
+
+// The world calendar. It runs across every life: world day 0 is the day the
+// first life wakes, Summer 1 of the epoch year. The seasons add up to the
+// 365 days of a year of age.
+const seasonList = [
+    {id: "summer", name: "Summer", days: 183},
+    {id: "winter", name: "Winter", days: 182},
+] as const satisfies readonly SeasonDefinition[]
+export const calendar: CalendarDefinition = {epochYear: 1200, eraLabel: "AE", seasons: seasonList}
+export type SeasonId = (typeof seasonList)[number]["id"]
 
 // What a new life starts with (ids)
 export const startingItems: {readonly job: JobId, readonly skill: SkillId, readonly property: PropertyId} = {job: "beggar", skill: "concentration", property: "homeless"}
