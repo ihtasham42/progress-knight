@@ -5,7 +5,7 @@ import path from "node:path"
 const ROOT = path.join(import.meta.dirname, "..", "..")
 
 // The game's modules, in the order they depend on each other
-const GAME_MODULES = ["src/game/data.ts", "src/game/state.ts", "src/game/calendar.ts", "src/game/rules.ts", "src/game/classes.ts",
+const GAME_MODULES = ["src/game/data.ts", "src/game/state.ts", "src/game/calendar.ts", "src/game/events.ts", "src/game/rules.ts", "src/game/classes.ts",
     "src/game/engine.ts", "src/game/history.ts", "src/game/save.ts"]
 const PAGE_MODULES = ["src/ui/gameStore.ts"]
 

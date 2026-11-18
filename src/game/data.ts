@@ -22,7 +22,7 @@
 // they refer to are checked against the ids that exist (see the end of
 // this file), so a typo fails npm run typecheck.
 
-import type { JobDefinition, SkillDefinition, ItemDefinition, UnlockDefinition, SeasonDefinition, CalendarDefinition } from "./types.ts"
+import type { JobDefinition, SkillDefinition, ItemDefinition, UnlockDefinition, SeasonDefinition, CalendarDefinition, EventDefinition } from "./types.ts"
 
 function definitionsByName<T extends {name: string}>(definitions: readonly T[]): Record<string, T> {
     const byName: Record<string, T> = {}
@@ -210,6 +210,30 @@ const seasonList = [
 export const calendar: CalendarDefinition = {epochYear: 1200, eraLabel: "AE", seasons: seasonList}
 export type SeasonId = (typeof seasonList)[number]["id"]
 
+// Events, each lasting a whole season (see EventDefinition in types.ts).
+// Events every 7 years or more are rare, and marked so in the Chronicle.
+const eventList = [
+    {id: "tournament_summer", name: "Tournament Summer", plural: "Tournament Summers", season: "summer", everyYears: 3, offset: 0,
+        effects: [{label: "Military XP", effect: 2, boosts: [{stat: "xp", of: "Military"}]}],
+        requires: "military_glimpse", description: "Every 3 years. Knights ride in from every corner; the lists need squires."},
+    {id: "hard_winter", name: "Hard Winter", plural: "Hard Winters", season: "winter", everyYears: 5, offset: 0,
+        effects: [
+            {label: "upkeep", effect: 1.25, boosts: [{stat: "expense", of: "items"}]},
+            {label: "skill XP", effect: 1.5, boosts: [{stat: "xp", of: "skills"}]},
+        ],
+        requires: "shop", description: "Every 5 years. The roads close; a good season to study."},
+    {id: "arcane_conjunction", name: "Arcane Conjunction", plural: "Arcane Conjunctions", season: "winter", everyYears: 7, offset: 0,
+        effects: [{label: "Magic and Arcane XP", effect: 3, boosts: [{stat: "xp", of: "Magic"}, {stat: "xp", of: "The Arcane Association"}]}],
+        requires: "arcane_glimpse", description: "Every 7 years. The stars align, and spells come easier."},
+    {id: "blood_moon", name: "Blood Moon", plural: "Blood Moons", season: "winter", everyYears: 13, offset: 0,
+        effects: [{label: "evil gain", effect: 1.5, boosts: [{stat: "evilGain"}]}],
+        requires: "dark_magic", description: "Every 13 years. Evil embraced under a red moon runs deeper."},
+] as const satisfies readonly EventDefinition[]
+export const events: readonly EventDefinition[] = eventList
+
+// Days at the start of an event's season when it is shown as just begun
+export const eventNewDays = 20
+
 // What a new life starts with (ids)
 export const startingItems: {readonly job: JobId, readonly skill: SkillId, readonly property: PropertyId} = {job: "beggar", skill: "concentration", property: "homeless"}
 
@@ -262,9 +286,13 @@ export type BoostTarget = "all" | "jobs" | "skills" | "items" | Category | TaskI
 // "Type '"the_typo"' does not satisfy the constraint ...".
 type Expect<Actual extends Allowed, Allowed> = [Actual, Allowed]
 type AllDefinitions = typeof jobList | typeof skillList | typeof itemList | typeof unlockList
+type EventBoost = (typeof eventList)[number]["effects"][number]["boosts"][number]
 type RequiredTask = Extract<AllDefinitions[number]["requires"][number], {task: string}>["task"]
 type BoostedTarget = Extract<Extract<(typeof skillList | typeof itemList)[number], {boosts: unknown}>["boosts"][number], {of: string}>["of"]
 type UnlockedCategory = Extract<(typeof unlockList)[number], {category: string}>["category"] | Extract<(typeof unlockList)[number], {reveals: unknown}>["reveals"][number]
 export type _RequiredTasksExist = Expect<RequiredTask, TaskId>
 export type _BoostTargetsExist = Expect<BoostedTarget, BoostTarget>
 export type _UnlockedCategoriesExist = Expect<UnlockedCategory, Category>
+export type _EventSeasonsExist = Expect<(typeof eventList)[number]["season"], SeasonId>
+export type _EventUnlocksExist = Expect<(typeof eventList)[number]["requires"], (typeof unlockList)[number]["id"]>
+export type _EventTargetsExist = Expect<Extract<EventBoost, {of: string}>["of"], BoostTarget>

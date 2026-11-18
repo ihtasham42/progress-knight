@@ -88,3 +88,18 @@ test("the calendar's seasons make up a year of age, with unique ids", async () =
     assert.equal(new Set(calendar.seasons.map(season => season.id)).size, calendar.seasons.length)
     for (const season of calendar.seasons) assert.ok(season.days > 0 && Number.isInteger(season.days), season.name)
 })
+
+test("events have a name, a plural, a description and effects that do something", async () => {
+    const events = Array.from(game.api.events)
+    assert.equal(new Set(events.map(event => event.id)).size, events.length)
+    for (const event of events) {
+        assert.ok(event.name && event.plural && event.description, event.id)
+        assert.ok(Number.isInteger(event.everyYears) && event.everyYears >= 1, event.id)
+        assert.ok(Number.isInteger(event.offset), event.id)
+        assert.ok(event.effects.length > 0, event.id)
+        for (const effect of event.effects) {
+            assert.ok(effect.label && effect.effect > 0 && effect.effect != 1 && effect.boosts.length > 0, event.id)
+        }
+        if (event.requires) assert.ok(unlocks.some(unlock => unlock.id == event.requires), event.id)
+    }
+})
