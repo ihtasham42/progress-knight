@@ -5,9 +5,20 @@
 // date is that of the whole day the world is in.
 
 import { calendar } from "./data.ts"
+import { gameData } from "./state.ts"
 import type { SeasonDefinition } from "./types.ts"
 
 export const DAYS_PER_YEAR = calendar.seasons.reduce((total, season) => total + season.days, 0)
+
+// Every life wakes at 14; the years before are spent growing up, so a new
+// life wakes this many world days after the last one ended
+export const GROWING_UP_DAYS = 365 * 14
+
+// Today, as a world day. It follows the age, so it stops when the age stops
+// at the lifespan; only a rebirth moves it otherwise.
+export function getWorldDay(): number {
+    return gameData.lifeStartDay + gameData.days - GROWING_UP_DAYS
+}
 
 export interface CalendarDate {
     year: number

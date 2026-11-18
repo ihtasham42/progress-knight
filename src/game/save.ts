@@ -397,7 +397,10 @@ function readLife(value: unknown): Life | undefined {
     if (!job || !skill) return undefined
     if (!isCount(life.life) || life.life < 1 || !isCount(life.age) || !isCount(life.peakCoins) || !isCount(life.evil)) return undefined
     if (life.end !== "rebirth" && life.end !== "evil") return undefined
-    return {life: life.life, end: life.end as LifeEnd, age: life.age, job, skill, peakCoins: life.peakCoins, evil: life.evil}
+    // Saves don't date their lives yet; those without dates start at day 0
+    const born = isFiniteNumber(life.born) ? life.born : 0
+    const ended = isFiniteNumber(life.ended) ? life.ended : 0
+    return {life: life.life, end: life.end as LifeEnd, age: life.age, job, skill, peakCoins: life.peakCoins, evil: life.evil, born, ended}
 }
 
 function readBest(value: unknown): Life["job"] | undefined {
