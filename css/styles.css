@@ -2786,3 +2786,7 @@ body.effects-off .fx-anim::after {
         height: var(--pk-touch);
     }
 }
+
+.purse-event b {
+    font-weight: 600;
+}

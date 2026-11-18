@@ -151,3 +151,18 @@ test("each of them says when it reaches its next level", async () => {
     game.ticks(0)
     assert.equal(notes()[0], "Job · next level in 1 day")
 })
+
+test("the purse says what an event running does to upkeep", async () => {
+    const game = await renderComponent("Sidebar.tsx", "Sidebar")
+    game.gameData.requirements["Shop"].completed = true
+    game.gameData.requirements["Arcane glimpse"].completed = true
+    game.gameData.days = 365 * 14 + 50
+    game.rerender()
+    assert.equal(document.querySelector(".purse-event"), null)
+    game.gameData.days = 365 * 14 + 183 + 5
+    game.rerender()
+    // Arcane Conjunction runs too, but touches neither pay nor upkeep
+    const lines = [...document.querySelectorAll(".purse-event")]
+    assert.deepEqual(lines.map(line => line.textContent), ["×1.25 upkeep from Hard Winter"])
+    assert.equal(lines[0].querySelector("b").style.color, "var(--pk-loss)")
+})

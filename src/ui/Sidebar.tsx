@@ -14,6 +14,8 @@ import { classNames } from "./classNames.ts"
 import { format } from "./format.ts"
 import { fillStyle } from "./fill.ts"
 import { Almanac } from "./Almanac.tsx"
+import { getActiveEvents } from "../game/events.ts"
+import { effectColor } from "./eventText.ts"
 
 // onOpenChronicle: shows the Chronicle in the Settings tab
 export function Sidebar({onOpenChronicle = () => {}}: {onOpenChronicle?: () => void}) {
@@ -35,6 +37,14 @@ export function Sidebar({onOpenChronicle = () => {}}: {onOpenChronicle?: () => v
                 <div className="card-note-list purse-notes">
                     <span><span id="incomeDisplay"><CoinParts coins={income} /></span>earned from {game.currentJob.name}</span>
                     <span><span id="expenseDisplay"><CoinParts coins={expense} /></span>upkeep · {[game.currentProperty, ...game.currentMisc].map(item => item.name).join(", ")}</span>
+                    {/* What events running do to pay and upkeep: "×1.25 upkeep from Hard Winter" */}
+                    {getActiveEvents().flatMap(running => running.event.effects
+                        .filter(effect => effect.boosts.some(boost => boost.stat == "income" || boost.stat == "expense"))
+                        .map(effect => (
+                            <span key={running.event.id + " " + effect.label} className="purse-event">
+                                <b style={{color: effectColor(effect)}}>{"×" + Number(effect.effect.toFixed(2))}</b>{" " + effect.label + " from " + running.event.name}
+                            </span>
+                        )))}
                 </div>
             </section>
             <section id="quickTaskDisplay" className={classNames("card", !isUnlocked("quick_task_display") && "hidden")}>
