@@ -1,13 +1,16 @@
 // The compact header on phones: title, pause button, coins, net per day,
-// age and a life bar. Header.tsx holds the same numbers behind ids (tests
+// age and the world's date, and a life bar. Header.tsx holds the same numbers behind ids (tests
 // and wider screens use those), so this uses classes only.
 
 import { daysToYears, getLifespan } from "../game/rules.ts"
-import { getDay, getExpense, getIncome, getNet, isLifeOver, setPause } from "../game/engine.ts"
+import { getExpense, getIncome, getNet, isLifeOver, setPause } from "../game/engine.ts"
+import { formatDate, getWorldDay, toDate } from "../game/calendar.ts"
+import type { SeasonId } from "../game/data.ts"
 import { requestRender, useGame } from "./gameStore.ts"
 import { CoinParts } from "./CoinParts.tsx"
 import { getLifeShare } from "./life.ts"
 import { fillStyle } from "./fill.ts"
+import { SeasonIcon } from "./SeasonIcon.tsx"
 
 export function PhoneHeader() {
     const game = useGame()
@@ -17,6 +20,7 @@ export function PhoneHeader() {
     const lifespan = getLifespan()
     const lifeShare = getLifeShare(game.days)
     const age = daysToYears(game.days)
+    const date = toDate(getWorldDay())
     return (
         <header className="phone-header">
             <div className="phone-header-row">
@@ -34,7 +38,7 @@ export function PhoneHeader() {
                 </span>
             </div>
             <div className="phone-header-row phone-header-muted">
-                <span>Age <b>{age}</b> · Day <b>{getDay()}</b></span>
+                <span>Age <b>{age}</b> · <span className="life-date"><SeasonIcon season={date.season.id as SeasonId} size={14} /><b className="phone-header-date">{formatDate(date)}</b></span></span>
                 <span>Lifespan {daysToYears(lifespan)}</span>
             </div>
             <div className="life-bar" role="img" aria-label={"Age " + age + " of " + daysToYears(lifespan)}>

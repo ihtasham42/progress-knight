@@ -287,11 +287,6 @@ export function autoLearn() {
     gameData.currentSkill = skillWithLowestMaxXp
 }
 
-export function getDay() {
-    const day = Math.floor(gameData.days - daysToYears(gameData.days) * 365)
-    return day
-}
-
 function increaseDays() {
     const increase = applySpeed(1)
     gameData.days += increase

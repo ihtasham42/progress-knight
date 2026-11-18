@@ -609,6 +609,10 @@ th {
         color: var(--pk-text);
     }
 
+    .phone-header-muted .phone-header-date {
+        font-weight: 600;
+    }
+
     .phone-header .life-bar {
         height: 6px;
         margin-top: var(--pk-space-2);
@@ -749,6 +753,11 @@ th {
 
     .life-age b {
         font-size: var(--pk-text-lg);
+        font-weight: 600;
+        color: var(--pk-text);
+    }
+
+    .life-date {
         font-weight: 600;
         color: var(--pk-text);
     }
@@ -2376,4 +2385,10 @@ body.effects-off .fx-anim::after {
     .amulet-card {
         padding: var(--pk-space-6);
     }
+}
+
+/* A season's icon sits on the text's baseline, just before the season's name */
+.season-icon {
+    vertical-align: -0.125em;
+    margin-right: var(--pk-space-1);
 }
