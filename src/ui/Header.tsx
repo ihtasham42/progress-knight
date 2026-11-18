@@ -1,10 +1,12 @@
 // The header from tablet width up: the title, how far through its life the
-// character is and the world's date, the game speed and the pause button. Phones have
+// character is and the world's date with any events running, the game speed
+// and the pause button. Phones have
 // PhoneHeader instead (this one is hidden under 640px).
 
 import { daysToYears, getGameSpeed, getLifespan } from "../game/rules.ts"
 import { isLifeOver, setPause } from "../game/engine.ts"
 import { formatDate, getWorldDay, toDate } from "../game/calendar.ts"
+import { getActiveEvents } from "../game/events.ts"
 import type { SeasonId } from "../game/data.ts"
 import { requestRender, useGame } from "./gameStore.ts"
 import { classNames } from "./classNames.ts"
@@ -30,7 +32,7 @@ export function Header() {
                 </div>
                 <div className="life-block">
                     <div className="life-block-row">
-                        <span className="life-age">Age <b id="ageDisplay">{age}</b> · <span className="life-date"><SeasonIcon season={date.season.id as SeasonId} /><span id="dateDisplay">{formatDate(date)}</span></span></span>
+                        <span className="life-age">Age <b id="ageDisplay">{age}</b> · <span className="life-date"><SeasonIcon season={date.season.id as SeasonId} /><span id="dateDisplay">{formatDate(date)}</span></span>{getActiveEvents().map(running => <span key={running.event.id}>{" "}<span className="event-chip">{running.event.name}</span></span>)}</span>
                         <span className="life-left"><b>{Math.max(0, lifespan - age)} years</b> left of <span id="lifespanDisplay">{lifespan}</span></span>
                     </div>
                     <div className="life-bar" role="img" aria-label={"Life progress: age " + age + " of " + lifespan}>

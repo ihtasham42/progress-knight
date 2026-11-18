@@ -618,6 +618,35 @@ th {
         margin-top: var(--pk-space-2);
     }
 
+    /* An event running: its name, its effects and the days it has left */
+    .phone-header-event {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 2px var(--pk-space-2);
+        min-height: var(--pk-space-8);
+        margin-top: var(--pk-space-2);
+        padding: var(--pk-space-1) var(--pk-space-3);
+        box-sizing: border-box;
+        border-radius: var(--pk-radius);
+        background-color: var(--pk-raised);
+        font-size: var(--pk-text-xs);
+    }
+
+    .phone-header-event strong {
+        font-weight: 600;
+        color: var(--pk-text);
+    }
+
+    .phone-header-effect {
+        font-weight: 600;
+    }
+
+    .phone-header-event-left {
+        margin-left: auto;
+        color: var(--pk-text-muted);
+    }
+
     .phone-header-death {
         margin-top: var(--pk-space-2);
         font-size: var(--pk-text-sm);
@@ -760,6 +789,19 @@ th {
     .life-date {
         font-weight: 600;
         color: var(--pk-text);
+    }
+
+    /* An event running, after the date */
+    .event-chip {
+        display: inline-block;
+        margin-left: var(--pk-space-1);
+        padding: 2px var(--pk-space-2);
+        border-radius: var(--pk-radius);
+        background-color: var(--pk-raised);
+        color: var(--pk-text-secondary);
+        font-size: var(--pk-text-xs);
+        font-weight: 600;
+        vertical-align: 0.125em;
     }
 
     .life-left {
