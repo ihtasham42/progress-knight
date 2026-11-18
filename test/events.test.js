@@ -72,3 +72,66 @@ test("the events in a span of days, including ones it only partly covers", async
     assert.deepEqual(ids(game.api.getEventsInSpan(10, 10)), [])
     assert.equal(game.api.getEventsInSpan(0, 56 * YEAR).length, 19 + 12 + 8 + 5)
 })
+
+// A day in the given year and season of the first life
+function setWorldDay(game, day) {
+    game.gameData.days = 14 * YEAR + day
+}
+
+test("Tournament Summer doubles Military XP while it runs, once Military is in sight", async () => {
+    const game = await loadEngine()
+    const footman = game.api.getTaskById("footman")
+    const farmer = game.api.getTaskById("farmer")
+    setWorldDay(game, 50)
+    const before = [footman.getXpGain(), farmer.getXpGain()]
+    unlock(game, "Military glimpse")
+    assert.deepEqual([footman.getXpGain(), farmer.getXpGain()], [before[0] * 2, before[1]])
+    setWorldDay(game, YEAR + 50) // Summer 1201: no tournament
+    assert.deepEqual([footman.getXpGain(), farmer.getXpGain()], before)
+})
+
+test("Hard Winter raises upkeep and skill XP, not job XP", async () => {
+    const game = await loadEngine()
+    const { gameData } = game
+    game.api.setProperty("Tent")
+    game.api.setMisc("Book")
+    const strength = game.api.getTaskById("strength")
+    const farmer = game.api.getTaskById("farmer")
+    setWorldDay(game, 5 * YEAR + WINTER + 1)
+    const before = { expense: game.api.getExpense(), skill: strength.getXpGain(), job: farmer.getXpGain() }
+    assert.ok(before.expense > 0)
+    unlock(game, "Shop")
+    const tent = gameData.itemData["Tent"], book = gameData.itemData["Book"]
+    assert.equal(game.api.getExpense(), Math.round(tent.baseData.expense * 1.25) + Math.round(book.baseData.expense * 1.25))
+    // XP gains are rounded to whole points
+    assert.ok(Math.abs(strength.getXpGain() - before.skill * 1.5) <= 1, String(strength.getXpGain()))
+    assert.ok(strength.getXpGain() > before.skill)
+    assert.equal(farmer.getXpGain(), before.job)
+    setWorldDay(game, 6 * YEAR + 1) // Summer 1206
+    assert.equal(game.api.getExpense(), before.expense)
+})
+
+test("Arcane Conjunction triples Magic and Arcane XP; Blood Moon deepens evil gained", async () => {
+    const game = await loadEngine()
+    const mana = game.api.getTaskById("mana_control")
+    const mage = game.api.getTaskById("mage")
+    const strength = game.api.getTaskById("strength")
+    setWorldDay(game, 7 * YEAR + WINTER + 1)
+    const before = [mana.getXpGain(), mage.getXpGain(), strength.getXpGain(), game.api.getEvilGain()]
+    unlock(game, "Arcane glimpse", "Dark magic")
+    assert.deepEqual([mana.getXpGain(), mage.getXpGain(), strength.getXpGain(), game.api.getEvilGain()],
+        [before[0] * 3, before[1] * 3, before[2], before[3]], "1207: a conjunction, no blood moon")
+    setWorldDay(game, 13 * YEAR + WINTER + 1)
+    assert.equal(game.api.getEvilGain(), before[3] * 1.5, "1213: a blood moon")
+    assert.equal(mana.getXpGain(), before[0])
+})
+
+test("events that fall together multiply", async () => {
+    const game = await loadEngine()
+    const mana = game.api.getTaskById("mana_control")
+    setWorldDay(game, 35 * YEAR + WINTER + 1) // 1235: Hard Winter and Arcane Conjunction
+    const before = mana.getXpGain()
+    unlock(game, "Shop", "Arcane glimpse")
+    assert.deepEqual(ids(game.api.getActiveEvents()), ["hard_winter 1235", "arcane_conjunction 1235"])
+    assert.equal(mana.getXpGain(), Math.round(before * 1.5 * 3))
+})

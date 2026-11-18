@@ -6,7 +6,7 @@
 import { calendar, events, eventNewDays, namesById } from "./data.ts"
 import { gameData } from "./state.ts"
 import { getWorldDay, seasonOf, seasonStart, DAYS_PER_YEAR } from "./calendar.ts"
-import type { EventDefinition } from "./types.ts"
+import type { EventDefinition, EventEffect } from "./types.ts"
 
 // One season an event runs for: start is its first day, end the day after
 export interface EventOccurrence {
@@ -103,4 +103,10 @@ export function getEventsInSpan(from: number, to: number): EventOccurrence[] {
         }
     }
     return found.sort((a, b) => a.start - b.start)
+}
+
+// An event's effect as a multiplier: its effect while the event runs (and is
+// unlocked), 1 otherwise. It only changes at the edge of a season.
+export function getEventEffect(event: EventDefinition, effect: EventEffect): () => number {
+    return () => getActiveEvents().some(running => running.event == event) ? effect.effect : 1
 }

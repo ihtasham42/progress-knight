@@ -2,7 +2,8 @@
 // and multipliers. The job, skill and item classes use these, so they live
 // apart from the rest of the engine.
 
-import { skills, items } from "./data.ts"
+import { skills, items, events } from "./data.ts"
+import { getEventEffect } from "./events.ts"
 import { gameData } from "./state.ts"
 import type { Skill } from "./classes.ts"
 import type { GlobalStat, SkillDefinition, ItemDefinition } from "./types.ts"
@@ -33,11 +34,19 @@ export function getSourceEffect(source: SkillDefinition | ItemDefinition): () =>
 }
 
 // Multiplies value by the effect of every skill and item that boosts a
-// global stat (happiness, lifespan, gameSpeed, evilGain), in definition order
+// global stat (happiness, lifespan, gameSpeed, evilGain), in definition
+// order, then by every event running that boosts it
 export function applyStatBoosts(stat: GlobalStat, value: number): number {
     for (const source of [...skills, ...items]) {
         for (const boost of source.boosts || []) {
             if (boost.stat == stat) value *= getSourceEffect(source)()
+        }
+    }
+    for (const event of events) {
+        for (const effect of event.effects) {
+            for (const boost of effect.boosts) {
+                if (boost.stat == stat) value *= getEventEffect(event, effect)()
+            }
         }
     }
     return value
