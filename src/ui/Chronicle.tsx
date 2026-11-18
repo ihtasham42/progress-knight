@@ -1,8 +1,8 @@
 // The Chronicle, in the Settings tab: every life on the world's calendar.
 // An overview puts all of them on one axis from the first life to now; a
-// list below gives each life a strip of its Summers and Winters, with the
-// years spent growing up between them, and a lane above the strip marking
-// each event it lived through. The life being lived updates live.
+// list below gives each life a strip of its Summers and Winters, and a lane
+// above the strip marking each event it lived through. Every life wakes on
+// the same day, so the lives share a start. The life being lived updates live.
 
 import { useState } from "react"
 import type { CSSProperties } from "react"
@@ -134,7 +134,7 @@ export function Chronicle() {
                     {plural(spans.length, "life", "lives") + " · " + firstYear + " to now · " + plural(years, "year", "years")}
                 </span>
             </div>
-            <p className="settings-help">Every life you have lived, on the world’s calendar. Between lives are the 14 years spent growing up.</p>
+            <p className="settings-help">Every life you have lived, on the world’s calendar. Each wakes at 14 in Summer {firstYear}.</p>
 
             <div className="chronicle-overview">
                 <div className="chronicle-axis" role="img" aria-label={plural(spans.length, "life", "lives") + " from " + firstYear + " to now"}
@@ -168,7 +168,7 @@ export function Chronicle() {
             </div>
 
             <ol className="chronicle-list">
-                {listed.map((span, index) => (
+                {listed.map(span => (
                     <li key={span.life}>
                         <div className="chronicle-life">
                             <span className="chronicle-title">
@@ -178,13 +178,6 @@ export function Chronicle() {
                             <LifeStrip span={span} />
                             <span className={classNames("chronicle-years", span.living && "chronicle-years-now")}>{yearsText(span)}</span>
                         </div>
-                        {/* The years this life spent growing up, after the life before it */}
-                        {index < listed.length - 1 && (
-                            <div className="chronicle-gap">
-                                <span>Growing up</span>
-                                <span className="chronicle-years">{yearOf(span.born) + "–" + yearOf(span.woke)}</span>
-                            </div>
-                        )}
                     </li>
                 ))}
             </ol>

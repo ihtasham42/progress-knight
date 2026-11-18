@@ -20,7 +20,6 @@ test("touching the eye records the life that ends", async () => {
         life: 1, end: "rebirth", age: 66,
         job: { id: "beggar", level: 30 }, skill: { id: "strength", level: 40 },
         peakCoins: 5000, evil: 0,
-        born: -365 * 14, ended: 365 * 52 + 10,
     }])
     assert.equal(gameData.lifePeakCoins, 0, "the next life starts its own peak")
     assert.equal(gameData.rebirthOneCount, 1)
@@ -80,7 +79,8 @@ test("only the last 50 lives are kept", async () => {
 test("the world date follows the age and stops at the lifespan", async () => {
     const game = await loadEngine()
     const { gameData } = game
-    assert.equal(gameData.lifeStartDay, 0, "the first life wakes on world day 0")
+    assert.equal(Math.floor(game.api.getWorldDay()), 0, "the first life wakes on world day 0")
+    assert.equal(game.api.getWorldYear(), 1200)
     game.fastTicks(100)
     assert.equal(game.api.getWorldDay(), gameData.days - 365 * 14)
     assert.ok(game.api.getWorldDay() > 0)
@@ -93,22 +93,18 @@ test("the world date follows the age and stops at the lifespan", async () => {
     assert.equal(game.api.getWorldDay(), end, "the date stops when the life is over")
 })
 
-test("both rebirths date the life and wake the next one 14 years after it ended", async () => {
+test("both rebirths wake the next life on Summer 1, 1200", async () => {
     const game = await loadEngine()
     const { gameData } = game
+    const today = () => game.api.formatDate(game.api.toDate(game.api.getWorldDay()))
     gameData.days = 365 * 40 + 100.5
+    assert.equal(today(), "Summer 101, 1226")
     game.api.rebirthOne()
-    const first = gameData.lives[0]
-    assert.equal(first.born, -365 * 14)
-    assert.equal(first.ended, 365 * 26 + 100.5)
-    assert.equal(gameData.lifeStartDay, first.ended + 365 * 14)
-    assert.equal(game.api.getWorldDay(), first.ended + 365 * 14, "the new life wakes at 14, 14 years on")
+    assert.equal(game.api.getWorldDay(), 0)
+    assert.equal(today(), "Summer 1, 1200", "after touching the eye")
 
     gameData.days = 365 * 200
     game.api.rebirthTwo()
-    const second = gameData.lives[1]
-    assert.equal(second.born, first.ended, "born as the last life ended")
-    assert.equal(second.ended - second.born, 365 * 200)
-    assert.equal(game.api.getWorldDay(), second.ended + 365 * 14)
-    assert.equal(game.api.formatDate(game.api.toDate(game.api.getWorldDay())), "Summer 101, 1440")
+    assert.equal(today(), "Summer 1, 1200", "after embracing evil")
+    assert.equal(game.api.getWorldYear(), 1200)
 })

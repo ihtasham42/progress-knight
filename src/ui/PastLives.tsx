@@ -5,7 +5,8 @@ import { useState } from "react"
 import { getBestOfLife, getLifePeakCoins, getTaskById } from "../game/engine.ts"
 import { Job, Skill } from "../game/classes.ts"
 import type { Life, LifeBest } from "../game/state.ts"
-import { wokeOn, yearOf } from "../game/history.ts"
+import { WAKE_DAY } from "../game/calendar.ts"
+import { endedOn, yearOf } from "../game/history.ts"
 import { useGame } from "./gameStore.ts"
 import { classNames } from "./classNames.ts"
 import { CoinParts } from "./CoinParts.tsx"
@@ -42,7 +43,7 @@ export function PastLives() {
     const rows: Row[] = shown.map(life => ({
         key: "past-" + life.life,
         life: life.life,
-        years: yearOf(wokeOn(life)) + "–" + yearOf(life.ended),
+        years: yearOf(WAKE_DAY) + "–" + yearOf(endedOn(life)),
         job: bestText(life.job),
         skill: bestText(life.skill),
         peak: life.peakCoins,
@@ -52,7 +53,7 @@ export function PastLives() {
     rows.push({
         key: "living",
         life: game.rebirthOneCount + game.rebirthTwoCount + 1,
-        years: yearOf(game.lifeStartDay) + "–now",
+        years: yearOf(WAKE_DAY) + "–now",
         job: bestText(getBestOfLife(Job)),
         skill: bestText(getBestOfLife(Skill)),
         peak: getLifePeakCoins(),

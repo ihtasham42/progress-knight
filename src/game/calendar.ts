@@ -10,14 +10,26 @@ import type { SeasonDefinition } from "./types.ts"
 
 export const DAYS_PER_YEAR = calendar.seasons.reduce((total, season) => total + season.days, 0)
 
-// Every life wakes at 14; the years before are spent growing up, so a new
-// life wakes this many world days after the last one ended
+// Every life wakes at 14, after this many days spent growing up
 export const GROWING_UP_DAYS = 365 * 14
 
+// The world day every life wakes on: Summer 1 of the epoch year. The year a
+// life reaches depends only on how long it lives.
+export const WAKE_DAY = 0
+
+// The world day a life is on at an age in days
+export function worldDayAt(days: number): number {
+    return WAKE_DAY + days - GROWING_UP_DAYS
+}
+
 // Today, as a world day. It follows the age, so it stops when the age stops
-// at the lifespan; only a rebirth moves it otherwise.
+// at the lifespan; a rebirth takes it back to the wake day.
 export function getWorldDay(): number {
-    return gameData.lifeStartDay + gameData.days - GROWING_UP_DAYS
+    return worldDayAt(gameData.days)
+}
+
+export function getWorldYear(): number {
+    return toDate(getWorldDay()).year
 }
 
 export interface CalendarDate {

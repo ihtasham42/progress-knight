@@ -13,6 +13,8 @@
 // past lives).
 // fixtures/v5-save.json is the same state in version 5 (before the world
 // date), and fixtures/v5-save-lives.json the same with two past lives.
+// fixtures/v6-save.json is that state with two past lives in version 6, when
+// the date ran on from life to life.
 
 import { test } from "vitest"
 import assert from "node:assert/strict"
@@ -27,7 +29,7 @@ const v3Raw = fs.readFileSync(path.join(import.meta.dirname, "fixtures", "v3-sav
 const v4Raw = fs.readFileSync(path.join(import.meta.dirname, "fixtures", "v4-save.json"), "utf8")
 const v5Raw = fs.readFileSync(path.join(import.meta.dirname, "fixtures", "v5-save.json"), "utf8")
 const v5LivesRaw = fs.readFileSync(path.join(import.meta.dirname, "fixtures", "v5-save-lives.json"), "utf8")
-const YEAR = 365
+const v6Raw = fs.readFileSync(path.join(import.meta.dirname, "fixtures", "v6-save.json"), "utf8")
 
 function savedState(game) {
     return JSON.parse(JSON.stringify(game.api.serializeGameData()))
@@ -268,9 +270,8 @@ test("older saves start with no past lives and the coins held as the peak", asyn
         assert.deepEqual(savedState(game), savedState(fromLegacy))
     }
     const saved = savedState(fromLegacy)
-    assert.equal(saved.version, 6)
+    assert.equal(saved.version, 7)
     assert.deepEqual(saved.lives, [])
-    assert.equal(saved.lifeStartDay, 0, "with no past lives, this life woke on the first day")
 })
 
 const life = overrides => ({
@@ -341,53 +342,38 @@ test("only the last 50 saved lives are loaded", async () => {
     const game = await loadGame({ localStorage: { gameDataSave: JSON.stringify(save) } })
     assert.equal(game.gameData.lives.length, 50)
     assert.equal(game.gameData.lives[0].life, 11)
-    assert.equal(game.gameData.lives[0].born, -14 * YEAR, "the history starts at the oldest life kept")
 })
 
-test("a version 5 save with past lives gets a history on the world calendar", async () => {
-    const game = await loadGame({ localStorage: { gameDataSave: v5LivesRaw } })
-    const [first, second] = game.gameData.lives
-    // The first woke on day 0 and ended at 70; the second woke 14 years later
-    // and ended at 52; this one woke 14 years after that
-    assert.deepEqual([first.born, first.ended], [-14 * YEAR, 56 * YEAR])
-    assert.deepEqual([second.born, second.ended], [56 * YEAR, 108 * YEAR])
-    assert.equal(game.gameData.lifeStartDay, 122 * YEAR)
-    assert.equal(game.api.formatDate(game.api.toDate(game.api.getWorldDay())), "Winter 52, 1323")
-    assert.equal(first.job.id, "fisherman", "the rest of each life is kept")
+test("version 5 and 6 saves with past lives keep the lives, and this life wakes in 1200", async () => {
+    for (const raw of [v5LivesRaw, v6Raw]) {
+        const game = await loadGame({ localStorage: { gameDataSave: raw } })
+        const [first, second] = game.gameData.lives
+        assert.deepEqual([first.age, second.age], [70, 52])
+        assert.equal(first.job.id, "fisherman", "the rest of each life is kept")
+        assert.equal(game.api.formatDate(game.api.toDate(game.api.getWorldDay())), "Winter 52, 1201", "this life is 15")
+        assert.equal(game.errors.length, 0, game.errors.join("\n"))
 
-    const saved = savedState(game)
-    assert.equal(saved.version, 6)
-    assert.equal(saved.lifeStartDay, 122 * YEAR)
-    assert.deepEqual(saved.lives.map(entry => [entry.born, entry.ended]), [[-14 * YEAR, 56 * YEAR], [56 * YEAR, 108 * YEAR]])
+        const saved = savedState(game)
+        assert.equal(saved.version, 7)
+        assert.equal(saved.lifeStartDay, undefined)
+        assert.deepEqual(saved.lives.map(entry => [entry.born, entry.ended]), [[undefined, undefined], [undefined, undefined]])
+    }
 })
 
-test("the world date is saved and loaded, and bad dates are ignored", async () => {
-    const game = await loadGame()
-    game.api.gameData.days = 30 * YEAR
-    game.api.rebirthOne()
-    game.api.saveGameData()
-    const raw = game.window.localStorage.getItem("gameDataSave")
-    const reloaded = await loadGame({ localStorage: { gameDataSave: raw } })
-    assert.equal(reloaded.gameData.lifeStartDay, 30 * YEAR)
-    assert.deepEqual(savedState(reloaded).lives, savedState(game).lives)
-
-    const save = JSON.parse(raw)
+test("the old dates on a version 6 save are dropped whatever they hold", async () => {
+    const save = JSON.parse(v6Raw)
     save.lifeStartDay = "soon"
     save.lives = [
-        { ...save.lives[0], life: 1 },
-        { ...save.lives[0], life: 2, born: undefined },
-        { ...save.lives[0], life: 3, ended: "later" },
-        { ...save.lives[0], life: 4, born: 10, ended: 5 },
-        { ...save.lives[0], life: 5, born: -9000, ended: -100 },
+        { ...save.lives[0], life: 1, born: undefined, ended: "later" },
+        { ...save.lives[0], life: 2, born: 10, ended: 5 },
+        null,
     ]
-    const bad = await loadGame({ localStorage: { gameDataSave: JSON.stringify(save) } })
-    assert.equal(bad.gameData.lifeStartDay, 0)
-    assert.deepEqual(Array.from(bad.gameData.lives, entry => entry.life), [1, 5])
-    assert.equal(bad.errors.length, 0, bad.errors.join("\n"))
+    const game = await loadGame({ localStorage: { gameDataSave: JSON.stringify(save) } })
+    assert.deepEqual(Array.from(game.gameData.lives, entry => entry.life), [1, 2])
+    assert.equal(game.errors.length, 0, game.errors.join("\n"))
 })
 
 test("a new game, and so a hard reset, starts on Summer 1, 1200", async () => {
     const game = await loadGame()
-    assert.equal(game.gameData.lifeStartDay, 0)
     assert.equal(game.api.formatDate(game.api.toDate(game.api.getWorldDay())), "Summer 1, 1200")
 })

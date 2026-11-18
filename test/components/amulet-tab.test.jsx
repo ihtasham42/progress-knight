@@ -108,7 +108,7 @@ test("past lives list each life, then the one being lived", async () => {
     game.ticks(1)
     fireEvent.click(screen.getByRole("button", { name: "Embrace evil" }))
     game.task("Immortality").level = 0
-    game.gameData.lives.push({ life: 3, end: "rebirth", age: 30, job: { id: "gone", level: 2 }, skill: { id: "strength", level: 1 }, peakCoins: 0, evil: 0, born: 0, ended: 365 * 16 })
+    game.gameData.lives.push({ life: 3, end: "rebirth", age: 30, job: { id: "gone", level: 2 }, skill: { id: "strength", level: 1 }, peakCoins: 0, evil: 0 })
     game.task("Farmer").level = 7
     game.gameData.coins = 250
     game.ticks(1)
@@ -119,9 +119,9 @@ test("past lives list each life, then the one being lived", async () => {
     assert.match(rows[3].splice(4, 1)[0], /^2s \d+c$/)
     assert.deepEqual(rows, [
         ["1", "1200–1252", "Footman 31", "Strength 112", "8g 12s", "Touched the eye at 66"],
-        ["2", "1266–1452", "Squire 14", "Immortality 35936", "Embraced evil at 200 (+3.0 evil)"],
-        ["3", "1214–1216", "Unknown 2", "Strength 1", "0c", "Touched the eye at 30"],
-        ["3", "1466–now", "Farmer 7", "Concentration 0", "Living"],
+        ["2", "1200–1386", "Squire 14", "Immortality 35936", "Embraced evil at 200 (+3.0 evil)"],
+        ["3", "1200–1216", "Unknown 2", "Strength 1", "0c", "Touched the eye at 30"],
+        ["3", "1200–now", "Farmer 7", "Concentration 0", "Living"],
     ])
     assert.ok(document.querySelector(".past-living .past-ended"))
     assert.ok(document.querySelector(".past-living .past-years"))
@@ -148,10 +148,10 @@ test("the foot of Touch the eye says when the next life wakes", async () => {
     const foot = () => document.querySelector("#rebirthNote2 .amulet-fine").textContent.replace(/\s+/g, " ").trim()
     game.gameData.days = 365 * 66 + 200
     game.rerender()
-    // Today is 1252; 14 years spent growing up
-    assert.equal(foot(), "Resets coins, age, levels and items · you’ll wake at 14 in 1266")
-    assert.equal(document.querySelector("#rebirthNote2 .amulet-fine strong").textContent, "you’ll wake at 14 in 1266")
+    // Every life wakes in 1200, however long this one lasts
+    assert.equal(foot(), "Resets coins, age, levels and items · you’ll wake at 14 in 1200")
+    assert.equal(document.querySelector("#rebirthNote2 .amulet-fine strong").textContent, "you’ll wake at 14 in 1200")
     game.gameData.days = 365 * 70
     game.rerender()
-    assert.match(foot(), /in 1270$/)
+    assert.match(foot(), /in 1200$/)
 })

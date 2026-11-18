@@ -16,7 +16,6 @@ const squash = element => element.textContent.replace(/\s+/g, " ").trim()
 const parts = row => [...row.querySelectorAll(":scope > *, :scope > .chronicle-title > *")]
     .filter(part => !part.classList.contains("chronicle-title")).map(squash).filter(Boolean).join(" ")
 const lifeRows = () => [...section().querySelectorAll(".chronicle-life")].map(parts)
-const gapRows = () => [...section().querySelectorAll(".chronicle-gap")].map(parts)
 
 // Lives that end at these ages, then a living one at 32
 async function withLives(ages, { evilAt = [] } = {}) {
@@ -39,37 +38,36 @@ test("a new game has no Chronicle until the Amulet tab appears", async () => {
     assert.equal(squash(section().querySelector(".chronicle-summary")), "1 life · 1200 to now · 11 years")
 })
 
-test("the summary, and the newest three lives with the years spent growing up between them", async () => {
+test("the summary, and the newest three lives, each woken in 1200", async () => {
     await withLives([41, 70, 52, 66, 82], { evilAt: [52] })
     assert.equal(squash(screen.getByRole("heading", { name: "Chronicle" })), "Chronicle")
-    // Lives wake in 1200, 1241, 1311, 1363 and 1429; this one in 1511
-    assert.equal(squash(section().querySelector(".chronicle-summary")), "6 lives · 1200 to now · 329 years")
+    // This life is 32, so it is 1218
+    assert.equal(squash(section().querySelector(".chronicle-summary")), "6 lives · 1200 to now · 18 years")
     assert.deepEqual(lifeRows(), [
-        "Life 6 · now Born 1497 · living, age 32 1511–now",
-        "Life 5 Born 1415 · touched the eye at 82 1429–1497",
-        "Life 4 Born 1349 · touched the eye at 66 1363–1415",
+        "Life 6 · now Born 1186 · living, age 32 1200–now",
+        "Life 5 Born 1186 · touched the eye at 82 1200–1268",
+        "Life 4 Born 1186 · touched the eye at 66 1200–1252",
     ])
-    assert.deepEqual(gapRows(), ["Growing up 1497–1511", "Growing up 1415–1429"])
+    assert.equal(section().querySelector(".chronicle-gap"), null, "no years between lives")
     assert.ok(section().querySelector(".chronicle-life .chronicle-years-now"))
 
     const more = screen.getByRole("button", { name: "Show all 6 lives" })
     assert.equal(more.getAttribute("aria-expanded"), "false")
     fireEvent.click(more)
     assert.equal(lifeRows().length, 6)
-    assert.equal(lifeRows()[3], "Life 3 Born 1297 · embraced evil at 52 1311–1349")
+    assert.equal(lifeRows()[3], "Life 3 Born 1186 · embraced evil at 52 1200–1238")
     assert.equal(lifeRows()[5], "Life 1 Born 1186 · touched the eye at 41 1200–1227")
-    assert.equal(gapRows().length, 5)
     fireEvent.click(screen.getByRole("button", { name: "Show recent lives" }))
     assert.equal(lifeRows().length, 3)
 })
 
 test("the life being lived updates as time passes", async () => {
     const game = await withLives([70])
-    assert.match(lifeRows()[0], /living, age 32 1270–now$/)
+    assert.match(lifeRows()[0], /living, age 32 1200–now$/)
     game.gameData.days = 40 * YEAR
     game.rerender()
-    assert.match(lifeRows()[0], /living, age 40 1270–now$/)
-    assert.equal(squash(section().querySelector(".chronicle-summary")), "2 lives · 1200 to now · 96 years")
+    assert.match(lifeRows()[0], /living, age 40 1200–now$/)
+    assert.equal(squash(section().querySelector(".chronicle-summary")), "2 lives · 1200 to now · 26 years")
 })
 
 test("the overview puts every life on one axis, with the century and now", async () => {
@@ -81,17 +79,15 @@ test("the overview puts every life on one axis, with the century and now", async
     assert.deepEqual(blocks.map(block => block.textContent), ["I", "II", "III", "IV"])
     assert.ok(blocks[3].classList.contains("chronicle-block-now"))
     assert.equal(blocks[0].style.left, "0%")
-    assert.equal(blocks[1].title, "Life II, 1241–1297")
+    assert.ok(blocks.every(block => block.style.left == "0%"), "every life starts in 1200")
+    assert.equal(blocks[1].title, "Life II, 1200–1256")
     assert.ok(parseFloat(axis.querySelector(".chronicle-now").style.left) < 100)
-    assert.deepEqual([...section().querySelectorAll(".chronicle-ticks span")].map(tick => tick.textContent), ["1200", "1300"])
+    assert.deepEqual([...section().querySelectorAll(".chronicle-ticks span")].map(tick => tick.textContent), ["1200"])
     assert.deepEqual([...section().querySelectorAll(".chronicle-legend > span")].map(squash), ["Summer", "Winter"])
 })
 
-test("lives that overlap are stacked in rows", async () => {
-    const game = await withLives([70])
-    game.gameData.lives[0].born = 40 * YEAR
-    game.gameData.lives[0].ended = 96 * YEAR
-    game.rerender()
+test("lives share their start, so each is stacked in a row of its own", async () => {
+    await withLives([70])
     const axis = section().querySelector(".chronicle-axis")
     assert.equal(axis.style.getPropertyValue("--rows"), "2")
     assert.deepEqual([...axis.querySelectorAll(".chronicle-block")].map(block => block.style.getPropertyValue("--row")), ["0", "1"])
@@ -103,7 +99,7 @@ test("axis labels space out over long histories, and narrow lives drop their num
     assert.deepEqual(getTicks(0, 6000 * YEAR).map(tick => tick.year), [2000, 3000, 4000, 5000, 6000])
     for (const span of [10, 340, 3000, 60000, 6e6]) assert.ok(getTicks(0, span * YEAR).length <= 6, String(span))
 
-    const game = await withLives(Array.from({ length: 55 }, (_, i) => 40 + (i * 7) % 160))
+    const game = await withLives([...Array.from({ length: 54 }, (_, i) => 40 + (i * 7) % 160), 15])
     const blocks = [...section().querySelectorAll(".chronicle-block")]
     assert.equal(blocks.length, 51)
     assert.ok(blocks.some(block => block.textContent == ""), "narrow blocks leave out their numeral")

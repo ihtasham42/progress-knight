@@ -2610,8 +2610,7 @@ body.effects-off .fx-anim::after {
 }
 
 /* The life, its strip and its years; on phones the strip takes a row of its own */
-.chronicle-life,
-.chronicle-gap {
+.chronicle-life {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas: "title years" "strip strip";
@@ -2623,14 +2622,6 @@ body.effects-off .fx-anim::after {
 .chronicle-life {
     padding: var(--pk-space-3) 0;
     border-top: 1px solid var(--pk-line);
-}
-
-.chronicle-gap {
-    grid-template-areas: "title years";
-    padding: var(--pk-space-2) 0;
-    border-top: 1px dashed var(--pk-line);
-    font-size: var(--pk-text-xs);
-    color: var(--pk-text-muted);
 }
 
 .chronicle-title {
@@ -2714,14 +2705,9 @@ body.effects-off .fx-anim::after {
 }
 
 @media (min-width: 640px) {
-    .chronicle-life,
-    .chronicle-gap {
+    .chronicle-life {
         grid-template-columns: 200px minmax(0, 1fr) 100px;
         grid-template-areas: "title strip years";
-    }
-
-    .chronicle-gap {
-        grid-template-areas: "title . years";
     }
 }
 

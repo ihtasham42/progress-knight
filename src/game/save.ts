@@ -97,9 +97,10 @@ export function exportSave(): string {
 //   5      - adds the history of past lives and the peak purse of this life
 //   6      - adds the world date: when this life woke, and when each past
 //            life was born and ended
+//   7      - every life wakes on the same day, so the dates are dropped
 // ---------------------------------------------------------------------------
 
-export const SAVE_VERSION = 6
+export const SAVE_VERSION = 7
 
 // What each version of a save looks like, as the game wrote it. A save read
 // from storage or imported by the player is only checked as far as
@@ -162,17 +163,20 @@ export interface SaveV4 extends SaveFields<4> {
 }
 export interface SaveV5 extends Omit<SaveV4, "version"> {
     version: 5
-    lives: Omit<Life, "born" | "ended">[] // jobs and skills by id, so renamed tasks still resolve
+    lives: Life[] // jobs and skills by id, so renamed tasks still resolve
     lifePeakCoins: number
 }
 export interface SaveV6 extends Omit<SaveV5, "version" | "lives"> {
     version: 6
-    lives: Life[]
-    lifeStartDay: number // world days, see calendar.ts
+    lives: (Life & {born: number, ended: number})[] // world days, see calendar.ts
+    lifeStartDay: number
 }
-type AnySave = LegacySave | SaveV2 | SaveV3 | SaveV4 | SaveV5 | SaveV6
+export interface SaveV7 extends Omit<SaveV5, "version"> {
+    version: 7
+}
+type AnySave = LegacySave | SaveV2 | SaveV3 | SaveV4 | SaveV5 | SaveV6 | SaveV7
 
-export function serializeGameData(): SaveV6 {
+export function serializeGameData(): SaveV7 {
     const tasks: Record<string, SavedTask> = {}
     for (const name in gameData.taskData) {
         const task = gameData.taskData[name]
@@ -206,13 +210,12 @@ export function serializeGameData(): SaveV6 {
         },
         lives: gameData.lives.map(life => ({...life, job: {...life.job}, skill: {...life.skill}})),
         lifePeakCoins: gameData.lifePeakCoins,
-        lifeStartDay: gameData.lifeStartDay,
     }
 }
 
 // Converts any supported save into the current format. Throws if the save
 // can't be understood.
-export function migrateSave(input: unknown): SaveV6 {
+export function migrateSave(input: unknown): SaveV7 {
     if (input === null || typeof input !== "object" || Array.isArray(input)) {
         throw new Error("Save is not an object")
     }
@@ -225,6 +228,7 @@ export function migrateSave(input: unknown): SaveV6 {
     if (save.version === 3) save = migrateV3ToV4(save)
     if (save.version === 4) save = migrateV4ToV5(save)
     if (save.version === 5) save = migrateV5ToV6(save)
+    if (save.version === 6) save = migrateV6ToV7(save)
 
     if (save.version > SAVE_VERSION) {
         throw new Error("Save is from a newer version of the game")
@@ -336,12 +340,33 @@ function migrateV5ToV6(save: SaveV5): SaveV6 {
     }
     return Object.assign({}, save, {
         version: 6 as const,
-        lives: lives as Life[],
+        lives: lives as SaveV6["lives"],
         lifeStartDay: lifeStartDay,
     })
 }
 
-function validateSave(save: SaveV6): void {
+// Version 6 ran the date on from life to life. Now every life wakes on the
+// same day, so the dates are dropped; a life's span follows from its age.
+function migrateV6ToV7(save: SaveV6): SaveV7 {
+    const migrated: Partial<SaveV6> = Object.assign({}, save)
+    delete migrated.lifeStartDay
+    let lives: unknown = save.lives
+    if (Array.isArray(save.lives)) {
+        lives = save.lives.map(function(life: unknown) {
+            if (life === null || typeof life !== "object") return life
+            const kept = Object.assign({}, life) as Record<string, unknown>
+            delete kept.born
+            delete kept.ended
+            return kept
+        })
+    }
+    return Object.assign(migrated, {
+        version: 7 as const,
+        lives: lives as Life[],
+    }) as SaveV7
+}
+
+function validateSave(save: SaveV7): void {
     for (const key of ["coins", "days"] as const) {
         if (!isFiniteNumber(save[key])) throw new Error("Save has an invalid " + key)
     }
@@ -357,8 +382,8 @@ function isFiniteNumber(value: unknown): value is number {
 // Applies a current-format save on top of freshly initialised gameData.
 // Anything the save doesn't have, or that no longer exists in the game,
 // keeps its default value.
-function applySaveData(save: SaveV6): void {
-    for (const key of ["coins", "days", "evil", "rebirthOneCount", "rebirthTwoCount", "lifeStartDay"] as const) {
+function applySaveData(save: SaveV7): void {
+    for (const key of ["coins", "days", "evil", "rebirthOneCount", "rebirthTwoCount"] as const) {
         const value: unknown = save[key]
         if (isFiniteNumber(value)) gameData[key] = value
     }
@@ -431,11 +456,7 @@ function readLife(value: unknown): Life | undefined {
     if (!job || !skill) return undefined
     if (!isCount(life.life) || life.life < 1 || !isCount(life.age) || !isCount(life.peakCoins) || !isCount(life.evil)) return undefined
     if (life.end !== "rebirth" && life.end !== "evil") return undefined
-    // World days can be before day 0, but a life can't end before its birth
-    const born = life.born
-    const ended = life.ended
-    if (!isFiniteNumber(born) || !isFiniteNumber(ended) || ended < born) return undefined
-    return {life: life.life, end: life.end as LifeEnd, age: life.age, job, skill, peakCoins: life.peakCoins, evil: life.evil, born, ended}
+    return {life: life.life, end: life.end as LifeEnd, age: life.age, job, skill, peakCoins: life.peakCoins, evil: life.evil}
 }
 
 function readBest(value: unknown): Life["job"] | undefined {

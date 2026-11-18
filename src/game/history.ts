@@ -1,12 +1,12 @@
 // The world's history: every life kept, and the one being lived, as spans of
-// world days. The Chronicle and the past lives table read it. Lives are
-// ordered by date, not by number, and lives whose spans overlap are given
-// rows of their own, so the history still reads if a life is ever lived in
-// the past.
+// world days. The Chronicle and the past lives table read it. Every life
+// wakes on the same day, so a life's span follows from its age. Lives are
+// ordered by date, then by number, and lives whose spans overlap are given
+// rows of their own.
 
 import { gameData } from "./state.ts"
 import type { LifeEnd } from "./state.ts"
-import { getWorldDay, GROWING_UP_DAYS, toDate } from "./calendar.ts"
+import { getWorldDay, GROWING_UP_DAYS, toDate, WAKE_DAY, worldDayAt } from "./calendar.ts"
 import { daysToYears } from "./rules.ts"
 
 export interface LifeSpan {
@@ -21,14 +21,14 @@ export interface LifeSpan {
     row: number // 0, or more for a life that overlaps an earlier one
 }
 
-// The world day a past life woke at 14
-export function wokeOn(life: {born: number}): number {
-    return life.born + GROWING_UP_DAYS
+// The world day a past life ended, from the age it ended at
+export function endedOn(life: {age: number}): number {
+    return Math.max(WAKE_DAY, worldDayAt(life.age * 365))
 }
 
-// The world day the next life wakes if this one ends today
+// The world day the next life wakes, whenever this one ends
 export function nextWakeDay(): number {
-    return getWorldDay() + GROWING_UP_DAYS
+    return WAKE_DAY
 }
 
 export function yearOf(worldDay: number): number {
@@ -39,9 +39,9 @@ export function yearOf(worldDay: number): number {
 export function getLifeSpans(): LifeSpan[] {
     const spans: LifeSpan[] = gameData.lives.map(life => ({
         life: life.life,
-        born: life.born,
-        woke: wokeOn(life),
-        ended: life.ended,
+        born: WAKE_DAY - GROWING_UP_DAYS,
+        woke: WAKE_DAY,
+        ended: endedOn(life),
         living: false,
         end: life.end,
         age: life.age,
@@ -50,8 +50,8 @@ export function getLifeSpans(): LifeSpan[] {
     }))
     spans.push({
         life: gameData.rebirthOneCount + gameData.rebirthTwoCount + 1,
-        born: gameData.lifeStartDay - GROWING_UP_DAYS,
-        woke: gameData.lifeStartDay,
+        born: WAKE_DAY - GROWING_UP_DAYS,
+        woke: WAKE_DAY,
         ended: getWorldDay(),
         living: true,
         end: null,
